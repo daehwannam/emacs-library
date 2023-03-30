@@ -1,0 +1,46 @@
+# ignore all but some directories and files
+/*
+/*/
+
+!init.el
+!package.el
+!.gitignore
+!base/
+!config/
+!README.org
+!exwm/
+!package/.gitkeep
+!setup.sh
+!LICENSE
+!bug-fix/
+
+# ignore some patterns or files
+*~
+*[#]*
+config/options.txt
+config/packages.txt
+config/custom/custom.el
+
+# ignore temporary files
+_tmp_*
+
+# include special directories (that include .gitkeep)
+config/bin/*
+config/bin/*/
+!config/bin/note.org
+
+# backup directory
+!backup
+backup/*
+backup/*/
+!backup/note.org
+!backup/clear.sh
+
+!elpa
+elpa/*
+elpa/*/
+
+!.gitkeep
+
+# latex preview image directory name
+ltximg
