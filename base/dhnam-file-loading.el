@@ -1,6 +1,18 @@
 
 (require 'dhnam-directory-files-recursively nil t)
 
+(defun dhnam/add-to-load-path (path)
+  (add-to-list 'load-path path))
+
+(defun dhnam/add-to-load-path-recursively (path)
+  ;; adding to load-path recursively
+  (add-to-list 'load-path path)
+
+  (let ((default-directory path))
+    ;; recursively add packages from a directory to load-path
+    ;; https://stackoverflow.com/a/7322812
+    (normal-top-level-add-subdirs-to-load-path)))
+
 (defun dhnam/load-directory (dir)
   ;; https://www.emacswiki.org/emacs/LoadingLispFiles
   (let ((load-it (lambda (f)
