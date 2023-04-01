@@ -84,6 +84,6 @@ This function is modified from `elpy-occur-definitions'"
 
 (defun dhnam/insert-ipdb-config-example ()
   (interactive)
-  (insert (dhnam/get-string-from-file (concat dhnam/lib-root-path "common/dependent/ipdb-config-example.sh"))))
+  (insert (dhnam/get-string-from-file (concat dhnam/lib-root-dir "common/dependent/ipdb-config-example.sh"))))
 
 (provide 'dhnam-python)

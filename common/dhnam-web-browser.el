@@ -71,7 +71,7 @@
 
   (progn
     (defvar dhnam/web-search-engine-list-file-path
-      (concat dhnam/lib-root-path "common/dependent/search-engines.lisp"))
+      (concat dhnam/lib-root-dir "common/dependent/search-engines.lisp"))
 
     (defvar dhnam/web-search-engines
       (car (read-from-string (dhnam/get-string-from-file dhnam/web-search-engine-list-file-path))))

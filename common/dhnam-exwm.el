@@ -29,7 +29,7 @@
     (if (<= 0 brightness 100)
         (start-process-shell-command
          "dhnam/xrandr-set-brightness" nil
-         (concat dhnam/lib-root-path "common/dependent/xrandr-set-brightness.sh")
+         (concat dhnam/lib-root-dir "common/dependent/xrandr-set-brightness.sh")
          (number-to-string (/ brightness 100.0)))
       (user-error "Out of range"))))
 

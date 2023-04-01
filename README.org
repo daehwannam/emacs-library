@@ -1,1 +1,31 @@
-My personal Emacs library.
+* My personal Emacs library.
+** Setup example
+*** Downloading
+#+begin_src sh
+EMACS_CONFIG_PATH=~/.emacs.d
+if [ -d $EMACS_CONFIG_PATH ]; then
+    echo "$EMACS_CONFIG_PATH exists already!"
+    exit 1  # error code
+fi
+mkdir $EMACS_CONFIG_PATH
+git clone https://github.com/daehwannam/emacs-library.git $EMACS_CONFIG_PATH/dhnamlib
+#+end_src
+
+*** Make init.el with dhnamlib
+Copy ~dhanmlib/.example/init.el~ to ~init.el~
+#+begin_src sh
+cp $EMACS_CONFIG_PATH/dhnamlib/.example/init.el $EMACS_CONFIG_PATH/init.el
+#+end_src
+
+Modify ~init.el~ as you want.
+
+*** Running Emacs
+If ~EMACS_CONFIG_PATH=~/.emacs.d~, you can run emacs just by:
+#+begin_src sh
+emacs
+#+end_src
+
+Otherwise, you should specify the emacs directory:
+#+begin_src sh
+emacs -q --eval '(progn (let ((config-dir "~/some-emacs.d/")) (setq user-emacs-directory config-dir) (load-file (concat config-dir "init.el"))))'
+#+end_src
