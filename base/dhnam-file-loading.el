@@ -5,7 +5,11 @@
   (add-to-list 'load-path path))
 
 (defun dhnam/add-to-load-path-recursively (path)
-  ;; adding to load-path recursively
+  "Add to load-path recursively. If you want to skip a
+subdirectory, the subdirectory should contains a file named
+'.nosearch'. `normal-top-level-add-subdirs-to-load-path' ignores
+directory with `.nosearch`."
+
   (add-to-list 'load-path path)
 
   (let ((default-directory path))

@@ -12,9 +12,9 @@ git clone https://github.com/daehwannam/emacs-library.git $EMACS_CONFIG_PATH/dhn
 #+end_src
 
 *** Make init.el with dhnamlib
-Copy ~dhanmlib/.example/init.el~ to ~init.el~
+Copy ~dhanmlib/example/init.el~ to ~init.el~
 #+begin_src sh
-cp $EMACS_CONFIG_PATH/dhnamlib/.example/init.el $EMACS_CONFIG_PATH/init.el
+cp $EMACS_CONFIG_PATH/dhnamlib/example/init.el $EMACS_CONFIG_PATH/init.el
 #+end_src
 
 Modify ~init.el~ as you want.

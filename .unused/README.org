@@ -1,2 +1,0 @@
-
-The directory name ".unused", which doesn't starts with letters or digits, is ignored by ~normal-top-level-add-subdirs-to-load-path~, which is used by ~normal-top-level-add-subdirs-to-load-path~, which is used by ~dhnam/add-to-load-path-recursively~.

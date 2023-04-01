@@ -1,0 +1,2 @@
+
+The directory contains a file named ".nosearch", then the directory is ignored by ~normal-top-level-add-subdirs-to-load-path~, which is used by ~normal-top-level-add-subdirs-to-load-path~, which is used by ~dhnam/add-to-load-path-recursively~.
