@@ -1,5 +1,4 @@
 
-
 (progn
   ;; read file contents
   ;; http://ergoemacs.org/emacs/elisp_read_file_content.html

@@ -1,0 +1,6 @@
+#+HEADER: :file ./unnamed.svg
+#+HEADER: :results output graphics file :headers '("\\usepackage{tikz}")
+#+BEGIN_src latex
+\begin{tikzpicture}
+\end{tikzpicture}
+#+END_src

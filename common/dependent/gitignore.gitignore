@@ -1,0 +1,34 @@
+# comment after pattern is not allowed.
+
+# ignore all files  with specific names (including directories)
+temp
+
+# ignore some files located at top-level (same location with .gitignore)
+/options.txt
+
+# ignore all directories with specific names
+data/
+model/
+result/
+cache/
+
+# ignore a directory with an exact path
+src/exercise/
+
+# special file names (including directories)
+_cp_*
+_training_*
+_tmp_*
+
+# visualization
+src/visualization/*.txt
+
+# old files
+_old_*
+
+# emacs temporary files
+*~
+\#*#
+
+# python temporary file
+*.pyc

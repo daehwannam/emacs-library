@@ -1,7 +1,7 @@
 
 (defun dhnam/insert-gitignore-example ()
   (interactive)
-  (insert (dhnam/get-string-from-file "~/.emacs.d/config/init/dependent/gitignore.gitignore")))
+  (insert (dhnam/get-string-from-file (concat dhnam/lib-root-path "common/dependent/gitignore.gitignore"))))
 
 
 (progn
@@ -10,10 +10,10 @@
 
   (defun dhnam/insert-org-tikz-output-frame ()
     (interactive)
-    (insert (dhnam/get-string-from-file "~/.emacs.d/config/init/dependent/org-tikz-output-frame.org")))
+    (insert (dhnam/get-string-from-file (concat dhnam/lib-root-path "common/dependent/org-tikz-output-frame.org"))))
 
   (defun dhnam/insert-org-tikz-silent-frame ()
     (interactive)
-    (insert (dhnam/get-string-from-file "~/.emacs.d/config/init/dependent/org-tikz-silent-frame.org"))))
+    (insert (dhnam/get-string-from-file (concat dhnam/lib-root-path "common/dependent/org-tikz-silent-frame.org")))))
 
 (provide 'dhnam-git)
