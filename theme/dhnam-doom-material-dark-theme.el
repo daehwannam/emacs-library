@@ -1,20 +1,20 @@
-;;; my-doom-material-dark-theme.el --- inspired by Material Theme by xrei -*- lexical-binding: t; no-byte-compile: t; -*-
+;;; dhnam-doom-material-dark-theme.el --- inspired by Material Theme by xrei -*- lexical-binding: t; no-byte-compile: t; -*-
 (require 'doom-themes)
 
 ;;
-(defgroup my-doom-material-dark-theme nil
+(defgroup dhnam-doom-material-dark-theme nil
   "Options for the `material dark' theme."
   :group 'doom-themes)
 
 
-(defcustom my-doom-material-padded-modeline doom-themes-padded-modeline
+(defcustom dhnam-doom-material-padded-modeline doom-themes-padded-modeline
   "If non-nil, adds a 4px padding to the mode-line.
 Can be an integer to determine the exact padding."
-  :group 'my-doom-material-dark-theme
+  :group 'dhnam-doom-material-dark-theme
   :type '(choice integer boolean))
 
 ;;
-(def-doom-theme my-doom-material-dark
+(def-doom-theme dhnam-doom-material-dark
   "A darker version of the Material Theme inspired by xrei"
 
   ;; name        default   256       16
@@ -78,8 +78,8 @@ Can be an integer to determine the exact padding."
    (modeline-fg-alt comments)
 
    (-modeline-pad
-    (when my-doom-material-padded-modeline
-      (if (integerp my-doom-material-padded-modeline) my-doom-material-padded-modeline 4))))
+    (when dhnam-doom-material-padded-modeline
+      (if (integerp dhnam-doom-material-padded-modeline) dhnam-doom-material-padded-modeline 4))))
 
   ;;;; Base theme face overrides
   (;;;; emacs

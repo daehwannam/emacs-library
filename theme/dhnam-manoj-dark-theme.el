@@ -1,4 +1,4 @@
-;;; my-manoj-dark.el --- A dark theme from Manoj
+;;; dhnam-manoj-dark.el --- A dark theme from Manoj
 
 ;; Copyright (C) 2011-2021 Free Software Foundation, Inc.
 
@@ -65,13 +65,13 @@
 
 ;;; Code:
 
-(deftheme my-manoj-dark
+(deftheme dhnam-manoj-dark
   "Very high contrast faces with a black background.
 This theme avoids subtle color variations, while avoiding the
 jarring angry fruit salad look to reduce eye fatigue.")
 
 (custom-theme-set-faces
- 'my-manoj-dark
+ 'dhnam-manoj-dark
  '(default ((t (:background "black" :foreground "WhiteSmoke"))))
  ;; Font lock faces
  '(font-lock-builtin-face       ((t (:foreground "LightSteelBlue"))))
@@ -710,6 +710,6 @@ jarring angry fruit salad look to reduce eye fatigue.")
  '(woman-italic-face ((t (:foreground "beige"))))
  '(woman-unknown-face ((t (:foreground "LightSalmon")))))
 
-(provide-theme 'my-manoj-dark)
+(provide-theme 'dhnam-manoj-dark)
 
-;;; my-manoj-dark.el ends here
+;;; dhnam-manoj-dark.el ends here
