@@ -1,0 +1,12 @@
+* Setup
+#+begin_src sh
+BIBTEX_SUMMARY_PATH=~/.emacs.d/dhnamlib/named/bibtex-summary
+ln -s $BIBTEX_SUMMARY_PATH ./bibtex_summary
+bash -e ./bibtex_summary/setup.sh
+#+end_src
+
+* Usage
+** Convert BibTeX to Org-mode
+#+begin_src sh
+./update.sh
+#+end_src

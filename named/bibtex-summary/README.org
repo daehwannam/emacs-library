@@ -1,0 +1,16 @@
+
+* BibTeX summary tool
+** Setup
+*** dhnamlib
+It requires [[file:~/.emacs.d/dhnamlib/README.org::*Basic usage][dhnalib]].
+*** Python dependencies
+It requires [[https://bibtexparser.readthedocs.io/en/latest/install.html][bibtexparser]] and other python packages:
+#+begin_src sh :tangle setup.sh
+pip install bibtexparser tqdm requests
+#+end_src
+*** Other dependencies
+#+begin_src sh :tangle setup.sh
+conda install -c conda-forge pdfgrep
+#+end_src
+
+** Usage

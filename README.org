@@ -1,4 +1,15 @@
 * My personal Emacs library.
+** Basic usage
+#+begin_src elisp
+(progn
+  ;; path of emacs config
+  (defconst dhnam/emacs-root-dir (file-name-directory (file-name-directory load-file-name))))
+
+(progn
+  ;; initialize dhnamlib
+  (require 'dhnam-lib-init (concat dhnam/emacs-root-dir "dhnamlib/dhnam-lib-init.el")))
+#+end_src
+
 ** Setup example
 *** Downloading
 #+begin_src sh

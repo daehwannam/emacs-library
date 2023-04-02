@@ -1,6 +1,9 @@
-# ignore some patterns or files
+# emacs temporary files
 *~
 *[#]*
+
+# python temporary files
+*.pyc
 
 # to keep directories
 !.gitkeep
