@@ -1,8 +1,15 @@
 * Setup
+** Python
 #+begin_src sh
 BIBTEX_SUMMARY_PATH=~/.emacs.d/dhnamlib/named/bibtex-summary
 ln -s $BIBTEX_SUMMARY_PATH ./bibtex_summary
 bash -e ./bibtex_summary/setup.sh
+#+end_src
+** Emacs
+#+begin_src elisp
+(let ((package-names '(key-chord pdfgrep)))
+    (mapc #'dhnam/install-package-unless-installed
+          package-names))
 #+end_src
 
 * Usage
@@ -10,3 +17,8 @@ bash -e ./bibtex_summary/setup.sh
 #+begin_src sh
 ./update.sh
 #+end_src
+** Emacs commands
+[[./dir-locals]] binds Emacs commands to navigate between documents
+- ~bibs/find-reference-in-bibliography-file~ : go to the corresponding BibTeX entry
+- ~bibs/open-pdf-file-of-reference~ : go to the corresponding pdf
+- ~bibs/pdfgrep-with-default-dir~ : run pdfgrep over the pdf files
