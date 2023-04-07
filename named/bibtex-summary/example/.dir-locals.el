@@ -3,6 +3,8 @@
 
 ((nil . ((eval . (let ((current-dir (locate-dominating-file default-directory ".git")))
 
+                   (require 'bibtex-summary)
+
                    (make-local-variable 'bibs/bibliography-file-as-source-of-reference)
                    (setq bibs/bibliography-file-as-source-of-reference (concat current-dir "paper-bibliography.bib"))
                    (dhnam/buffer-local-set-key (kbd "C-c M-.") 'bibs/find-reference-in-bibliography-file)
