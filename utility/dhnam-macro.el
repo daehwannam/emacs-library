@@ -31,4 +31,20 @@
          (setq ,evaluated-p t)
          ,@args))))
 
+(progn
+  (require 'cl-extra)
+  (defmacro dhnam/with-eval-except-modes (excepted-modes &rest body)
+    `(unless (cl-some (lambda (mode) (derived-mode-p mode)) ,excepted-modes)
+       ,@body))
+
+  (require 'cl-indent)
+
+  (put 'dhnam/with-eval-except-modes 'lisp-indent-function
+       (get 'with-eval-after-load 'lisp-indent-function))
+
+  (defmacro dhnam/hook-except-modes (hook excepted-modes)
+    `(lambda ()
+       (dhnam/with-eval-except-modes ,excepted-modes
+         (funcall ,hook)))))
+
 (provide 'dhnam-macro)

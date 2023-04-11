@@ -28,8 +28,8 @@ White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
   (insert "\n"))
 
 (defun dhnam/format-symbol (s &rest objects)
+  ;; e.g. (dhnam/format-symbol 'aa-bb-%s-dd 'yeah-hoo)
   (intern (apply #'format (cons (symbol-name s) objects))))
 
-(dhnam/format-symbol 'aa-bb-%s-dd 'yeah-hoo)
 
 (provide 'dhnam-string)

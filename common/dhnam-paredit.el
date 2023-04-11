@@ -75,4 +75,53 @@ However, if text is unbalanced, signal an error instead."
         (delete-region (region-beginning) (region-end)))
     (paredit-backward-delete argument)))
 
+(progn
+  (defvar dhnam-paredit-iokl/default-cursor-color "orchid")
+  (defvar dhnam-paredit-iokl/activated-cursor-color "cyan")
+  (defvar dhnam-paredit-iokl-paredit-struct-cursor-color "orange")
+
+
+  (defun dhnam-paredit-iokl/set-cursor-color (color)
+    (if (display-graphic-p)
+        (set-cursor-color color)
+      (send-string-to-terminal (format "\033]12;%s\007" color))))
+
+  (dhnam-paredit-iokl/set-cursor-color dhnam-paredit-iokl/default-cursor-color)
+
+  (defconst dhnam-paredit-iokl/plist-1
+    '(:pre (dhnam-paredit-iokl/set-cursor-color dhnam-paredit-iokl/activated-cursor-color)
+      :post (dhnam-paredit-iokl/set-cursor-color dhnam-paredit-iokl/default-cursor-color)))
+
+  (eval-after-load 'paredit
+    `(progn
+       ;; dhnam-paredit-iokl
+       (defhydra dhnam-paredit-iokl
+         ,dhnam-paredit-iokl/plist-1
+
+         "paredit"
+
+         ("k" paredit-backward-slurp-sexp)
+         ("l" paredit-forward-slurp-sexp)
+         ("i" paredit-backward-barf-sexp)
+         ("o" paredit-forward-barf-sexp)
+         ("j" paredit-splice-sexp-killing-backward)
+         (";" paredit-splice-sexp-killing-forward)
+
+         ("a" paredit-raise-sexp)
+         ("s" paredit-splice-sexp)
+         ("d" paredit-convolute-sexp)
+
+         ("q" paredit-join-sexps)
+         ("w" paredit-split-sexp)
+
+
+         ("RET" nil "quit"))
+
+       (progn
+         ;; Disable any hint message
+         (hydra-set-property 'dhnam-paredit-iokl :verbosity 0))
+
+       ;; (define-key global-map (kbd ,dhnam-paredit-iokl/activation-key) 'dhnam-paredit-iokl/body)
+       )))
+
 (provide 'dhnam-paredit)
