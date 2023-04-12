@@ -1,23 +1,31 @@
 
 (with-eval-after-load 'puni
-
-  (defun dhnam/puni-copy-line ()
+  (defun dhnam/puni-kill-line (&optional copying)
     (interactive)
 
     (let ((beg (point))
           (eol (point-at-eol)))
       (if (= beg eol)
           (forward-char)
-        (progn
-          (when (string-match-p "\\`[[:space:]]*\\'" (buffer-substring-no-properties (point) eol))
+        (cl-flet ((space-only-before-eol-p () (string-match-p "\\`[[:space:]]*\\'" (buffer-substring-no-properties (point) eol))))
+          (when (space-only-before-eol-p)
             (goto-char eol))
-          (while (< (point) eol)
-            (puni-forward-sexp)
-            (when (string-match-p "\\`[[:space:]]*\\'" (buffer-substring-no-properties (point) eol))
-              (goto-char eol)))))
-      (if (eq last-command 'dhnam/puni-copy-line)
+          (let ((prev 0))
+           (while (< prev (point) eol)
+             (setq prev (point))
+             (puni-forward-sexp)
+             (when (space-only-before-eol-p)
+               (goto-char eol))))))
+      (if (eq last-command this-command)
           (kill-append (buffer-substring beg (point)) nil)
-        (kill-ring-save beg (point)))))
+        (kill-ring-save beg (point)))
+      (unless copying
+        (delete-region beg (point)))))
+
+  (defun dhnam/puni-copy-line ()
+    (interactive)
+
+    (dhnam/puni-kill-line t))
 
   (defun dhnam/puni-copy-and-forward-sexp ()
     (interactive)
@@ -66,8 +74,10 @@
            ("a" puni-raise)
            ("s" puni-splice)
            ("d" puni-convolute)
-           ("q" puni-split)
 
+           ("w" puni-split)
+
+           ("q" nil "quit")
            ("RET" nil "quit"))
 
          (progn

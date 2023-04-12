@@ -114,7 +114,6 @@ However, if text is unbalanced, signal an error instead."
          ("q" paredit-join-sexps)
          ("w" paredit-split-sexp)
 
-
          ("RET" nil "quit"))
 
        (progn
