@@ -78,7 +78,9 @@
            ("w" puni-split)
 
            ("q" nil "quit")
-           ("RET" nil "quit"))
+           ("SPC" nil "quit")
+           ;; ("RET" nil "quit")
+           )
 
          (progn
            ;; Disable any hint message
