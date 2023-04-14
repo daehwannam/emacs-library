@@ -42,10 +42,15 @@
           ("j" backward-list)
           (";" forward-list)
 
-          ("u" backward-up-list)
-          ("i" down-list)
-          ("o" paredit-backward-down)
-          ("p" paredit-forward-up)
+          ;; ("u" backward-up-list)
+          ;; ("i" down-list)
+          ;; ("o" paredit-backward-down)
+          ;; ("p" paredit-forward-up)
+
+          ("i" backward-up-list)
+          ("I" down-list)
+          ("O" paredit-backward-down)
+          ("o" paredit-forward-up)
 
           ;; ("q"  dhnam/scroll-down-small)
           ;; ("w"  dhnam/scroll-up-small)
