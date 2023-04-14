@@ -5,9 +5,9 @@
 (defvar dhnam-iokl/activated-cursor-color "cyan")
 (defvar dhnam-iokl-paredit-struct-cursor-color "orange")
 
-(defconst dhnam-iokl/activation-key "₢")
-(defconst dhnam-iokl/quit-key "₫")
-(defconst dhnam-avy-key "₣")
+(defvar dhnam-iokl/activation-key "₢")
+(defvar dhnam-iokl/quit-key "₫")
+(defvar dhnam-avy-key "₣")
 
 (dhnam/set-cursor-color dhnam-iokl/default-cursor-color)
 
