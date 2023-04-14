@@ -203,11 +203,11 @@
 
           "iok"
 
-          ("k" vtsl/copy-mode-then-dhnam-iokl-vterm-seamless-copy/body-after-previous-line :exit t)
+          ("i" vtsl/copy-mode-then-dhnam-iokl-vterm-seamless-copy/body-after-previous-line :exit t)
+          ("k" (vterm-send-key "b" nil nil t))
+          ("l" (vterm-send-key "f" nil nil t))
           ("j" (vterm-send-key "b" nil t))
           (";" (vterm-send-key "f" nil t))
-          ("i" (vterm-send-key "b" nil nil t))
-          ("o" (vterm-send-key "f" nil nil t))
 
           ("q" dhnam/scroll-down-small)
           ("w" dhnam/scroll-up-small)
