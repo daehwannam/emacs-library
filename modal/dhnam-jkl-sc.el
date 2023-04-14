@@ -34,10 +34,10 @@
 
           ("k" previous-line)
           ("l" next-line)
-          ("j" backward-char)
-          (";" forward-char)
-          ("i" backward-word)
-          ("o" forward-word)
+          ("j" backward-word)
+          (";" forward-word)
+          ("i" backward-char)
+          ("o" forward-char)
 
           ("J" backward-sexp)
           (":" forward-sexp)
