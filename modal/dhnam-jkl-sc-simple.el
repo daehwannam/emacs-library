@@ -256,6 +256,6 @@
 
           (define-key ivy-minibuffer-map ,dhnam-jkl-sc/activation-key 'dhnam-jkl-sc-ivy/body)
           (hydra-set-property 'dhnam-jkl-sc-ivy :verbosity 0))))))
- 
+
 
 (provide 'dhnam-jkl-sc-simple)
