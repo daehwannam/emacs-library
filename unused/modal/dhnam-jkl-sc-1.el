@@ -32,17 +32,17 @@
 
           "jkl-sc"
 
-          ("k" previous-line)
-          ("l" next-line)
-          ("j" backward-char)
-          (";" forward-char)
+          ("j" previous-line)
+          (";" next-line)
+          ("k" backward-char)
+          ("l" forward-char)
           ("i" backward-word)
           ("o" forward-word)
 
-          ("J" backward-sexp)
-          (":" forward-sexp)
-          ("K" backward-list)
-          ("L" forward-list)
+          ("K" backward-sexp)
+          ("L" forward-sexp)
+          ("J" backward-list)
+          (":" forward-list)
 
           ("U" backward-up-list)
           ("I" down-list)
@@ -211,8 +211,8 @@
 
           "jkl-sc"
 
-          ("k" ivy-previous-line)
-          ("l" ivy-next-line)
+          ("j" ivy-previous-line)
+          (";" ivy-next-line)
 
           ("z" ivy-beginning-of-buffer)
           ("x" ivy-end-of-buffer)
