@@ -1,10 +1,8 @@
 
+;;; Bindings with IOKL keys
+
 (require 'dhnam-macro)
 (require 'dhnam-hydra)
-
-(unless (fboundp 'comment)
-  (defmacro comment (&rest args)
-    `nil))
 
 (defvar dhnam-iokl/default-cursor-color "orchid")
 (defvar dhnam-iokl/activated-cursor-color "cyan")
@@ -14,156 +12,240 @@
 (defconst dhnam-iokl/quit-key "₫")
 (defconst dhnam-avy-key "₣")
 
-(defun dhnam-iokl/set-cursor-color (color)
-  (if (display-graphic-p)
-      (set-cursor-color color)
-    (send-string-to-terminal (format "\033]12;%s\007" color))))
-
-(dhnam-iokl/set-cursor-color dhnam-iokl/default-cursor-color)
+(dhnam/set-cursor-color dhnam-iokl/default-cursor-color)
 
 (defconst dhnam-iokl/plist-1
-  '(:pre (dhnam-iokl/set-cursor-color dhnam-iokl/activated-cursor-color)
-    :post (dhnam-iokl/set-cursor-color dhnam-iokl/default-cursor-color)))
+  '(:pre (dhnam/set-cursor-color dhnam-iokl/activated-cursor-color)
+    :post (dhnam/set-cursor-color dhnam-iokl/default-cursor-color)))
 
 (defconst dhnam-iokl/plist-2
-  '(:pre (dhnam-iokl/set-cursor-color dhnam-iokl-paredit-struct-cursor-color)
-    :post (dhnam-iokl/set-cursor-color dhnam-iokl/default-cursor-color)))
+  '(:pre (dhnam/set-cursor-color dhnam-iokl-paredit-struct-cursor-color)
+    :post (dhnam/set-cursor-color dhnam-iokl/default-cursor-color)))
 
-(eval
- `(progn
-    (progn
-      ;; dhnam-iokl
-      (defhydra dhnam-iokl
-        ,dhnam-iokl/plist-1
-
-        "iokl"
-
-        ("i" previous-line)
-        ("o" next-line)
-        ("k" backward-char)
-        ("l" forward-char)
-        ("j" backward-word)
-        (";" forward-word)
-
-        ("K" backward-sexp)
-        ("L" forward-sexp)
-        ("J" backward-list)
-        (":" forward-list)
-
-        ("U" backward-up-list)
-        ("I" down-list)
-        ("O" paredit-backward-down)
-        ("P" paredit-forward-up)
-
-        ("q"  dhnam/scroll-down-small)
-        ("w"  dhnam/scroll-up-small)
-        ("Q"  scroll-down)
-        ("W"  scroll-up)
-
-        ("a" move-beginning-of-line)
-        ("s" move-end-of-line)
-        ("A" back-to-indentation)
-
-        ("z" beginning-of-buffer)
-        ("x" end-of-buffer)
-
-        ("e" move-to-window-line-top-bottom)
-        ("E" dhnam/reverse-move-to-window-line-top-bottom)
-        ("d" recenter-top-bottom)
-        ("D" dhnam/reverse-recenter-top-bottom)
-
-        ("C-SPC" set-mark-command)
-        ("C-@" set-mark-command)
-        ("'" exchange-point-and-mark)
-
-        ;; ("/" undo)
-        ("C-/" undo)
-        ("SPC" nil "quit"))
-
+(defun dhnam-iokl/init ()
+  (eval
+   `(progn
       (progn
-        ;; Disable any hint message
-        (hydra-set-property 'dhnam-iokl :verbosity 0))
+        ;; dhnam-iokl
+        (defhydra dhnam-iokl
+          ,dhnam-iokl/plist-1
 
-      (define-key global-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl/body))
+          "iok"
 
-    (when (package-installed-p 'paredit)
-      (require 'dhnam-paredit)
+          ("i" previous-line)
+          ("o" next-line)
+          ("j" backward-word)
+          (";" forward-word)
+          ("k" backward-char)
+          ("l" forward-char)
 
-      (defhydra dhnam-iokl-paredit-struct
-        ,dhnam-iokl/plist-2
+          ("J" backward-sexp)
+          (":" forward-sexp)
+          ("K" backward-list)
+          ("L" forward-list)
 
-        "paredit structure editing"
+          ("U" backward-up-list)
+          ("I" down-list)
+          ("O" paredit-backward-down)
+          ("P" paredit-forward-up)
 
-        ("k" paredit-backward-slurp-sexp)
-        ("K" paredit-backward-barf-sexp)
-        ("l" paredit-forward-slurp-sexp)
-        ("L" paredit-forward-barf-sexp)
+          ("q"  dhnam/scroll-down-small)
+          ("w"  dhnam/scroll-up-small)
+          ("Q"  scroll-down)
+          ("W"  scroll-up)
 
-        ("i" paredit-split-sexp)
-        ("o" paredit-join-sexps)
-        ("I" paredit-raise-sexp)
-        ("O" paredit-convolute-sexp)
+          ("a" move-beginning-of-line)
+          ("s" move-end-of-line)
+          ("m" back-to-indentation)
 
-        ("j" paredit-splice-sexp-killing-backward)
-        (";" paredit-splice-sexp-killing-forward)
+          ("z" beginning-of-buffer)
+          ("x" end-of-buffer)
 
-        ;; ("/" undo)
-        ("C-/" undo)
+          ("e" move-to-window-line-top-bottom)
+          ("E" dhnam/reverse-move-to-window-line-top-bottom)
+          ("d" recenter-top-bottom)
+          ("D" dhnam/reverse-recenter-top-bottom)
 
-        (,dhnam-iokl/quit-key nil "quit")
-        ;; (,dhnam-iokl/quit-key dhnam-iokl-paredit-move/body :exit t)
-        ("SPC" nil "quit"))
+          ("C-SPC" set-mark-command)
+          ("C-@" set-mark-command)
+          ("r" set-mark-command)
+          ("'" exchange-point-and-mark)
 
-      (clone-hydra dhnam-iokl-paredit-move dhnam-iokl
-        ,dhnam-iokl/plist-1
+          ;; ("/" undo)
+          ("C-/" undo)
+          ("SPC" nil "quit")
 
-        "iokl"
+          ("#" eval-last-sexp-or-region)
+          ("$" eval-print-last-sexp))
 
-        ("f" dhnam-iokl-paredit-struct/body  :exit t))
+        (progn
+          ;; Disable any hint message
+          (hydra-set-property 'dhnam-iokl :verbosity 0))
 
-      (hydra-set-property 'dhnam-iokl-paredit-struct :verbosity 0) ; disable any hint message
-      (hydra-set-property 'dhnam-iokl-paredit-move :verbosity 0) ; disable any hint message
-      (define-key paredit-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-paredit-move/body))
+        (define-key global-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl/body))
 
-    (with-eval-after-load 'vterm-seamless
-      (clone-hydra dhnam-iokl-vterm dhnam-iokl
-        ,dhnam-iokl/plist-1
+      (when (package-installed-p 'paredit)
+        (require 'dhnam-paredit)
 
-        "iokl"
+        (defhydra dhnam-iokl-paredit-struct
+          ,dhnam-iokl/plist-2
 
-        ("S" vtsl/end-of-buffer)
-        ("SPC" (vterm-copy-mode 1) :exit t)
-        ;; (,dhnam-iokl/quit-key vtsl/copy-mode-exit :exit t)
-        (,dhnam-iokl/quit-key nil "quit")  ; it defines `dhnam-iokl-vterm/nil'
-        ("RET" vtsl/copy-mode-exit :exit t)
-        ("<return>" vtsl/copy-mode-exit :exit t))
+          "paredit structure editing"
 
-      (progn
-        (defun dhnam-iokl-vterm/copy-mode-exit ()
+          ("k" paredit-backward-slurp-sexp)
+          ("K" paredit-backward-barf-sexp)
+          ("l" paredit-forward-slurp-sexp)
+          ("L" paredit-forward-barf-sexp)
+
+          ("i" paredit-split-sexp)
+          ("o" paredit-join-sexps)
+          ("I" paredit-raise-sexp)
+          ("O" paredit-convolute-sexp)
+
+          ("j" paredit-splice-sexp-killing-backward)
+          (";" paredit-splice-sexp-killing-forward)
+
+          ;; ("/" undo)
+          ("C-/" undo)
+
+          (,dhnam-iokl/quit-key nil "quit")
+          ;; (,dhnam-iokl/quit-key dhnam-iokl-paredit-move/body :exit t)
+          ("SPC" nil "quit"))
+
+        (clone-hydra dhnam-iokl-paredit-move dhnam-iokl
+          ,dhnam-iokl/plist-1
+
+          "iok"
+
+          ("f" dhnam-iokl-paredit-struct/body  :exit t))
+
+        (hydra-set-property 'dhnam-iokl-paredit-struct :verbosity 0) ; disable any hint message
+        (hydra-set-property 'dhnam-iokl-paredit-move :verbosity 0) ; disable any hint message
+        (define-key paredit-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-paredit-move/body))
+
+      (when (package-installed-p 'puni)
+        (require 'dhnam-puni)
+
+        (defhydra dhnam-iokl-puni-struct
+          ,dhnam-iokl/plist-2
+
+          "puni structure editing"
+
+          ("k" puni-slurp-backward)
+          ("K" puni-barf-backward)
+          ("l" puni-slurp-forward)
+          ("L" puni-barf-forward)
+
+          ("i" puni-split)
+          ("o" paredit-join-sexps)  ; puni-join doesn't exist
+          ("I" puni-raise)
+          ("O" puni-convolute)
+
+          ("j" puni-splice-killing-backward)
+          (";" puni-splice-killing-forward)
+
+          ;; ("/" undo)
+          ("C-/" undo)
+
+          (,dhnam-iokl/quit-key nil "quit")
+          ;; (,dhnam-iokl/quit-key dhnam-iokl-puni-move/body :exit t)
+          ("SPC" nil "quit"))
+
+        (clone-hydra dhnam-iokl-puni-move dhnam-iokl
+          ,dhnam-iokl/plist-1
+
+          "iok"
+
+          ("K" puni-backward-sexp)
+          ("L" puni-forward-sexp)
+
+          ("f" dhnam-iokl-puni-struct/body  :exit t))
+
+        (hydra-set-property 'dhnam-iokl-puni-struct :verbosity 0) ; disable any hint message
+        (hydra-set-property 'dhnam-iokl-puni-move :verbosity 0) ; disable any hint message
+        (define-key puni-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-puni-move/body))
+
+      (with-eval-after-load 'vterm-seamless
+        (clone-hydra dhnam-iokl-vterm-seamless-copy dhnam-iokl
+          ,dhnam-iokl/plist-1
+
+          "iok"
+
+          ("S" vtsl/end-of-buffer)
+          ("SPC" (vterm-copy-mode 1) :exit t)
+          ;; (,dhnam-iokl/quit-key vtsl/copy-mode-exit :exit t)
+          (,dhnam-iokl/quit-key nil "quit") ; it defines `dhnam-iokl-vterm-seamless-copy/nil'
+          ("RET" vtsl/copy-mode-exit :exit t)
+          ("<return>" vtsl/copy-mode-exit :exit t))
+
+        (progn
+          (defun dhnam-iokl-vterm-seamless-copy/copy-mode-exit ()
+            (interactive)
+            (when (and vterm-copy-mode
+                       (= (line-number-at-pos (point)) vtsl/last-cursor-line-num))
+              (dhnam-iokl-vterm-seamless-copy/nil)
+              (dhnam/set-cursor-color dhnam-iokl/default-cursor-color)))
+
+          (advice-add 'vtsl/trigger-copy-mode-exit :before 'dhnam-iokl-vterm-seamless-copy/copy-mode-exit))
+
+        (defun dhnam-iokl-vterm-seamless-copy/body-after-previous-line ()
           (interactive)
-          (when (and vterm-copy-mode
-                     (= (line-number-at-pos (point)) vtsl/last-cursor-line-num))
-            (dhnam-iokl-vterm/nil)
-            (dhnam-iokl/set-cursor-color dhnam-iokl/default-cursor-color)))
+          (previous-line)
+          (dhnam-iokl-vterm-seamless-copy/body))
 
-        (advice-add 'vtsl/trigger-copy-mode-exit :before 'dhnam-iokl-vterm/copy-mode-exit))
+        (progn
+          ;; make vtsl/copy-mode-then-dhnam-iokl-vterm-seamless-copy/body-after-previous-line
+          (vtsl/copy-mode-then 'dhnam-iokl-vterm-seamless-copy/body-after-previous-line)
+          (assert (fboundp 'vtsl/copy-mode-then-dhnam-iokl-vterm-seamless-copy/body-after-previous-line)))
 
-      (defun dhnam-iokl-vterm/body-after-previous-line ()
-        (interactive)
-        (previous-line)
-        (dhnam-iokl-vterm/body))
+        (defhydra dhnam-iokl-vterm-seamless
+          ,dhnam-iokl/plist-1
 
-      (let ((map vterm-seamless-mode-map))
-        (define-key map (kbd ,dhnam-iokl/activation-key) (vtsl/copy-mode-then 'dhnam-iokl-vterm/body-after-previous-line)))
+          "iok"
 
-      (let ((map vterm-seamless-copy-mode-map))
-        (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm/body))
+          ("k" vtsl/copy-mode-then-dhnam-iokl-vterm-seamless-copy/body-after-previous-line :exit t)
+          ("j" (vterm-send-key "b" nil t))
+          (";" (vterm-send-key "f" nil t))
+          ("i" (vterm-send-key "b" nil nil t))
+          ("o" (vterm-send-key "f" nil nil t))
 
-      (let ((map vterm-seamless-copy-mode-map))
-        (comment))
+          ("q" dhnam/scroll-down-small)
+          ("w" dhnam/scroll-up-small)
+          ("a" (vterm-send-key "a" nil nil t))
+          ("s" (vterm-send-key "e" nil nil t)))
 
-      ;; disable any hint message
-      (hydra-set-property 'dhnam-iokl-vterm :verbosity 0))))
+        (let ((map vterm-seamless-mode-map))
+          (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm-seamless/body))
+
+        (let ((map vterm-seamless-copy-mode-map))
+          (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm-seamless-copy/body))
+
+        (let ((map vterm-seamless-copy-mode-map))
+          (comment))
+
+        ;; disable any hint message
+        (hydra-set-property 'dhnam-iokl-vterm-seamless-copy :verbosity 0)
+        (hydra-set-property 'dhnam-iokl-vterm-seamless :verbosity 0))
+
+      (with-eval-after-load 'ivy
+        (clone-hydra dhnam-iokl-ivy dhnam-iokl
+          ,dhnam-iokl/plist-1
+
+          "iok"
+
+          ("i" ivy-previous-line)
+          ("o" ivy-next-line)
+
+          ("z" ivy-beginning-of-buffer)
+          ("x" ivy-end-of-buffer)
+          ;; (,dhnam-iokl/quit-key vtsl/copy-mode-exit :exit t)
+          ;; (,dhnam-iokl/quit-key nil "quit") ; it defines `dhnam-iokl-vterm-seamless-copy/nil'
+          ;; ("RET" vtsl/copy-mode-exit :exit t)
+          ;; ("<return>" vtsl/copy-mode-exit :exit t)
+          )
+
+        (define-key ivy-minibuffer-map ,dhnam-iokl/activation-key 'dhnam-iokl-ivy/body)
+        (hydra-set-property 'dhnam-iokl-ivy :verbosity 0)))))
  
 
 (provide 'dhnam-iokl)

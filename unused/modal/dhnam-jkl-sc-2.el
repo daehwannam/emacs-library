@@ -32,12 +32,12 @@
 
           "jkl-sc"
 
-          ("k" previous-line)
-          ("l" next-line)
+          ("i" previous-line)
+          ("o" next-line)
           ("j" backward-word)
           (";" forward-word)
-          ("i" backward-char)
-          ("o" forward-char)
+          ("k" backward-char)
+          ("l" forward-char)
 
           ("J" backward-sexp)
           (":" forward-sexp)
@@ -166,7 +166,7 @@
         (define-key puni-mode-map (kbd ,dhnam-jkl-sc/activation-key) 'dhnam-jkl-sc-puni-move/body))
 
       (with-eval-after-load 'vterm-seamless
-        (clone-hydra dhnam-jkl-sc-vterm dhnam-jkl-sc
+        (clone-hydra dhnam-jkl-sc-vterm-seamless-copy dhnam-jkl-sc
           ,dhnam-jkl-sc/plist-1
 
           "jkl-sc"
@@ -174,36 +174,58 @@
           ("S" vtsl/end-of-buffer)
           ("SPC" (vterm-copy-mode 1) :exit t)
           ;; (,dhnam-jkl-sc/quit-key vtsl/copy-mode-exit :exit t)
-          (,dhnam-jkl-sc/quit-key nil "quit") ; it defines `dhnam-jkl-sc-vterm/nil'
+          (,dhnam-jkl-sc/quit-key nil "quit") ; it defines `dhnam-jkl-sc-vterm-seamless-copy/nil'
           ("RET" vtsl/copy-mode-exit :exit t)
           ("<return>" vtsl/copy-mode-exit :exit t))
 
         (progn
-          (defun dhnam-jkl-sc-vterm/copy-mode-exit ()
+          (defun dhnam-jkl-sc-vterm-seamless-copy/copy-mode-exit ()
             (interactive)
             (when (and vterm-copy-mode
                        (= (line-number-at-pos (point)) vtsl/last-cursor-line-num))
-              (dhnam-jkl-sc-vterm/nil)
+              (dhnam-jkl-sc-vterm-seamless-copy/nil)
               (dhnam/set-cursor-color dhnam-jkl-sc/default-cursor-color)))
 
-          (advice-add 'vtsl/trigger-copy-mode-exit :before 'dhnam-jkl-sc-vterm/copy-mode-exit))
+          (advice-add 'vtsl/trigger-copy-mode-exit :before 'dhnam-jkl-sc-vterm-seamless-copy/copy-mode-exit))
 
-        (defun dhnam-jkl-sc-vterm/body-after-previous-line ()
+        (defun dhnam-jkl-sc-vterm-seamless-copy/body-after-previous-line ()
           (interactive)
           (previous-line)
-          (dhnam-jkl-sc-vterm/body))
+          (dhnam-jkl-sc-vterm-seamless-copy/body))
+
+        (progn
+          ;; make vtsl/copy-mode-then-dhnam-jkl-sc-vterm-seamless-copy/body-after-previous-line
+          (vtsl/copy-mode-then 'dhnam-jkl-sc-vterm-seamless-copy/body-after-previous-line)
+          (assert (fboundp 'vtsl/copy-mode-then-dhnam-jkl-sc-vterm-seamless-copy/body-after-previous-line)))
+
+        (defhydra dhnam-jkl-sc-vterm-seamless
+          ,dhnam-jkl-sc/plist-1
+
+          "jkl-sc"
+
+          ("k" vtsl/copy-mode-then-dhnam-jkl-sc-vterm-seamless-copy/body-after-previous-line :exit t)
+          ("j" (vterm-send-key "b" nil t))
+          (";" (vterm-send-key "f" nil t))
+          ("i" (vterm-send-key "b" nil nil t))
+          ("o" (vterm-send-key "f" nil nil t))
+
+          ("q" dhnam/scroll-down-small)
+          ("w" dhnam/scroll-up-small)
+          ("a" (vterm-send-key "a" nil nil t))
+          ("s" (vterm-send-key "e" nil nil t)))
 
         (let ((map vterm-seamless-mode-map))
-          (define-key map (kbd ,dhnam-jkl-sc/activation-key) (vtsl/copy-mode-then 'dhnam-jkl-sc-vterm/body-after-previous-line)))
+          (define-key map (kbd ,dhnam-jkl-sc/activation-key) 'dhnam-jkl-sc-vterm-seamless/body))
 
         (let ((map vterm-seamless-copy-mode-map))
-          (define-key map (kbd ,dhnam-jkl-sc/activation-key) 'dhnam-jkl-sc-vterm/body))
+          (define-key map (kbd ,dhnam-jkl-sc/activation-key) 'dhnam-jkl-sc-vterm-seamless-copy/body))
 
         (let ((map vterm-seamless-copy-mode-map))
           (comment))
 
         ;; disable any hint message
-        (hydra-set-property 'dhnam-jkl-sc-vterm :verbosity 0))
+        (hydra-set-property 'dhnam-jkl-sc-vterm-seamless-copy :verbosity 0)
+        (hydra-set-property 'dhnam-jkl-sc-vterm-seamless :verbosity 0))
 
       (with-eval-after-load 'ivy
         (clone-hydra dhnam-jkl-sc-ivy dhnam-jkl-sc
@@ -217,7 +239,7 @@
           ("z" ivy-beginning-of-buffer)
           ("x" ivy-end-of-buffer)
           ;; (,dhnam-jkl-sc/quit-key vtsl/copy-mode-exit :exit t)
-          ;; (,dhnam-jkl-sc/quit-key nil "quit") ; it defines `dhnam-jkl-sc-vterm/nil'
+          ;; (,dhnam-jkl-sc/quit-key nil "quit") ; it defines `dhnam-jkl-sc-vterm-seamless-copy/nil'
           ;; ("RET" vtsl/copy-mode-exit :exit t)
           ;; ("<return>" vtsl/copy-mode-exit :exit t)
           )

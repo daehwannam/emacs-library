@@ -39,6 +39,20 @@
           (kill-append (buffer-substring beg (point)) nil)
         (kill-ring-save beg (point)))))
 
+  (defun dhnam/puni-syntactic-backward-punct-or-word ()
+    (interactive)
+    (let ((punct-point (save-excursion (or (ignore-errors (puni-syntactic-backward-punct) (point))
+                                           (point-min))))
+          (word-point (save-excursion (backward-word) (point))))
+      (goto-char (max punct-point word-point))))
+
+  (defun dhnam/puni-syntactic-forward-punct-or-word ()
+    (interactive)
+    (let ((punct-point (save-excursion (or (ignore-errors (puni-syntactic-forward-punct) (point))
+                                           (point-max))))
+          (word-point (save-excursion (forward-word) (point))))
+      (goto-char (min punct-point word-point))))
+
   (progn
     (defvar dhnam-puni-iokl/default-cursor-color "orchid")
     (defvar dhnam-puni-iokl/activated-cursor-color "cyan")
