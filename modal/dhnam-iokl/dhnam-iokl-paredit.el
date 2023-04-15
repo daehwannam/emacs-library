@@ -35,7 +35,7 @@
 
        "iokl"
 
-       ("s" dhnam-iokl-paredit-struct/body  :exit t))
+       ("a" dhnam-iokl-paredit-struct/body  :exit t))
 
      (hydra-set-property 'dhnam-iokl-paredit-struct :verbosity 0) ; disable any hint message
      (hydra-set-property 'dhnam-iokl-paredit-move :verbosity 0) ; disable any hint message

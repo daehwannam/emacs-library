@@ -24,11 +24,13 @@
 (require 'dhnam-iokl-paredit)
 (require 'dhnam-iokl-puni)
 (require 'dhnam-iokl-vterm-seamless)
+(require 'dhnam-iokl-org)
 
 (defun dhnam-iokl/init ()
   (dhnam-iokl-base/init)
   (dhnam-iokl-paredit/init)
   (dhnam-iokl-puni/init)
-  (dhnam-iokl-vterm-seamless/init))
+  (dhnam-iokl-vterm-seamless/init)
+  (dhnam-iokl-org/init))
 
 (provide 'dhnam-iokl)
