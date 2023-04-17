@@ -53,7 +53,7 @@
           (word-point (save-excursion (forward-word) (point))))
       (goto-char (min punct-point word-point))))
 
-  (progn
+  (comment
     (defvar dhnam-puni-iokl/default-cursor-color "orchid")
     (defvar dhnam-puni-iokl/activated-cursor-color "cyan")
     (defvar dhnam-puni-iokl-puni-struct-cursor-color "orange")

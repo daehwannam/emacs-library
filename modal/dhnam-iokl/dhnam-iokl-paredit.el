@@ -28,6 +28,7 @@
        (,dhnam-iokl/quit-key nil "quit")
        ;; (,dhnam-iokl/quit-key dhnam-iokl-paredit-move/body :exit t)
        ("SPC" nil "quit")
+       ("RET" nil "quit")
        ("q" nil "quit"))
 
      (clone-hydra dhnam-iokl-paredit-move dhnam-iokl-base

@@ -28,7 +28,8 @@
         (,dhnam-iokl/quit-key nil "quit")
         ;; (,dhnam-iokl/quit-key dhnam-iokl-puni-move/body :exit t)
         ("q" nil "quit")
-        ("SPC" nil "quit"))
+        ("SPC" nil "quit")
+        ("RET" nil "quit"))
 
       (clone-hydra dhnam-iokl-puni-move dhnam-iokl-base
         ,dhnam-iokl/plist-1

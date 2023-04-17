@@ -82,6 +82,18 @@ This function is modified from `elpy-occur-definitions'"
 	        (replace-regexp "." "/" nil (region-beginning) (region-end))
 	      (replace-regexp "." "/" nil start end))))))
 
+(progn
+  (defun dhnam/copy-full-package-name ()
+    (interactive)
+    (let ((project-path (expand-file-name (locate-dominating-file default-directory ".git")))
+          (file-path (buffer-file-name)))
+
+      (let ((full-package-name
+             (replace-regexp-in-string
+              "/" "."
+              (file-name-sans-extension (substring file-path (length project-path))))))
+        (kill-new full-package-name)))))
+
 (defun dhnam/insert-ipdb-config-example ()
   (interactive)
   (insert (dhnam/get-string-from-file (concat dhnam/lib-root-dir "common/dependent/ipdb-config-example.sh"))))
