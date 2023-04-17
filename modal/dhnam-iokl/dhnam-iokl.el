@@ -29,7 +29,9 @@
 (defun dhnam-iokl/init ()
   (dhnam-iokl-base/init)
   (dhnam-iokl-paredit/init)
-  (dhnam-iokl-puni/init)
+  (progn
+    (dhnam-iokl-puni/init)
+    (define-key global-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-puni-move/body))
   (dhnam-iokl-vterm-seamless/init)
   (dhnam-iokl-org/init))
 
