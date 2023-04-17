@@ -39,7 +39,7 @@
         ("k" puni-backward-sexp)
         ("l" puni-forward-sexp)
 
-        ("s" dhnam-iokl-puni-struct/body  :exit t))
+        ("a" dhnam-iokl-puni-struct/body  :exit t))
 
       (hydra-set-property 'dhnam-iokl-puni-struct :verbosity 0) ; disable any hint message
       (hydra-set-property 'dhnam-iokl-puni-move :verbosity 0) ; disable any hint message
