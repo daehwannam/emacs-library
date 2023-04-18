@@ -1,7 +1,9 @@
 
 
 (when (package-installed-p 'consult)
-  (defun consult-grep-on-default-directory (&optional dir initial)
+  (defun dhnam/consult-grep-on-default-directory (&optional dir initial)
+    "Similar to `consult-grep' but it always searches over the current directory.
+In contrast, `consult-grep' searches over the current git project if the current directory belongs to a git project."
     (interactive "P")
     (setq dir (or dir default-directory))
     (consult--grep

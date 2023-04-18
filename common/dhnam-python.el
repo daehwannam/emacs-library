@@ -98,4 +98,18 @@ This function is modified from `elpy-occur-definitions'"
   (interactive)
   (insert (dhnam/get-string-from-file (concat dhnam/lib-root-dir "common/dependent/ipdb-config-example.sh"))))
 
+(progn
+  (defhydra dhnam/python-indent ()
+    ;; ,dhnam-iokl/plist-1
+
+    "python indentation"
+
+    ("<" python-indent-shift-left)
+    (">" python-indent-shift-right)
+
+    ;; ("q" nil "quit")
+    ;; ("SPC" nil "quit")
+    ("RET" nil "quit"))
+  (hydra-set-property 'dhnam/python-indent :verbosity 0))
+
 (provide 'dhnam-python)
