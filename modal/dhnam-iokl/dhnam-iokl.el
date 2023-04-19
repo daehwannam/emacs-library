@@ -25,14 +25,8 @@
 (require 'dhnam-iokl-puni)
 (require 'dhnam-iokl-vterm-seamless)
 (require 'dhnam-iokl-org)
+(require 'dhnam-iokl-compilation)
 
-(defun dhnam-iokl/init ()
-  (dhnam-iokl-base/init)
-  (dhnam-iokl-paredit/init)
-  (progn
-    (dhnam-iokl-puni/init)
-    (define-key global-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-puni-move/body))
-  (dhnam-iokl-vterm-seamless/init)
-  (dhnam-iokl-org/init))
+(define-key global-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-puni-move/body)
 
 (provide 'dhnam-iokl)
