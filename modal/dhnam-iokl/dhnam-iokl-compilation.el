@@ -24,7 +24,7 @@
 
       ("s" dhnam-iokl-compilation-move/body  :exit t))))
 
-(hydra-set-property 'dhnam-iokl-compilation :verbosity 0) ; disable any hint message
+(hydra-set-property 'dhnam-iokl-compilation-move :verbosity 0) ; disable any hint message
 (hydra-set-property 'dhnam-iokl-compilation :verbosity 0) ; disable any hint message
 
 (with-eval-after-load 'compile
