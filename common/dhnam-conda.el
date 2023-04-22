@@ -43,7 +43,7 @@
   (defvar dhnam/conda-new-env-name-history nil)
   (defvar dhnam/python-version-history nil))
 
-(defmacro dhnam/defi ne-conda-commands (package name run-command prefix-map mode-key-map)
+(defmacro dhnam/define-conda-commands (package name run-command prefix-map mode-key-map)
   `(with-eval-after-load ',package
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-activate name) (env-name)
        "This command is defined by `dhnam/define-conda-commands'"
