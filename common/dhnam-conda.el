@@ -43,27 +43,32 @@
   (defvar dhnam/conda-new-env-name-history nil)
   (defvar dhnam/python-version-history nil))
 
-(defmacro dhnam/define-conda-commands (package name run-command prefix-map mode-key-map)
+(defmacro dhnam/defi ne-conda-commands (package name run-command prefix-map mode-key-map)
   `(with-eval-after-load ',package
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-activate name) (env-name)
+       "This command is defined by `dhnam/define-conda-commands'"
        (interactive (list (dhnam/get-conda-activate-env)))
        (,run-command (concat "conda activate " env-name)))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-deactivate name) ()
+       "This command is defined by `dhnam/define-conda-commands'"
        (interactive)
        (,run-command "conda deactivate"))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-env-create name) (env-name python-version)
+       "This command is defined by `dhnam/define-conda-commands'"
        (interactive (list (read-string "Environment name: " nil 'dhnam/conda-new-env-name-history)
                           (read-string "Python version: " "3" 'dhnam/python-version-history)))
        (,run-command (format "conda create -y -n %s python=%s" env-name python-version)))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-env-remove name) (env-name)
+       "This command is defined by `dhnam/define-conda-commands'"
        (interactive (list (dhnam/get-conda-activate-env)))
        (when (y-or-n-p (format "Are you sure you want to remove \"%s\"" env-name))
          (,run-command (concat "conda env remove -n " env-name))))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-install-python-debugger name) ()
+       "This command is defined by `dhnam/define-conda-commands'"
        (interactive)
        (,run-command dhnam/python-debugger-install-command))
 
