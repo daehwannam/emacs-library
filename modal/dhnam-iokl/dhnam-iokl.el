@@ -23,10 +23,12 @@
 (require 'dhnam-iokl-base)
 (require 'dhnam-iokl-paredit)
 (require 'dhnam-iokl-puni)
+(require 'dhnam-iokl-python)
 (require 'dhnam-iokl-vterm-seamless)
 (require 'dhnam-iokl-org)
 (require 'dhnam-iokl-compilation)
 
-(define-key global-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-puni-move/body)
+(define-key global-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-puni-nav/body)
+(setq dhnam-iokl-puni-nav/prohibited-major-modes '(python-mode))
 
 (provide 'dhnam-iokl)

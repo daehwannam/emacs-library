@@ -148,10 +148,10 @@
           ("C-/" undo)
 
           (,dhnam-iokl/quit-key nil "quit")
-          ;; (,dhnam-iokl/quit-key dhnam-iokl-puni-move/body :exit t)
+          ;; (,dhnam-iokl/quit-key dhnam-iokl-puni-nav/body :exit t)
           ("SPC" nil "quit"))
 
-        (clone-hydra dhnam-iokl-puni-move dhnam-iokl
+        (clone-hydra dhnam-iokl-puni-nav dhnam-iokl
           ,dhnam-iokl/plist-1
 
           "iok"
@@ -162,8 +162,8 @@
           ("f" dhnam-iokl-puni-struct/body  :exit t))
 
         (hydra-set-property 'dhnam-iokl-puni-struct :verbosity 0) ; disable any hint message
-        (hydra-set-property 'dhnam-iokl-puni-move :verbosity 0) ; disable any hint message
-        (define-key puni-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-puni-move/body))
+        (hydra-set-property 'dhnam-iokl-puni-nav :verbosity 0) ; disable any hint message
+        (define-key puni-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-puni-nav/body))
 
       (with-eval-after-load 'vterm-seamless
         (clone-hydra dhnam-iokl-vterm-seamless-copy dhnam-iokl

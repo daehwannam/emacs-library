@@ -112,4 +112,39 @@ This function is modified from `elpy-occur-definitions'"
     ("RET" nil "quit"))
   (hydra-set-property 'dhnam/python-indent :verbosity 0))
 
+
+(progn
+  (defvar dhnam/python-working-directory-files '(".working-dir" ".git"))
+  (defun dhnam/get-python-working-directory ()
+    (let ((file-names dhnam/python-working-directory-files)
+          (directory nil))
+      (while file-names
+        (setq directory (locate-dominating-file default-directory (car file-names)))
+        (if directory
+            (setq file-names nil)
+          (setq file-names (cdr file-names))))
+      directory))
+
+  (defun dhnam/run-python (&optional dir cmd dedicated show)
+    "Modified from `run-python'"
+    (interactive
+     (if current-prefix-arg
+         (list
+          (read-directory-name "Directory: ")
+          (read-shell-command "Run Python: " (python-shell-calculate-command))
+          (y-or-n-p "Make dedicated process? ")
+          (= (prefix-numeric-value current-prefix-arg) 4))
+       (list (dhnam/get-dir-for-run-python) (python-shell-calculate-command) nil t)))
+
+    (let ((default-directory (or dir default-directory)))
+      (run-python cmd dedicated show))))
+
+(defun dhnam/python-shell-send-region-or-buffer (start end &optional send-main msg)
+  "`python-shell-send-region' when region is activated or `python-shell-send-buffer'."
+  (interactive
+   (list (region-beginning) (region-end) current-prefix-arg t))
+  (if (use-region-p)
+      (python-shell-send-region start end send-main msg)
+    (python-shell-send-buffer send-main msg)))
+
 (provide 'dhnam-python)
