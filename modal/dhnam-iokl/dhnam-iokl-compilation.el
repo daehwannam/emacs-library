@@ -17,7 +17,7 @@
       ("RET" nil "quit")
       ("q" nil "quit"))
 
-    (clone-hydra dhnam-iokl-compilation dhnam-iokl-base
+    (clone-hydra dhnam-iokl-compilation dhnam-iokl-puni-nav
       ,dhnam-iokl/plist-1
 
       "iokl"
