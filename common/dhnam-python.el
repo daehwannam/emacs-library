@@ -134,7 +134,7 @@ This function is modified from `elpy-occur-definitions'"
           (read-shell-command "Run Python: " (python-shell-calculate-command))
           (y-or-n-p "Make dedicated process? ")
           (= (prefix-numeric-value current-prefix-arg) 4))
-       (list (dhnam/get-dir-for-run-python) (python-shell-calculate-command) nil t)))
+       (list (dhnam/get-python-working-directory) (python-shell-calculate-command) nil t)))
 
     (let ((default-directory (or dir default-directory)))
       (run-python cmd dedicated show))))

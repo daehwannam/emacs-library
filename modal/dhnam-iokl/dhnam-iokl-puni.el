@@ -35,8 +35,10 @@
 
       "iokl"
 
+      ("j" dhnam/puni-backward-sexp-to-beginning)
       ("k" puni-backward-sexp)
       ("l" puni-forward-sexp)
+      (";" dhnam/puni-forward-sexp-to-end)
 
       ("a" dhnam-iokl-puni-struct/body  :exit t))
 

@@ -2,6 +2,7 @@
 (eval
  `(when (package-installed-p 'paredit)
     (require 'dhnam-paredit)
+    (require 'dhnam-iokl-puni)
 
     (defhydra dhnam-iokl-paredit-struct
       ,dhnam-iokl/plist-2
@@ -30,7 +31,7 @@
       ("RET" nil "quit")
       ("q" nil "quit"))
 
-    (clone-hydra dhnam-iokl-paredit-move dhnam-iokl-base
+    (clone-hydra dhnam-iokl-paredit-nav dhnam-iokl-puni-nav
       ,dhnam-iokl/plist-1
 
       "iokl"
@@ -38,8 +39,8 @@
       ("a" dhnam-iokl-paredit-struct/body  :exit t))
 
     (hydra-set-property 'dhnam-iokl-paredit-struct :verbosity 0) ; disable any hint message
-    (hydra-set-property 'dhnam-iokl-paredit-move :verbosity 0) ; disable any hint message
-    (define-key paredit-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-paredit-move/body)))
+    (hydra-set-property 'dhnam-iokl-paredit-nav :verbosity 0) ; disable any hint message
+    (define-key paredit-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-paredit-nav/body)))
 
 
 (provide 'dhnam-iokl-paredit)

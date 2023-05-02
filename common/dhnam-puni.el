@@ -64,6 +64,31 @@
         (word-point (save-excursion (forward-word) (point))))
     (goto-char (min punct-point word-point))))
 
+(defun dhnam/puni-backward-sexp-to-beginning ()
+  (interactive)
+  (let ((prev (1+ (point-max))))
+    (while (not (= prev (point)))
+      (setq prev (point))
+      (puni-backward-sexp))))
+
+(defun dhnam/puni-forward-sexp-to-end ()
+  (interactive)
+  (let ((prev (1- (point-min))))
+    (while (not (= prev (point)))
+      (setq prev (point))
+      (puni-forward-sexp))))
+
+(comment
+  (defun dhnam/puni-slurp-backward ()
+    (interactive)
+    (puni-slurp-backward)
+    (dhnam/puni-backward-sexp-to-beginning))
+
+  (defun dhnam/puni-slurp-forward ()
+    (interactive)
+    (puni-slurp-forward)
+    (dhnam/puni-forward-sexp-to-end)))
+
 (comment
   (defvar dhnam-puni-iokl/default-cursor-color "orchid")
   (defvar dhnam-puni-iokl/activated-cursor-color "cyan")
