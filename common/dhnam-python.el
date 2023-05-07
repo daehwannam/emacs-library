@@ -147,4 +147,26 @@ This function is modified from `elpy-occur-definitions'"
       (python-shell-send-region start end send-main msg)
     (python-shell-send-buffer send-main msg)))
 
+(defun dhnam/python-copy-code-from-docstring (start end)
+  (interactive (list (region-beginning) (region-end)))
+  (save-excursion
+    (save-restriction
+      (narrow-to-region start end)
+      (goto-char (point-min))
+      (let ((prev-line-number nil)
+            (code-line-prefix "^ *\\(>>>\\|\\.\\.\\.\\) ")
+            (new-code-lines nil))
+        (while (re-search-forward code-line-prefix nil t)
+          (let ((line-start (save-excursion (move-beginning-of-line 1) (point)))
+                (line-end (save-excursion (move-end-of-line 1) (point))))
+
+            (let* ((old-line (buffer-substring-no-properties line-start line-end))
+                   (new-line (replace-regexp-in-string code-line-prefix "" old-line)))
+              (when (and prev-line-number (> (- (line-number-at-pos) prev-line-number) 1))
+                (push "" new-code-lines))
+              (push new-line new-code-lines)))
+          (setq prev-line-number (line-number-at-pos)))
+        (kill-new (string-join (reverse new-code-lines) "\n"))
+        (setq deactivate-mark t)))))
+
 (provide 'dhnam-python)
