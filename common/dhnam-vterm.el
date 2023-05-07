@@ -69,5 +69,11 @@
   (interactive)
   (vterm-send-key "c" nil nil t))
 
+(defun dhnam/vterm-yank (&optional arg)
+  (interactive "P")
+  (vterm-send-stop)
+  (vterm-yank arg)
+  (vterm-send-start))
+
 
 (provide 'dhnam-vterm)
