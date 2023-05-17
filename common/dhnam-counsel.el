@@ -53,7 +53,33 @@
       (next-history-element arg))
     (ivy--cd-maybe)
     (move-end-of-line 1)
-    (ivy--maybe-scroll-history)))
+    (ivy--maybe-scroll-history))
+
+  (defvar dhnam/ivy-boundary-start "\\_<")
+  (defvar dhnam/ivy-boundary-end "\\_>")
+
+  (defun dhnam/ivy--remove-symbol-boundaries ()
+    "Similar to `ivy--insert-symbol-boundaries', but it removes symbol boundaries."
+    (undo-boundary)
+    (beginning-of-line)
+    (delete-char (length dhnam/ivy-boundary-start))
+    (end-of-line)
+    (backward-delete-char (length dhnam/ivy-boundary-end)))
+
+  (defun dhnam/ivy-toggle-symbol-boundaries ()
+    (interactive)
+
+    (if (and
+         (let* ((line-begin (save-excursion (beginning-of-line) (point)))
+                (prefix (buffer-substring-no-properties
+                         line-begin (+ line-begin (length dhnam/ivy-boundary-start)))))
+           (string= prefix dhnam/ivy-boundary-start))
+         (let* ((line-end (save-excursion (end-of-line) (point)))
+                (suffix (buffer-substring-no-properties
+                         (- line-end (length dhnam/ivy-boundary-end)) line-end)))
+           (string= suffix dhnam/ivy-boundary-end)))
+        (dhnam/ivy--remove-symbol-boundaries)
+      (ivy--insert-symbol-boundaries))))
 
 (when (package-installed-p 'counsel)
   (defun dhnam/swiper-with-text-in-region (start end)
