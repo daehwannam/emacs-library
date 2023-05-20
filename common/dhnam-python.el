@@ -28,13 +28,20 @@
     (setq deactivate-mark t)))
 
 (with-eval-after-load 'python
+  (comment
+    ;; original regex
+    (defvar dhnam/python-definition-regex "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+  (progn
+    ;; extended regex
+    ;; - "with block:" is added
+    (defvar dhnam/python-definition-regex "^\s*\\(\\(\\(async\s\\|\\)def\\|class\\)\s\\)\\|with block:"))
   (defun dhnam/elpy-occur-definitions ()
     "Display an occur buffer of all definitions in the current buffer,
 then go to the closest uppser location. Also, switch to that buffer.
 This function is modified from `elpy-occur-definitions'"
 
     (interactive)
-    (let* ((regexp "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s")
+    (let* ((regexp dhnam/python-definition-regex)
            (closest-upper-point
             (save-excursion
               (move-end-of-line 1)
