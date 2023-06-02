@@ -16,7 +16,7 @@
 				                 (dired-get-filename nil t)))))
 			              (and filename (file-relative-name filename))))))
 
-  (let* ((mktemp-cmd (format "mktemp %s" (concat default-directory "cmd-XXXXX")))
+  (let* ((mktemp-cmd (format "mktemp %s" (concat "/tmp/" "cmd-XXXXX")))
          (script-path (dhnam/string-trim (shell-command-to-string mktemp-cmd))))
     (with-temp-file script-path
       (dhnam/insert-line "#!/usr/bin/sh")
