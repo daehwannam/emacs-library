@@ -28,13 +28,7 @@
     (setq deactivate-mark t)))
 
 (with-eval-after-load 'python
-  (comment
-    ;; original regex
-    (defvar dhnam/python-definition-regex "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
-  (progn
-    ;; extended regex
-    ;; - "with block:" is added
-    (defvar dhnam/python-definition-regex "^\s*\\(\\(\\(async\s\\|\\)def\\|class\\)\s\\)\\|with block:"))
+  (defvar dhnam/python-definition-regex "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s")
   (defun dhnam/elpy-occur-definitions ()
     "Display an occur buffer of all definitions in the current buffer,
 then go to the closest uppser location. Also, switch to that buffer.
@@ -77,7 +71,7 @@ This function is modified from `elpy-occur-definitions'"
 	        (replace-regexp "/" "." nil (region-beginning) (region-end))
 	      (replace-regexp "/" "." nil start end)))))
 
-  (defun dhnam/convert-package-to-path ()
+  (defun dhnam/convert-module-to-path ()
     ""
     ;; https://stackoverflow.com/a/25886353
     (interactive)
@@ -90,16 +84,16 @@ This function is modified from `elpy-occur-definitions'"
 	      (replace-regexp "." "/" nil start end))))))
 
 (progn
-  (defun dhnam/copy-full-package-name ()
-    (interactive)
+  (defun dhnam/get-full-module-name ()
     (let ((project-path (expand-file-name (locate-dominating-file default-directory ".git")))
           (file-path (buffer-file-name)))
+      (replace-regexp-in-string
+       "/" "."
+       (file-name-sans-extension (substring file-path (length project-path))))))
 
-      (let ((full-package-name
-             (replace-regexp-in-string
-              "/" "."
-              (file-name-sans-extension (substring file-path (length project-path))))))
-        (kill-new full-package-name)))))
+  (defun dhnam/copy-full-module-name ()
+    (interactive)
+    (kill-new (dhnam/get-full-module-name))))
 
 (defun dhnam/insert-ipdb-config-example ()
   (interactive)
@@ -175,5 +169,41 @@ This function is modified from `elpy-occur-definitions'"
           (setq prev-line-number (line-number-at-pos)))
         (kill-new (string-join (reverse new-code-lines) "\n"))
         (setq deactivate-mark t)))))
+
+(defun dhnam/run-python-dhnamlib-doctesting (module)
+  (interactive
+   (list (dhnam/get-full-module-name)))
+
+  (let* ((cmd (format "python -m dhnamlib.pylib.doctesting -v %s" module)))
+    (dhnam/run-python (dhnam/get-python-working-directory) cmd t t)))
+
+(require 'dhnam-comint)
+
+(defun dhnam/comint-with-python-command (command &optional dir)
+  (interactive
+   (if current-prefix-arg
+       (list
+        (read-shell-command "Run Python: " (python-shell-calculate-command))
+        (read-directory-name "Directory: "))
+     (list (python-shell-calculate-command) nil)))
+
+  (let ((default-directory (or dir (dhnam/get-python-working-directory))))
+    (dhnam/comint-with-command command)))
+
+(defvar dhnam/python-module-function-history nil)
+
+(defun dhnam/run-python-module-function (module function)
+  (interactive
+   (list (dhnam/get-full-module-name)
+         (let ((default-function
+                 (let ((symbol-at-point (thing-at-point 'symbol)))
+                   (when symbol-at-point
+                     (substring-no-properties symbol-at-point)))))
+           (read-string
+            (if default-function (format "Function (%s): " default-function) "Function: ")
+            nil dhnam/python-module-function-history default-function))))
+
+  (let* ((cmd (format "python -c 'import %s; %s.%s()'" module module function)))
+    (dhnam/comint-with-python-command cmd)))
 
 (provide 'dhnam-python)
