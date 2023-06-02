@@ -22,7 +22,8 @@
       (dhnam/insert-line "#!/usr/bin/sh")
       (dhnam/insert-line (format "trap 'rm -f %s' EXIT" script-path))
       (dhnam/insert-line command))
-    (shell-command (format "chmod +x %s" script-path))
+    (dhnam/without-message
+     (shell-command (format "chmod +x %s" script-path)))
     (let ((explicit-shell-file-name script-path)
           (buffer-name (or buffer-name (format "*%s*" command))))
       (make-comint-in-buffer buffer-name buffer-name explicit-shell-file-name)

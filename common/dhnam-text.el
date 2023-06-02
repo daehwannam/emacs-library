@@ -111,10 +111,7 @@
   (interactive "P")
   (let ((buffer-read-only t)
         (kill-read-only-ok t))
-    (cl-letf (((symbol-function 'message)
-               (lambda (&rest args))))
-      ;; `message' is temporarily disabled
-      (kill-line arg))))
+    (dhnam/without-message (kill-line arg))))
 
 (defun dhnam/insert-local-variable-eval ()
   (interactive)

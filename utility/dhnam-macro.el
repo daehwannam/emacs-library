@@ -47,4 +47,13 @@
        (dhnam/with-eval-except-modes ,excepted-modes
          (funcall ,hook)))))
 
+(progn
+  (require 'cl-macs)
+
+  (defmacro dhnam/without-message (expr)
+    "Disable `message'"
+    `(cl-letf (((symbol-function 'message)
+                (lambda (&rest args))))
+       ,expr)))
+
 (provide 'dhnam-macro)
