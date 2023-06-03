@@ -1,4 +1,6 @@
 
+(defvar dhnam/comint-command nil "Buffer-local only")
+
 (defun dhnam/comint-with-command (command &optional buffer-name)
   "Run shell with COMMAND. It makes a temporary script to run the command."
   (interactive
@@ -27,6 +29,28 @@
     (let ((explicit-shell-file-name script-path)
           (buffer-name (or buffer-name (format "*%s*" command))))
       (make-comint-in-buffer buffer-name buffer-name explicit-shell-file-name)
-      (pop-to-buffer buffer-name))))
+      (let ((buffer (pop-to-buffer buffer-name)))
+        (set-buffer buffer)
+        (setq-local dhnam/comint-command command)
+        buffer))))
+
+(defun dhnam/comint-with-command-again (&optional buffer-name)
+  (interactive)
+  (dhnam/comint-with-command dhnam/comint-command buffer-name))
+
+(progn
+  (unless (fboundp 'dhnam/after-comint-with-command)
+    (defun dhnam/after-comint-with-command ()
+      (comment
+        (local-set-key (kbd "C-c r") #'dhnam/comint-with-command-again))))
+
+  (defun dhnam/comint-with-command-advice (original &rest args)
+    (let ((buffer (apply original args)))
+      (set-buffer buffer)
+      (dhnam/after-comint-with-command)
+      buffer))
+
+  (advice-add 'dhnam/comint-with-command
+              :around #'dhnam/comint-with-command-advice))
 
 (provide 'dhnam-comint)
