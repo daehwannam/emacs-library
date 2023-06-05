@@ -170,13 +170,6 @@ This function is modified from `elpy-occur-definitions'"
         (kill-new (string-join (reverse new-code-lines) "\n"))
         (setq deactivate-mark t)))))
 
-(defun dhnam/run-python-dhnamlib-doctesting (module)
-  (interactive
-   (list (dhnam/get-full-module-name)))
-
-  (let* ((cmd (format "python -m dhnamlib.pylib.doctesting -v %s" module)))
-    (dhnam/run-python (dhnam/get-python-working-directory) cmd t t)))
-
 (require 'dhnam-comint)
 
 (defun dhnam/comint-with-python-command (command &optional dir)
@@ -190,20 +183,29 @@ This function is modified from `elpy-occur-definitions'"
   (let ((default-directory (or dir (dhnam/get-python-working-directory))))
     (dhnam/comint-with-command command)))
 
-(defvar dhnam/python-module-function-history nil)
-
-(defun dhnam/run-python-module-function (module function)
+(defun dhnam/run-python-dhnamlib-doctesting (module)
   (interactive
-   (list (dhnam/get-full-module-name)
-         (let ((default-function
-                 (let ((symbol-at-point (thing-at-point 'symbol)))
-                   (when symbol-at-point
-                     (substring-no-properties symbol-at-point)))))
-           (read-string
-            (if default-function (format "Function (%s): " default-function) "Function: ")
-            nil dhnam/python-module-function-history default-function))))
+   (list (dhnam/get-full-module-name)))
 
-  (let* ((cmd (format "python -c 'import %s; %s.%s()'" module module function)))
+  (let* ((cmd (format "python -m dhnamlib.pylib.doctesting -v %s" module)))
+    (comment (dhnam/run-python (dhnam/get-python-working-directory) cmd t t))
     (dhnam/comint-with-python-command cmd)))
+
+(progn
+  (defvar dhnam/python-module-function-history nil)
+
+  (defun dhnam/run-python-module-function (module function)
+    (interactive
+     (list (dhnam/get-full-module-name)
+           (let ((default-function
+                   (let ((symbol-at-point (thing-at-point 'symbol)))
+                     (when symbol-at-point
+                       (substring-no-properties symbol-at-point)))))
+             (read-string
+              (if default-function (format "Function (%s): " default-function) "Function: ")
+              nil dhnam/python-module-function-history default-function))))
+
+    (let* ((cmd (format "python -c 'import %s; %s.%s()'" module module function)))
+      (dhnam/comint-with-python-command cmd))))
 
 (provide 'dhnam-python)
