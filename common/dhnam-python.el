@@ -93,7 +93,13 @@ This function is modified from `elpy-occur-definitions'"
 
   (defun dhnam/copy-full-module-name ()
     (interactive)
-    (kill-new (dhnam/get-full-module-name))))
+    (kill-new (dhnam/get-full-module-name)))
+
+  (defun dhnam/copy-statement-of-importing-symbol-at-point ()
+    (interactive)
+    (kill-new (format "from %s import %s"
+                      (dhnam/get-full-module-name)
+                      (substring-no-properties (thing-at-point 'symbol))))))
 
 (defun dhnam/insert-ipdb-config-example ()
   (interactive)
@@ -187,9 +193,11 @@ This function is modified from `elpy-occur-definitions'"
   (interactive
    (list (dhnam/get-full-module-name)))
 
-  (let* ((cmd (format "python -m dhnamlib.pylib.doctesting -v %s" module)))
+  (let ((cmd (format "python -m dhnamlib.pylib.doctesting -v %s" module)))
     (comment (dhnam/run-python (dhnam/get-python-working-directory) cmd t t))
-    (dhnam/comint-with-python-command cmd)))
+    (let ((buffer (dhnam/comint-with-python-command cmd)))
+      (set-buffer buffer)
+      (end-of-buffer))))
 
 (progn
   (defvar dhnam/python-module-function-history nil)
