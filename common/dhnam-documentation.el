@@ -18,9 +18,15 @@
         (require 'poporg nil t)
         (define-key poporg-mode-map (kbd "C-x k") #'dhnam/poporg-kill-buffer-exit))
 
-      (use-existing-pkg poporg
-        :bind (:map poporg-mode-map
-		       ("C-x k" . dhnam/poporg-kill-buffer-exit))))
+      (comment
+        (use-existing-pkg poporg
+          :bind (:map poporg-mode-map
+		         ("C-x k" . dhnam/poporg-kill-buffer-exit))))
+
+      (when (package-installed-p 'poporg)
+        (define-key poporg-mode-map (kbd "C-x k") 'dhnam/poporg-kill-buffer-exit)
+        (define-key poporg-mode-map (kbd "C-c s") 'poporg-update-and-save)
+        (define-key poporg-mode-map (kbd "C-c C-c") nil)))
 
     (progn
       ;; org-mode
