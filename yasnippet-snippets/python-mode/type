@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: type
+# key: :t
+# group: sphinx docstring
+# --
+:type ${1:param-name}: $0

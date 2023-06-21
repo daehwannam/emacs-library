@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: raises
+# key: :ra
+# group: sphinx docstring
+# --
+:raises ${1:error-type}: $0

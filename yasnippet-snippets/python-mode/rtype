@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: rtype
+# key: :rt
+# group: sphinx docstring
+# --
+:rtype: $0
