@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: doctest-skip
+# key: #docskip
+# --
+# doctest: +SKIP
