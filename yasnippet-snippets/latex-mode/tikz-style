@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: tikz-style
+# key: /.style
+# group: latex-tikz
+# --
+/.style={${1:options}}

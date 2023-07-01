@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: tikz-node-pos
+# key: \node-pos
+# group: latex-tikz
+# --
+\node[${1:options}] (${2:name}) [${3:position}] {${4:text}};

@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: param
 # key: :p
-# group: sphinx docstring
+# group: sphinx-docstring
 # --
 :param ${1:param-name}: $0
