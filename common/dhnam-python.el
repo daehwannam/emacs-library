@@ -154,6 +154,10 @@ This function is modified from `elpy-occur-definitions'"
       (python-shell-send-region start end send-main msg)
     (python-shell-send-buffer send-main msg)))
 
+(defun dhnam/python-shell-send-from-package-import-all ()
+  (interactive)
+  (python-shell-send-buffer (format "from %s import *" (dhnam/get-full-module-name))))
+
 (defun dhnam/python-copy-code-from-docstring (start end)
   (interactive (list (region-beginning) (region-end)))
   (save-excursion
