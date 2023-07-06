@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: tikz-node
+# key: \node
+# group: latex-tikz
+# --
+\node[${1:options}] (${2:name}) {${3:text}};

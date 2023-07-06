@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: return
 # key: :r
-# group: sphinx docstring
+# group: sphinx-docstring
 # --
 :return: $0
