@@ -86,8 +86,19 @@
   (let ((find-file-visit-truename t))
     (find-file filename wildcards)))
 
-(defun dhnam/switch-to-scratch-buffer ()
+(defun dhnam/switch-to-scratch-buffer-without-initialization ()
   (interactive)
   (switch-to-buffer "*scratch*"))
+
+(defun dhnam/switch-to-scratch-buffer ()
+  (interactive)
+  (let ((buffer (switch-to-buffer "*scratch*")))
+    (with-current-buffer buffer
+	  (when (and initial-scratch-message
+                 (not (buffer-modified-p))
+                 (zerop (buffer-size)))
+	    (insert (substitute-command-keys initial-scratch-message))
+	    (set-buffer-modified-p nil)))))
+
 
 (provide 'dhnam-buffer)
