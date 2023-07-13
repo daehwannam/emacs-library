@@ -85,11 +85,19 @@ This function is modified from `elpy-occur-definitions'"
 
 (progn
   (defun dhnam/get-full-module-name ()
-    (let ((project-path (expand-file-name (locate-dominating-file default-directory ".git")))
-          (file-path (buffer-file-name)))
-      (replace-regexp-in-string
-       "/" "."
-       (file-name-sans-extension (substring file-path (length project-path))))))
+    (let ((file-path (buffer-file-name))
+          (project-path nil)
+          (site-packages-parent-path nil))
+      (cond
+       ((setq project-path (locate-dominating-file default-directory ".git"))
+        (replace-regexp-in-string
+         "/" "."
+         (file-name-sans-extension (substring file-path (length (expand-file-name project-path))))))
+       ((setq site-packages-parent-path (locate-dominating-file default-directory "site-packages"))
+        (let ((site-packages-path (concat site-packages-parent-path "site-packages/")))
+          (replace-regexp-in-string
+           "/" "."
+           (file-name-sans-extension (substring file-path (length (expand-file-name site-packages-path))))))))))
 
   (defun dhnam/copy-full-module-name ()
     (interactive)
