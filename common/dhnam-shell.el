@@ -14,4 +14,8 @@
     (other-window count)
     (dhnam/shell-new-instance)))
 
+(defun bash-command-to-string (command)
+  (let ((shell-file-name "/bin/bash"))
+    (shell-command-to-string command)))
+
 (provide 'dhnam-shell)
