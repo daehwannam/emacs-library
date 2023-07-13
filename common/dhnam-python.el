@@ -220,4 +220,23 @@ This function is modified from `elpy-occur-definitions'"
     (let* ((cmd (format "python -c 'import %s; %s.%s()'" module module function)))
       (dhnam/comint-with-python-command cmd))))
 
+(defun dhnam/get-conda-environment-python-interpreter-path (env-name)
+  "When `env-name' is nil, return path of the base interpreter"
+  (let ((conda-path (dhnam/string-trim (shell-command-to-string "echo $(conda info --base)"))))
+    (if env-name
+        (format (concat conda-path "/envs/%s/bin/python") env-name)
+      (concat conda-path "/bin/python"))))
+
+(defun dhnam/get-base-tramp-path (path)
+  (concat (string-join (butlast (split-string path ":")) ":") ":"))
+
+(defun dhnam/get-conda-environment-python-interpreter-tramp-path (env-name)
+  "When `env-name' is nil, return path of the base interpreter"
+
+  (let ((local-interpreter-path (dhnam/get-local-conda-environment-python-interpreter-path env-name)))
+    (if (tramp-tramp-file-p default-directory)
+        (concat (dhnam/get-base-tramp-path default-directory)
+                local-interpreter-path)
+      local-interpreter-path)))
+
 (provide 'dhnam-python)

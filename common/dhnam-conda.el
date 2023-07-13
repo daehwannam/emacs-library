@@ -13,8 +13,17 @@
       (dired dir-path)))
 
   (defun dhnam/get-conda-activate-env ()
+    (if (tramp-tramp-file-p default-directory)
+        (dhnam/get-conda-activate-env--no-check)
+      (dhnam/get-conda-activate-env--check)))
+
+  (defun dhnam/get-conda-activate-env--check ()
     (completing-read "Environment name: " (pyvenv-virtualenv-list)
                      nil t nil 'pyvenv-workon-history nil nil))
+
+  (defun dhnam/get-conda-activate-env--no-check ()
+    (read-string "Environment name: "
+                 nil 'pyvenv-workon-history))
 
   (defun dhnam/insert-conda-activate-env (env-name)
     (interactive (list (dhnam/get-conda-activate-env)))
