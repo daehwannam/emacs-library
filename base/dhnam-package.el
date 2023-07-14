@@ -37,9 +37,9 @@
 
 (progn
   (defvar dhnam/package-content-refreshed nil)
-  (defun dhnam/install-package-unless-installed (package)
+  (defun dhnam/install-package-unless-installed (package &optional refreshing)
     (unless (package-installed-p package)
-      (unless dhnam/package-content-refreshed
+      (unless (or refreshing dhnam/package-content-refreshed)
 	    ;; https://magit.vc/manual/magit/Installing-from-Melpa.html
 	    (package-refresh-contents)
 	    (setq dhnam/package-content-refreshed t))
