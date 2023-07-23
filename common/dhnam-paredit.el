@@ -13,6 +13,20 @@ ARG has the same meaning as for `kill-sexp'."
 	    (kill-ring-save orig-point (point)))))
   (forward-sexp arg))
 
+(defun dhnam/paredit-copy (&optional arg)
+  "Do a `paredit-kill' but copy rather than kill."
+  (interactive "P")
+  (let ((buffer-read-only t)
+        (kill-read-only-ok t))
+
+    (dhnam/without-message
+     (let ((beg (point))
+           (eol (point-at-eol)))
+       (paredit-kill arg)
+       (when (< (point) eol)
+         ;; to fix error that occurs in the last line of a buffer
+         (paredit-forward))))))
+
 (defun dhnam/paredit-backward-up-or-down (&optional arg)
   (interactive "^p")
   (let ((start-point (point))
