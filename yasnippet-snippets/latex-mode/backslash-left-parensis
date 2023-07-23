@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: backslash-left-parenthesis
+# key: \(
+# --
+\\($0\\)
