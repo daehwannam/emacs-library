@@ -135,4 +135,38 @@
       (interactive)
       (biblio--selection-forward-bibtex #'dhnam/biblio--copy-url-callback t))))
 
+(progn
+  (defun dhnam/get-align-region-boundary (&optional forward)
+    (cl-flet ((line-num (p) (count-lines 1 p)))
+      (let ((re-search (if forward 're-search-forward 're-search-backward)))
+        (let ((prev-point (point))
+              (curr-point (point)))
+          (save-excursion
+            (while (and curr-point (< (abs (- (line-num curr-point) (line-num prev-point))) 2))
+              (setq prev-point curr-point)
+              (setq curr-point (funcall re-search "&" nil t))))
+          prev-point))))
+
+  (defun dhnam/align-ampersands ()
+    (interactive)
+    (let ((align-start nil)
+          (align-end nil))
+      (if (region-active-p)
+          (progn
+            (setq align-start (region-beginning))
+            (setq align-end  (region-end)))
+        (progn
+          (setq align-start (save-excursion (goto-char (dhnam/get-align-region-boundary nil)) (beginning-of-line) (point)))
+          (setq align-end (save-excursion (goto-char (dhnam/get-align-region-boundary t)) (end-of-line) (point)))))
+      (save-excursion
+        (dhnam/without-message
+         ;; when query-replace-highlight = nil -> disable highlights while replacing
+         ;;
+         ;; when cursor-type = nil -> hide the cursor while replacing
+         ;; https://emacs.stackexchange.com/questions/18374/persistently-hide-cursor-evil-mode-problem
+         (let ((query-replace-highlight nil)
+               (cursor-type nil))
+           (replace-regexp " *& *" " & " nil align-start align-end)))
+        (align-regexp align-start align-end "\\(\\s-*\\)&" 1 1 t)))))
+
 (provide 'dhnam-latex)
