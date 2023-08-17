@@ -15,7 +15,13 @@
     ;; org mode code block begin/end color
     ;; https://emacs.stackexchange.com/a/26783
     (custom-theme-set-faces 'user `(org-meta-line ((t (:foreground "goldenrod"))))))
-  )
+
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(org-agenda-date-today ((t (:inherit org-agenda-date :foreground "MediumOrchid1" :slant italic :weight bold))))))
 
 (defun dhnam/update-dark-theme ()
   (progn

@@ -9,6 +9,68 @@
           (comment (widen))))
     (org-babel-execute-buffer arg)))
 
+(progn
+  ;; fix the problem of unbalanced parentheses by "<" and ">"
+  ;; https://emacs.stackexchange.com/a/52209
+
+  (defun dhnam/org-mode-<>-syntax-fix (start end)
+    "Change syntax of characters ?< and ?> to symbol within source code blocks."
+    (let ((case-fold-search t))
+      (when (eq major-mode 'org-mode)
+        (save-excursion
+          (goto-char start)
+          (while (re-search-forward "<\\|>" end t)
+            (when (save-excursion
+                    (and
+                     (re-search-backward "[[:space:]]*#\\+\\(begin\\|end\\)_src\\_>" nil t)
+                     (string-equal (downcase (match-string 1)) "begin")))
+              ;; This is a < or > in an org-src block
+              (put-text-property (point) (1- (point))
+                                 'syntax-table (string-to-syntax "_"))))))))
+
+  (defun dhnam/org-setup-<>-syntax-fix ()
+    "Setup for characters ?< and ?> in source code blocks.
+Add this function to `org-mode-hook'."
+    (make-local-variable 'syntax-propertize-function)
+    (setq syntax-propertize-function 'dhnam/org-mode-<>-syntax-fix)
+    (syntax-propertize (point-max)))
+
+  (comment
+    ;; Example of usage
+    (add-hook 'org-mode-hook #'dhnam/org-setup-<>-syntax-fix)))
+
+(progn
+  (defun dhnam/org-add-hard-indentation (arg)
+    ;; This function can be replaced with `org-indent-region' when `org-indent-mode' is `nil'
+    (interactive "p")
+    (save-excursion
+      (beginning-of-buffer)
+      (while
+          (let ((indent-size
+                 (progn
+                   (when (re-search-forward "^\\*+ " nil t)
+                     (length (match-string 0))))))
+            (when indent-size
+              (let ((start
+                     (progn
+                       (next-line)
+                       (move-beginning-of-line 1)
+                       (point)))
+                    (end
+                     (progn
+                       (if (re-search-forward "^\\*+ " nil t)
+                           (progn (previous-line) (move-end-of-line 1))
+                         (end-of-buffer))
+                       (point))))
+
+                (indent-rigidly start end (* indent-size arg))))
+            indent-size))))
+
+  (defun dhnam/org-delete-hard-indentation (arg)
+    ;; This function can be replaced with `org-unindent-buffer'
+    ;; https://www.reddit.com/r/orgmode/comments/qt2mmd/remove_hard_indentation_from_org_file_made_with/
+    (interactive "p")
+    (dhnam/org-add-hard-indentation (- arg))))
 
 (progn
   ;; Dates
@@ -82,73 +144,16 @@ e.g. (dhnam/get-org-date-from-timestr \"Thursday   21 September 2023\")"
 
   (defun dhnam/org-display-remaining-days ()
     (interactive)
-    (let ((line-text (buffer-substring (line-beginning-position) (line-end-position))))
+    (let ((line-text (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
       (let ((days (dhnam/count-calendar-days-from-today line-text)))
-        (if days
-            (message "Remaining days: %s" days)
-          (message "It's not a valid date format"))))))
+        (message "Remaining days: %s" days))))
 
-(progn
-  ;; fix the problem of unbalanced parentheses by "<" and ">"
-  ;; https://emacs.stackexchange.com/a/52209
-
-  (defun dhnam/org-mode-<>-syntax-fix (start end)
-    "Change syntax of characters ?< and ?> to symbol within source code blocks."
-    (let ((case-fold-search t))
-      (when (eq major-mode 'org-mode)
-        (save-excursion
-          (goto-char start)
-          (while (re-search-forward "<\\|>" end t)
-            (when (save-excursion
-                    (and
-                     (re-search-backward "[[:space:]]*#\\+\\(begin\\|end\\)_src\\_>" nil t)
-                     (string-equal (downcase (match-string 1)) "begin")))
-              ;; This is a < or > in an org-src block
-              (put-text-property (point) (1- (point))
-                                 'syntax-table (string-to-syntax "_"))))))))
-
-  (defun dhnam/org-setup-<>-syntax-fix ()
-    "Setup for characters ?< and ?> in source code blocks.
-Add this function to `org-mode-hook'."
-    (make-local-variable 'syntax-propertize-function)
-    (setq syntax-propertize-function 'dhnam/org-mode-<>-syntax-fix)
-    (syntax-propertize (point-max)))
-
-  (comment
-    ;; Example of usage
-    (add-hook 'org-mode-hook #'dhnam/org-setup-<>-syntax-fix)))
-
-(progn
-  (defun dhnam/org-add-hard-indentation (arg)
-    ;; This function can be replaced with `org-indent-region' when `org-indent-mode' is `nil'
-    (interactive "p")
-    (save-excursion
-      (beginning-of-buffer)
-      (while
-          (let ((indent-size
-                 (progn
-                   (when (re-search-forward "^\\*+ " nil t)
-                     (length (match-string 0))))))
-            (when indent-size
-              (let ((start
-                     (progn
-                       (next-line)
-                       (move-beginning-of-line 1)
-                       (point)))
-                    (end
-                     (progn
-                       (if (re-search-forward "^\\*+ " nil t)
-                           (progn (previous-line) (move-end-of-line 1))
-                         (end-of-buffer))
-                       (point))))
-
-                (indent-rigidly start end (* indent-size arg))))
-            indent-size))))
-
-  (defun dhnam/org-delete-hard-indentation (arg)
-    ;; This function can be replaced with `org-unindent-buffer'
-    ;; https://www.reddit.com/r/orgmode/comments/qt2mmd/remove_hard_indentation_from_org_file_made_with/
-    (interactive "p")
-    (dhnam/org-add-hard-indentation (- arg))))
+  (defun dhnam/agend-display-remaining-days ()
+    (interactive)
+    (let* ((line-text (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+           (words (split-string line-text))
+           (timestr (string-join (cdr words) " ")))
+      (let ((days (dhnam/count-calendar-days-from-today timestr)))
+        (message "Remaining days: %s" days)))))
 
 (provide 'dhnam-org-mode)
