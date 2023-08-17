@@ -44,6 +44,15 @@ def save_org_structure(org_structure, *,
         return '{org_mark}{content}{org_mark}'.format(
             org_mark=org_mark, content=normalize_str(text))
 
+    def is_empty_content(content):
+        return len(content.strip()) == 0
+
+    def has_content(entry, key):
+        if key in entry:
+            return not is_empty_content(entry[key])
+        else:
+            return False
+
     def update_output(org_structure, heading_level):
         if org_structure['type'] == 'entry':
             entry = org_structure['entry']
@@ -56,11 +65,11 @@ def save_org_structure(org_structure, *,
             #     ))))
 
             entry_info = " | ".join(chain(
-                [make_info_unit(entry['org-cmt'], '~')] if entry['org-cmt'] else [],
+                [make_info_unit(entry['org-cmt'], '~')] if has_content(entry, 'org-cmt') else [],
                 [make_info_unit(entry['title'].replace('{', '').replace('}', ''))]))
             entry_bib_link = r'[[bib-id:{id}][{clover}]]'.format(id=entry['ID'], clover=bib_source_symbol)
             entry_code_links = (''.join(f'[[code-url:{url}][{code_link_symbol}]]' for url in entry['code-url'].split())
-                                if 'code-url' in entry else '')
+                                if has_content(entry, 'code-url') else '')
             output_list.append(' '.join(s for s in [entry_info, entry_bib_link, entry_code_links] if s != ''))
         else:
             for heading, body in org_structure.items():

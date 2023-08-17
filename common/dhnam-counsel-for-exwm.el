@@ -109,19 +109,6 @@ in the current window."
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
     (interactive)
     (let ((default-directory "~/Downloads/"))
-      (counsel-find-file initial-input initial-directory)))
-
-  (progn
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "d") 'dhnam/counsel-find-file-in-downloads)
-      (define-key map (kbd "w") 'dhnam/kill-gc)
-      (define-key map (kbd "k") 'dhnam/ivy-kill-marked)
-      (define-key map (kbd "s") 'dhnam/switch-to-scratch-buffer)
-      (define-key map (kbd "q") 'dhnam/eww-new)
-
-      (defvar dhnam/exwm-extended-emacs-command-prefix-map map
-	    "Keymap for emacs related commands."))
-
-    (fset 'dhnam/exwm-extended-emacs-command-prefix-map dhnam/exwm-extended-emacs-command-prefix-map)))
+      (counsel-find-file initial-input initial-directory))))
 
 (provide 'dhnam-counsel-for-exwm)
