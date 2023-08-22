@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: rsync
+# key: rsync
+# --
+rsync -rlpt --info=progress2 --no-i-r -e 'ssh -p 22' ${1:<source>} ${2:<user>@<address>}:${3:<taget>}$0
