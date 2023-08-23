@@ -6,7 +6,16 @@
   ;; - https://stackoverflow.com/questions/379940/dired-copy-asynchronously
   ;; - https://oremacs.com/2016/02/24/dired-rsync/
 
-  (require 'dired-x)
+  (progn
+    ;; Required packages
+
+    (require 'tramp)
+    (require 'dired-x)
+    (require 'dired-aux)
+
+    ;; s.el
+    ;; https://github.com/magnars/s.el
+    (require 's))
 
   (defvar dhnam/dired-rsync/default-args
     (list "-rlptP"
@@ -110,6 +119,8 @@ This function would not work for multi-hop SSH connections.
               (cons 'quoted-local-path quoted-local-path)))))
 
   (defun dhnam/dired-rsync/do (dest-path)
+    "Do rsync to copy marked files to DEST-PATH."
+
     (interactive
      (list
       (expand-file-name
