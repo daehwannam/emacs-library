@@ -89,9 +89,7 @@ This function would not work for multi-hop SSH connections.
                                                  (list dest-path-arg)))))
           (cl-flet ((run-rsync-command () (async-shell-command rsync-command dhnam/dired-rsync/buffer-name)))
             (if dhnam/dired-rsync/displaying-in-current-window
-                (let ((display-buffer-alist
-                       (cons (list dhnam/dired-rsync/buffer-name 'display-buffer-same-window)
-                             display-buffer-alist)))
+                (dhnam/displaying-buffer-same-window dhnam/dired-rsync/buffer-name
                   (run-rsync-command))
               (progn
                 (run-rsync-command)

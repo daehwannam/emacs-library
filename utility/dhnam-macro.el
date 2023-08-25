@@ -56,4 +56,14 @@
                 (lambda (&rest args))))
        ,expr)))
 
+(progn
+  (defmacro dhnam/displaying-buffer-same-window (buffer-name &rest body)
+    `(let ((display-buffer-alist
+            (cons (list ,buffer-name 'display-buffer-same-window)
+                  display-buffer-alist)))
+       ,@body))
+
+  (put 'dhnam/displaying-buffer-same-window 'lisp-indent-function
+       (get 'when 'lisp-indent-function)))
+
 (provide 'dhnam-macro)
