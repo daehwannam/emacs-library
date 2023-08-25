@@ -148,12 +148,43 @@ e.g. (dhnam/get-org-date-from-timestr \"Thursday   21 September 2023\")"
       (let ((days (dhnam/count-calendar-days-from-today line-text)))
         (message "Remaining days: %s" days))))
 
-  (defun dhnam/agenda-display-remaining-days ()
-    (interactive)
+  (defun dhnam/agenda-remaining-days-until-current-line ()
     (let* ((line-text (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
            (words (split-string line-text))
            (timestr (string-join (cdr words) " ")))
-      (let ((days (dhnam/count-calendar-days-from-today timestr)))
-        (message "Remaining days: %s" days)))))
+      (dhnam/count-calendar-days-from-today timestr)))
+
+  (defun dhnam/agenda-display-remaining-days ()
+    (interactive)
+    (save-excursion
+      (cl-flet ((empty-first-char-p () (let ((line-beg-pos (line-beginning-position)))
+                                         (equal (buffer-substring-no-properties line-beg-pos (1+ line-beg-pos)) " ")))
+                (not-first-line-p () (not (= (line-beginning-position) 1))))
+        (let ((prev-line-count 0)
+              (max-prev-line-count 100)
+              (within-limit (lambda () (< (setq prev-line-count (1+ prev-line-count)) max-prev-line-count))))
+          (while (and (funcall within-limit) (empty-first-char-p) (not-first-line-p))
+            (previous-line)))
+        (when (and (not (empty-first-char-p)) (not-first-line-p))
+          (message "Remaining days: %s" (dhnam/agenda-remaining-days-until-current-line))))))
+
+  (defun dhnam/agenda-move-to-prev-span (&optional arg)
+    "Move to the previous span in the current agenda list"
+
+    (interactive "p")
+    (unless arg (setq arg 1))
+    (dhnam/agenda-move-to-next-span (- arg)))
+
+  (defun dhnam/agenda-move-to-next-span (&optional arg)
+    "Move to the next span in the current agenda list"
+
+    (interactive "p")
+    (unless arg (setq arg 1))
+    (save-excursion
+      (beginning-of-buffer)
+      (next-line)
+      (let ((start-day-in-list (dhnam/agenda-remaining-days-until-current-line))
+            (span-days (org-agenda-ndays-to-span org-agenda-span)))
+        (org-agenda-list nil (+ (org-today) start-day-in-list (* arg span-days)))))))
 
 (provide 'dhnam-org-mode)

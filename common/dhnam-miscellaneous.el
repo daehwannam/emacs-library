@@ -36,8 +36,8 @@
     "Jump to the corresponding line of source or old source"
     (interactive (list current-prefix-arg last-input-event))
     (save-excursion
-      (let* ((line-start-point (progn (move-beginning-of-line 1) (point)))
-             (first-char (buffer-substring-no-properties line-start-point (1+ line-start-point))))
+      (let* ((line-beg-point (line-beginning-position))
+             (first-char (buffer-substring-no-properties line-beg-point (1+ line-beg-point))))
         (cond
          ((string= first-char "+")
           (diff-goto-source current-prefix-arg event))
