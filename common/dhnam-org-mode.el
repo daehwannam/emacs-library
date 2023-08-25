@@ -148,7 +148,7 @@ e.g. (dhnam/get-org-date-from-timestr \"Thursday   21 September 2023\")"
       (let ((days (dhnam/count-calendar-days-from-today line-text)))
         (message "Remaining days: %s" days))))
 
-  (defun dhnam/agend-display-remaining-days ()
+  (defun dhnam/agenda-display-remaining-days ()
     (interactive)
     (let* ((line-text (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
            (words (split-string line-text))
