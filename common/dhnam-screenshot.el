@@ -17,6 +17,7 @@
 
   (defun dhnam/screenshot-video-selection-start ()
     (interactive)
+    (dhnam/screenshot-run-picom-daemon)
     (shell-command (concat dhnam/screenshot-command " --video-selection-start")))
 
   (defun dhnam/screenshot-video-stop ()
