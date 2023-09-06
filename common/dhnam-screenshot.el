@@ -22,3 +22,6 @@
   (defun dhnam/screenshot-video-stop ()
     (interactive)
     (shell-command (concat dhnam/screenshot-command " --video-stop"))))
+
+
+(provide 'dhnam-screenshot)
