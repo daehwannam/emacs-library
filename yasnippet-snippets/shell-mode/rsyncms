@@ -2,4 +2,4 @@
 # name: rsyncms
 # key: rsyncms
 # --
-rsync -rlpt --info=progress2 --no-i-r --max-size=${1:<number><unit>} -e 'ssh -p 22' ${2:<source>} ${3:<user>@<address>}:${4:<taget>}$0
+rsync -rlptP --info=progress2 --max-size=${1:<number><unit>} -e 'ssh -p 22' ${2:<source>} ${3:<user>@<address>}:${4:<taget>}$0
