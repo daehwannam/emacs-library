@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: bibs
+# key: bibs
+# --
+
+,
+  org-head     = {},
+  org-cmt      = {},
+  pdfurl       = {},
+  code-url     = {},

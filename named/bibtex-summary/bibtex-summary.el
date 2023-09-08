@@ -52,6 +52,7 @@
       (save-excursion
         (beginning-of-buffer)
         (re-search-forward (format "@.*\\(article\\|inproceedings\\).*%s[, \n]" ref-id-str))
+        (backward-char 2)
         (setq ref-pos (point)))
       (when ref-pos
         (goto-char ref-pos)
@@ -273,7 +274,7 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
                bibs/collection-file-as-source-of-reference)
       (save-excursion
         (beginning-of-buffer)
-        (re-search-forward (format "bibs-bib-id:*%s" ref-id-str))
+        (re-search-forward (format "bibs-bib-id:%s" ref-id-str))
         (move-beginning-of-line 1)
         (setq ref-pos (point)))
       (when ref-pos
