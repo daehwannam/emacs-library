@@ -7,6 +7,8 @@ from itertools import chain
 
 import bibtexparser
 
+from .utility import entry_id_to_file_name
+
 
 HARD_INDENTATION = False
 INDENT_CHAR = ' ' if HARD_INDENTATION else ''
@@ -26,9 +28,11 @@ def get_org_structure(entries):
     return org_structure
 
 
-def save_org_structure(org_structure, *,
-                       org_preamble, org_bibliography, org_local_variable_code=None, notation_section=None,
-                       bib_source_symbol, code_link_symbol):
+def save_org_structure(
+        org_structure, *,
+        org_preamble, org_bibliography, org_local_variable_code=None, notation_section=None,
+        bib_source_symbol, code_link_symbol, note_link_symbol,
+        note_dir_path):
     output_list = []
 
     def append_new_line():
@@ -53,6 +57,30 @@ def save_org_structure(org_structure, *,
         else:
             return False
 
+    def get_entry_info(entry):
+        return " | ".join(chain(
+            [make_info_unit(entry['org-cmt'], '~')] if has_content(entry, 'org-cmt') else [],
+            [make_info_unit(entry['title'].replace('{', '').replace('}', ''))]))
+
+    def get_entry_bib_link(entry):
+        return r'[[bibs-bib-id:{id}][{bib_source_symbol}]]'.format(
+            id=entry['ID'], bib_source_symbol=bib_source_symbol)
+
+    def get_entry_code_link(entry):
+        if has_content(entry, 'code-url'):
+            return (''.join(f'[[bibs-code-url:{url}][{code_link_symbol}]]'
+                            for url in entry['code-url'].split()))
+        else:
+            return None
+
+    def get_entry_note_link(entry):
+        entry_note_path = os.path.join(note_dir_path, entry_id_to_file_name(entry['ID']) + '.org')
+        if os.path.isfile(entry_note_path):
+            entry_bib_link = f'[[bibs-note-file:{entry_note_path}][{note_link_symbol}]]'
+            return entry_bib_link
+        else:
+            return None
+
     def update_output(org_structure, heading_level):
         if org_structure['type'] == 'entry':
             entry = org_structure['entry']
@@ -60,17 +88,15 @@ def save_org_structure(org_structure, *,
             # output_list.append(r'\cite{{{id}}}: {info}'.format(
             #     id=entry['ID'],
             #     info=" | ".join(chain(
-            #         ([make_info_unit(entry['org-cmt'], '~')] if entry['org-cmt'] else []),
-            #         [make_info_unit(entry['title'])]
+            #         ([make_info_unit(entry['org-cmt'], '~')] if entry['org-cmt'] else []),            #         [make_info_unit(entry['title'])]
             #     ))))
 
-            entry_info = " | ".join(chain(
-                [make_info_unit(entry['org-cmt'], '~')] if has_content(entry, 'org-cmt') else [],
-                [make_info_unit(entry['title'].replace('{', '').replace('}', ''))]))
-            entry_bib_link = r'[[bib-id:{id}][{clover}]]'.format(id=entry['ID'], clover=bib_source_symbol)
-            entry_code_links = (''.join(f'[[code-url:{url}][{code_link_symbol}]]' for url in entry['code-url'].split())
-                                if has_content(entry, 'code-url') else '')
-            output_list.append(' '.join(s for s in [entry_info, entry_bib_link, entry_code_links] if s != ''))
+            entry_items = [get_entry_info(entry),
+                           get_entry_bib_link(entry),
+                           get_entry_code_link(entry),
+                           get_entry_note_link(entry)]
+
+            output_list.append(' '.join(s for s in entry_items if s != None))
         else:
             for heading, body in org_structure.items():
                 if heading == 'type':
@@ -99,9 +125,12 @@ def save_org_structure(org_structure, *,
             f.write(output)
 
 
-def convert_bibtex_to_org(bib_file_path, *,
-                          org_preamble, org_bibliography, org_local_variable_code=None, notation_section=None,
-                          bib_source_symbol, code_link_symbol):
+def convert_bibtex_to_org(
+        bib_file_path, *,
+        org_preamble, org_bibliography, org_local_variable_code=None, notation_section=None,
+        bib_source_symbol, code_link_symbol, note_link_symbol,
+        note_dir_path,
+):
     # bib_file_path = 'paper-bibliography.bib'
     with open(bib_file_path) as bibtex_file:
         bibtex_str = bibtex_file.read()
@@ -115,4 +144,6 @@ def convert_bibtex_to_org(bib_file_path, *,
                        org_local_variable_code=org_local_variable_code,
                        notation_section=notation_section,
                        bib_source_symbol=bib_source_symbol,
-                       code_link_symbol=code_link_symbol)
+                       code_link_symbol=code_link_symbol,
+                       note_link_symbol=note_link_symbol,
+                       note_dir_path=note_dir_path)

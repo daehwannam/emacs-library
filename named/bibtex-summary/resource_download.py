@@ -6,6 +6,8 @@ import bibtexparser
 import requests
 from tqdm.contrib.concurrent import process_map
 
+from .utility import entry_id_to_file_name
+
 
 def download_url(url, file_path=None, dir_path=None):
     # https://www.quickprogrammingtips.com/python/how-to-download-multiple-files-concurrently-in-python.html
@@ -31,7 +33,7 @@ def download_url(url, file_path=None, dir_path=None):
 
 def download_pdf_of_entry(kwargs):
     def func(entry, pdf_dir_path, pdf_url_tag):
-        pdf_filename = entry['ID'].replace(':', '=').replace('/', '+') + ".pdf"
+        pdf_filename = entry_id_to_file_name(entry['ID']) + ".pdf"
         pdf_file_path = os.path.join(pdf_dir_path, pdf_filename)
         if not os.path.isfile(pdf_file_path) and entry[pdf_url_tag]:
             try:
