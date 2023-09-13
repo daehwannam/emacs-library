@@ -45,6 +45,6 @@
                        (make-local-variable 'bibs/collection-file-as-source-of-reference)
                        (setq bibs/collection-file-as-source-of-reference (concat base-dir "paper-collection.org")))
 
-                     (dhnam/buffer-local-set-key-chord "q," 'bibs/find-reference-in-collectionb-file))
+                     (dhnam/buffer-local-set-key-chord "q," 'bibs/find-reference-in-collection-file))
 
                    )))))

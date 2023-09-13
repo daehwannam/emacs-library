@@ -45,15 +45,19 @@
         (when (and start-pos end-pos)
           (copy-region-as-kill start-pos end-pos)))))
 
-  (defun bibs/goto-ref-id (ref-id-str &optional opening-in-other-window)
-    (let ((ref-pos nil))
-      (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
-               bibs/bibliography-file-as-source-of-reference)
+  (defun bibs/find-ref-id-point (ref-id-str)
+    (with-current-buffer (find-file-noselect bibs/bibliography-file-as-source-of-reference)
       (save-excursion
         (beginning-of-buffer)
-        (re-search-forward (format "@.*\\(article\\|inproceedings\\).*%s[, \n]" ref-id-str))
+        (comment (re-search-forward (format "@.*\\(article\\|inproceedings\\).*%s[, \n]" ref-id-str)))
+        (re-search-forward (format "@[a-zA-z]+[ \n]*{[ \n]*%s[ \n]*," ref-id-str))
         (backward-char 2)
-        (setq ref-pos (point)))
+        (point))))
+
+  (defun bibs/goto-ref-id (ref-id-str &optional opening-in-other-window)
+    (let ((ref-pos (bibs/find-ref-id-point ref-id-str)))
+      (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
+               bibs/bibliography-file-as-source-of-reference)
       (when ref-pos
         (goto-char ref-pos)
         (recenter-top-bottom)
@@ -246,14 +250,31 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
                            ".org"))
                (file-path (dhnam/join-dirs bibs/note-file-dir-as-source-of-reference file-name)))
 
-          (funcall (if opening-in-other-window #'find-file-other-window #'find-file) file-path))
-      (message "Invalid cursor position"))))
+          (with-current-buffer (funcall (if opening-in-other-window #'find-file-other-window #'find-file) file-path)
+            (when (= (buffer-size) 0)
+              (insert (format "\nTitle: %s\n\n" (bibs/get-title-from-ref-id-str ref-id-str))))))
+      (message "Invalid cursor position")))
+
+  (defun bibs/get-title-from-ref-id-str (ref-id-str)
+    (with-current-buffer (find-file-noselect bibs/bibliography-file-as-source-of-reference)
+      (let ((ref-id-point (bibs/find-ref-id-point ref-id-str)))
+        (goto-char (bibs/find-ref-id-point ref-id-str))
+        (let (title-begin title-end)
+          (re-search-forward "title[[:space:]]*=[[:space:]]*[{\"]")
+          (backward-char)
+          (setq title-begin (1+ (point)))
+          (forward-sexp)
+          (setq title-end (1- (point)))
+          (let ((title (buffer-substring-no-properties title-begin title-end)))
+            (setq title (replace-regexp-in-string "[{}]" "" title))
+            (setq title (replace-regexp-in-string "[[:space:]\n]+" " " title))
+            title))))))
 
 (progn
   (defvar bibs/collection-file-as-source-of-reference nil
     "The path to a bibliography file. It should be used as a local variable.")
 
-  (defalias 'bibs/find-reference-in-collectionb-file
+  (defalias 'bibs/find-reference-in-collection-file
     'bibs/find-reference-in-collection-file-with-curly-brackets-or-raw-link-at-end-or-by-file-name)
 
   (defun bibs/find-reference-in-collection-file-with-curly-brackets-or-raw-link-at-end-or-by-file-name ()
@@ -274,9 +295,9 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
                bibs/collection-file-as-source-of-reference)
       (save-excursion
         (beginning-of-buffer)
-        (re-search-forward (format "bibs-bib-id:%s" ref-id-str))
-        (move-beginning-of-line 1)
-        (setq ref-pos (point)))
+        (when (re-search-forward (format "bibs-bib-id:%s" ref-id-str) nil t)
+          (move-beginning-of-line 1)
+          (setq ref-pos (point))))
       (when ref-pos
         (goto-char ref-pos)
         (recenter-top-bottom)
