@@ -29,9 +29,10 @@
           (progn
             (upcase-initials-region start end)
             (replace-string "_" "" nil start end)
-            (downcase-region start (1+ start)))
-        (replace-regexp "\\([A-Z]\\)" "_\\1" nil (1+ start) end)
-        (downcase-region start (cdr (bounds-of-thing-at-point 'symbol)))))))
+            (comment (downcase-region start (1+ start))))
+        (progn
+          (replace-regexp "\\([A-Z]\\)" "_\\1" nil (1+ start) end)
+          (downcase-region start (cdr (bounds-of-thing-at-point 'symbol))))))))
 
 (defun dhnam/kill-ring-save-symbol-at-point ()
   "Copy the symbol at point."
