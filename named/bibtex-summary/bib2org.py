@@ -140,12 +140,18 @@ def save_org_structure(
             update_output_with_org_structure(org_substructure, heading_level + 1)
         append_new_line()
 
+    def update_output_with_root_org_structure(org_structure):
+        # substructures
+        for org_substructure in org_structure.iter_substructures():
+            update_output_with_org_structure(org_substructure, 0)
+        append_new_line()
+
     output_list.append(org_preamble)
     if notation_section:
         append_new_line()
         output_list.append(notation_section)
     append_new_line()
-    update_output_with_org_structure(root_org_structure, 0)
+    update_output_with_root_org_structure(root_org_structure)
     append_new_line()
     output_list.append(org_bibliography)
     if org_local_variable_code is not None:

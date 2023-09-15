@@ -6,7 +6,7 @@ from bibtex_summary.resource_download import download_pdf_in_bibtex
 # special symbols
 CLOVER_SYMBOL = '♣'  # or club symbol
 STAR_SYMBOL = '✸'
-DIAMOND_SYMBOL = '⯁'
+DIAMOND_SYMBOL = '■'
 
 # symbol mapping
 SYMBOL_KWARGS = dict(
