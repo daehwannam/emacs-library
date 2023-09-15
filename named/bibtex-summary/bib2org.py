@@ -13,23 +13,57 @@ from .utility import entry_id_to_file_name
 HARD_INDENTATION = False
 INDENT_CHAR = ' ' if HARD_INDENTATION else ''
 
+UNKNOWN_YEAR = -1
 
-def get_org_structure(entries):
-    org_structure = OrderedDict(type='root')
+
+class OrgStructure:
+    def __init__(self, heading):
+        self.heading = heading
+
+        self.substructure_dict = {}
+
+        self.entries = []
+        self.entry_ids = set()
+
+    def add_sub_heading(self, sub_heading):
+        if sub_heading not in self.substructure_dict:
+            self.substructure_dict[sub_heading] = OrgStructure(sub_heading)
+        return self.substructure_dict[sub_heading]
+
+    def iter_substructures(self):
+        return self.substructure_dict.values()
+
+    def add_entry(self, entry):
+        assert entry['ID'] not in self.entry_ids
+        self.entry_ids.add(entry['ID'])
+        self.entries.append(entry)
+        return entry
+
+    def iter_entries(self):
+        yield from self.entries
+
+    def sorted_entries(self):
+        def key(entry):
+            return int(entry.get('year', UNKNOWN_YEAR))
+
+        return sorted(self.entries, key=key)
+
+
+def get_root_org_structure(entries):
+    org_structure = OrgStructure('root')
     for entry in entries:
         org_heading_tuples = [tuple(head_str.strip() for head_str in head_list_str.split('->'))
                               for head_list_str in entry['org-head'].split('|')]
         for org_heading_tuple in org_heading_tuples:
             org_substructure = org_structure
             for org_heading in org_heading_tuple:
-                org_substructure = org_substructure.setdefault(org_heading, OrderedDict(type='heading'))
-            assert entry['ID'] not in org_substructure
-            org_substructure[entry['ID']] = OrderedDict(entry=entry, type='entry')
+                org_substructure = org_substructure.add_sub_heading(org_heading)
+            org_substructure.add_entry(entry)
     return org_structure
 
 
 def save_org_structure(
-        org_structure, *,
+        root_org_structure, *,
         org_preamble, org_bibliography, org_local_variable_code=None, notation_section=None,
         bib_source_symbol, code_link_symbol, note_link_symbol,
         note_dir_path):
@@ -81,39 +115,37 @@ def save_org_structure(
         else:
             return None
 
-    def update_output(org_structure, heading_level):
-        if org_structure['type'] == 'entry':
-            entry = org_structure['entry']
-            output_list.append(INDENT_CHAR * (heading_level - 1) + '- ')
-            # output_list.append(r'\cite{{{id}}}: {info}'.format(
-            #     id=entry['ID'],
-            #     info=" | ".join(chain(
-            #         ([make_info_unit(entry['org-cmt'], '~')] if entry['org-cmt'] else []),            #         [make_info_unit(entry['title'])]
-            #     ))))
+    def update_output_with_entry(entry, heading_level):
+        output_list.append(INDENT_CHAR * heading_level + '- ')
+        entry_items = [get_entry_info(entry),
+                       get_entry_bib_link(entry),
+                       get_entry_code_link(entry),
+                       get_entry_note_link(entry)]
 
-            entry_items = [get_entry_info(entry),
-                           get_entry_bib_link(entry),
-                           get_entry_code_link(entry),
-                           get_entry_note_link(entry)]
+        output_list.append(' '.join(s for s in entry_items if s != None))
 
-            output_list.append(' '.join(s for s in entry_items if s != None))
-        else:
-            for heading, body in org_structure.items():
-                if heading == 'type':
-                    continue
-                if body['type'] == 'heading':
-                    output_list.append('*' * (heading_level + 1) + ' ')
-                    output_list.append(heading)
-                    append_new_line()
-                update_output(body, heading_level + 1)
-                append_new_line()
+    def update_output_with_org_structure(org_structure, heading_level):
+        # add heading info
+        output_list.append('*' * (heading_level + 1) + ' ')
+        output_list.append(org_structure.heading)
+        append_new_line()
+
+        # entries
+        for entry in org_structure.sorted_entries():
+            update_output_with_entry(entry, heading_level)
+            append_new_line()
+
+        # substructures
+        for org_substructure in org_structure.iter_substructures():
+            update_output_with_org_structure(org_substructure, heading_level + 1)
+        append_new_line()
 
     output_list.append(org_preamble)
     if notation_section:
         append_new_line()
         output_list.append(notation_section)
     append_new_line()
-    update_output(org_structure, 0)
+    update_output_with_org_structure(root_org_structure, 0)
     append_new_line()
     output_list.append(org_bibliography)
     if org_local_variable_code is not None:
@@ -137,8 +169,8 @@ def convert_bibtex_to_org(
 
     bibtex_database = bibtexparser.loads(bibtex_str)
 
-    org_structure = get_org_structure(bibtex_database.entries)
-    save_org_structure(org_structure,
+    root_org_structure = get_root_org_structure(bibtex_database.entries)
+    save_org_structure(root_org_structure,
                        org_preamble=org_preamble,
                        org_bibliography=org_bibliography,
                        org_local_variable_code=org_local_variable_code,
