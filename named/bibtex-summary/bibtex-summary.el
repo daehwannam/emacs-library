@@ -286,23 +286,23 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
                               (when (or (string= extension "org") (string= extension "pdf"))
                                 (bibs/file-name-to-ref-id-str
                                  (file-name-sans-extension file-name)))))))
-        (when ref-id-str
-          (bibs/goto-ref-id-in-collection ref-id-str opening-in-other-window)))))
+        (bibs/goto-ref-id-in-collection ref-id-str opening-in-other-window))))
 
   (defun bibs/goto-ref-id-in-collection (ref-id-str &optional opening-in-other-window)
-    (let ((ref-pos nil))
-      (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
-               bibs/collection-file-as-source-of-reference)
-      (save-excursion
-        (beginning-of-buffer)
-        (when (re-search-forward (format "bibs-bib-id:%s" ref-id-str) nil t)
-          (move-beginning-of-line 1)
-          (setq ref-pos (point))))
-      (when ref-pos
-        (goto-char ref-pos)
-        (recenter-top-bottom)
+    (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
+             bibs/collection-file-as-source-of-reference)
+    (when ref-id-str
+      (let ((ref-pos nil))
+        (save-excursion
+          (beginning-of-buffer)
+          (when (re-search-forward (format "bibs-bib-id:%s" ref-id-str) nil t)
+            (move-beginning-of-line 1)
+            (setq ref-pos (point))))
+        (when ref-pos
+          (goto-char ref-pos)
+          (recenter-top-bottom)
 
-        ;; return position
-        ref-pos))))
+          ;; return position
+          ref-pos)))))
 
 (provide 'bibtex-summary)
