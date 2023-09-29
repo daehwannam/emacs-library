@@ -167,6 +167,8 @@
          (let ((query-replace-highlight nil)
                (cursor-type nil))
            (replace-regexp " *& *" " & " nil align-start align-end)))
-        (align-regexp align-start align-end "\\(\\s-*\\)&" 1 1 t)))))
+
+        (let ((new-align-end (point)))
+          (align-regexp align-start new-align-end "\\(\\s-*\\)&" 1 1 t))))))
 
 (provide 'dhnam-latex)
