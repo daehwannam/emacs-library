@@ -144,4 +144,96 @@ This function would not work for multi-hop SSH connections.
 
     (dhnam/dired-rsync/run dest-path max-size)))
 
+(progn
+  (defun dhnam/dired-open-next ()
+    (interactive)
+    (let ((window (selected-window)))
+	  (dired-next-line 1)
+	  (dired-find-file-other-window)
+	  (select-window window)))
+
+  (defun dhnam/dired-open-prev ()
+    (interactive)
+    (let ((window (selected-window)))
+	  (dired-previous-line 1)
+	  (dired-find-file-other-window)
+	  (select-window window))))
+
+(progn
+  ;; File path copy
+  ;; https://stackoverflow.com/a/9414763
+
+  (defun dhnam/get-current-file-path ()
+    (if (equal major-mode 'dired-mode)
+        default-directory
+      (or (buffer-file-name) default-directory)))
+
+  (defun dhnam/kill-path-to-clipboard ()
+    "Copy the current buffer file name to the clipboard."
+    (interactive)
+    (let ((path (dhnam/get-current-file-path)))
+      (when path
+        (kill-new path)
+        (message "'%s'" path))))
+
+  (defun dhnam/kill-file-name-to-clipboard ()
+    "Copy the current buffer file name to the clipboard."
+    (interactive)
+    (let ((path (dhnam/get-current-file-path)))
+      (when path
+        (let ((file-name (file-name-nondirectory path)))
+	      (kill-new file-name)
+	      (message "'%s'" file-name)))))
+
+  (defun dhnam/kill-buffer-name-to-clipboard ()
+    "Copy the current buffer file name to the clipboard."
+    (interactive)
+    (let ((name (buffer-name)))
+      (kill-new name)
+      (message "'%s'" name)))
+
+  (defun dhnam/kill-other-window-path-to-clipboard (count)
+    "Copy the other window's path."
+    (interactive "p")
+    (let ((path (progn (other-window count)
+		               (let ((path default-directory))
+			             (other-window (- count))
+			             path))))
+      (when path
+        (kill-new path)
+        (message "'%s'" path)))))
+
+(progn
+  ;; Deletion with Trash
+  (setq delete-by-moving-to-trash t)
+
+  (comment
+    (defun dhnam/toggle-delete-by-moving-to-trash ()
+      (interactive)
+      (setq delete-by-moving-to-trash (not delete-by-moving-to-trash))
+      (if delete-by-moving-to-trash
+	      (message "Trashing is activated")
+        (message "Deleting is activated"))))
+
+  (defun dhnam/dired-do-direct-delete (&optional arg)
+    (interactive "P")
+    (let ((delete-by-moving-to-trash nil))
+      (dired-do-delete arg)))
+
+  (defun dhnam/dired-do-direct-flagged-delete (&optional nomessage)
+    (interactive)
+    (let ((delete-by-moving-to-trash nil))
+      (dired-do-flagged-delete nomessage)))
+
+  (define-key dired-mode-map (kbd "C-c D") 'dhnam/dired-do-direct-delete)
+  (define-key dired-mode-map (kbd "C-c X") 'dhnam/dired-do-direct-flagged-delete))
+
+(defun dhnam/dired-find-file-following-symlink ()
+  "In Dired, visit the file or directory named on this line.
+Open a buffer with the actual path rather than the path of symbolic link."
+  (interactive)
+  (let ((find-file-visit-truename t))
+    (find-file filename wildcards)))
+
+
 (provide 'dhnam-dired)
