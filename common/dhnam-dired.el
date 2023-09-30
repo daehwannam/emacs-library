@@ -228,12 +228,12 @@ This function would not work for multi-hop SSH connections.
   (define-key dired-mode-map (kbd "C-c D") 'dhnam/dired-do-direct-delete)
   (define-key dired-mode-map (kbd "C-c X") 'dhnam/dired-do-direct-flagged-delete))
 
-(defun dhnam/dired-find-file-following-symlink ()
+(defun dhnam/dired-find-actual-file ()
   "In Dired, visit the file or directory named on this line.
 Open a buffer with the actual path rather than the path of symbolic link."
   (interactive)
   (let ((find-file-visit-truename t))
-    (find-file filename wildcards)))
+    (dired-find-file)))
 
 
 (provide 'dhnam-dired)
