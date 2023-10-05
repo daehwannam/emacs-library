@@ -15,25 +15,6 @@
       (interactive "p")
       (dhnam/pdf-view-next-page-in-multiple-columns-command (- n)))
 
-    (comment
-      (defun dhnam/pdf-view-next-page-in-multiple-columns-command (n)
-        (interactive "p")
-
-        (let ((window (selected-window))
-              (sorted-same-buffer-windows nil))
-          (dotimes (n (length (window-list)))
-            (when (eq (current-buffer) (window-buffer window))
-              (push window sorted-same-buffer-windows))
-            (setq window (next-window window)))
-
-          (let ((current-page (pdf-view-current-page (selected-window))))
-            (mapcar (lambda (window)
-                      (let ((offset (- (length (member window sorted-same-buffer-windows))
-                                       (length (member (selected-window) sorted-same-buffer-windows))
-                                       )))
-                        (pdf-view-goto-page (+ offset current-page n) window)))
-                    sorted-same-buffer-windows)))))
-
     (defun dhnam/pdf-view-next-page-in-multiple-columns-command (n &optional non-overlapping)
       (interactive "p")
 
