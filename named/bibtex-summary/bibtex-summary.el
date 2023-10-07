@@ -18,11 +18,11 @@
       (insert (dhnam/get-string-from-file example-dir-locals-path)))))
 
 (progn
-  (defvar bibs/bibliography-file-as-source-of-reference nil
+  (defvar bibs/merged-bibliography-file-as-source-of-reference nil
     "The path to a bibliography file. It should be used as a local variable.")
   (comment
-    (make-local-variable 'bibs/bibliography-file-as-source-of-reference)
-    (setq-default bibs/bibliography-file-as-source-of-reference "some-bibliography.bib"))
+    (make-local-variable 'bibs/merged-bibliography-file-as-source-of-reference)
+    (setq-default bibs/merged-bibliography-file-as-source-of-reference "some-bibliography.bib"))
 
   (defun bibs/get-start-end-content-positions-of-curly-brackets ()
     (let (start-pos end-pos)
@@ -43,27 +43,49 @@
         (setq start-pos (car start-end-pos-pair)
               end-pos (cadr start-end-pos-pair))
         (when (and start-pos end-pos)
-          (copy-region-as-kill start-pos end-pos)))))
+          (let ((content (buffer-substring-no-properties start-pos end-pos)))
+            (kill-new content)
+            (comment (copy-region-as-kill start-pos end-pos))
+            (message content))))))
 
-  (defun bibs/find-ref-id-point (ref-id-str)
-    (with-current-buffer (find-file-noselect bibs/bibliography-file-as-source-of-reference)
-      (save-excursion
-        (beginning-of-buffer)
-        (comment (re-search-forward (format "@.*\\(article\\|inproceedings\\).*%s[, \n]" ref-id-str)))
-        (re-search-forward (format "@[a-zA-z]+[ \n]*{[ \n]*%s[ \n]*," ref-id-str))
-        (backward-char 2)
-        (point))))
+  (defalias 'bibs/goto-ref-id 'bibs/goto-ref-id-file-of-reference)
 
-  (defun bibs/goto-ref-id (ref-id-str &optional opening-in-other-window)
-    (let ((ref-pos (bibs/find-ref-id-point ref-id-str)))
-      (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
-               bibs/bibliography-file-as-source-of-reference)
-      (when ref-pos
-        (goto-char ref-pos)
-        (recenter-top-bottom)
+  (progn
+    (defvar bibs/bib-file-dir-as-source-of-reference nil
+      "The path to a bibliography collection directory. It should be used as a local variable.")
 
-        ;; return position
-        ref-pos)))
+    (defun bibs/get-bib-dir-path (ref-id-str)
+      (let ((file-name (concat
+                        (bibs/ref-id-str-to-file-name ref-id-str)
+                        ".bib")))
+        (dhnam/join-dirs bibs/bib-file-dir-as-source-of-reference file-name)))
+
+    (defun bibs/goto-ref-id-file-of-reference (ref-id-str &optional opening-in-other-window)
+      (if ref-id-str
+          (let ((file-path (bibs/get-bib-dir-path ref-id-str)))
+            (funcall (if opening-in-other-window #'find-file-other-window #'find-file) file-path))
+        (message "Invalid cursor position"))))
+
+  (progn
+    (defun bibs/find-ref-id-point-from-merged-file (ref-id-str)
+      (with-current-buffer (find-file-noselect bibs/merged-bibliography-file-as-source-of-reference)
+        (save-excursion
+          (beginning-of-buffer)
+          (comment (re-search-forward (format "@.*\\(article\\|inproceedings\\).*%s[, \n]" ref-id-str)))
+          (re-search-forward (format "@[a-zA-z]+[ \n]*{[ \n]*%s[ \n]*," ref-id-str))
+          (backward-char 2)
+          (point))))
+
+    (defun bibs/goto-ref-id-from-merged-file (ref-id-str &optional opening-in-other-window)
+      (let ((ref-pos (bibs/find-ref-id-point-from-merged-file ref-id-str)))
+        (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
+                 bibs/merged-bibliography-file-as-source-of-reference)
+        (when ref-pos
+          (goto-char ref-pos)
+          (recenter-top-bottom)
+
+          ;; return position
+          ref-pos))))
 
   (defun bibs/get-ref-id-str-from-curly-brackets ()
     (let (start-pos end-pos)
@@ -255,10 +277,26 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
               (insert (format "\nTitle: %s\n\n" (bibs/get-title-from-ref-id-str ref-id-str))))))
       (message "Invalid cursor position")))
 
-  (defun bibs/get-title-from-ref-id-str (ref-id-str)
-    (with-current-buffer (find-file-noselect bibs/bibliography-file-as-source-of-reference)
-      (let ((ref-id-point (bibs/find-ref-id-point ref-id-str)))
-        (goto-char (bibs/find-ref-id-point ref-id-str))
+  (defun bibs/get-title-from-ref-id-str-from-bib-file-dir (ref-id-str)
+    (with-current-buffer (find-file-noselect (bibs/get-bib-dir-path ref-id-str))
+      (save-excursion
+        (let ((ref-id-point (bibs/find-ref-id-point-from-merged-file ref-id-str)))
+          (beginning-of-buffer)
+          (let (title-begin title-end)
+            (re-search-forward "title[[:space:]]*=[[:space:]]*[{\"]")
+            (backward-char)
+            (setq title-begin (1+ (point)))
+            (forward-sexp)
+            (setq title-end (1- (point)))
+            (let ((title (buffer-substring-no-properties title-begin title-end)))
+              (setq title (replace-regexp-in-string "[{}]" "" title))
+              (setq title (replace-regexp-in-string "[[:space:]\n]+" " " title))
+              title))))))
+
+  (defun bibs/get-title-from-ref-id-str-from-merged-file (ref-id-str)
+    (with-current-buffer (find-file-noselect bibs/merged-bibliography-file-as-source-of-reference)
+      (let ((ref-id-point (bibs/find-ref-id-point-from-merged-file ref-id-str)))
+        (goto-char (bibs/find-ref-id-point-from-merged-file ref-id-str))
         (let (title-begin title-end)
           (re-search-forward "title[[:space:]]*=[[:space:]]*[{\"]")
           (backward-char)
@@ -304,5 +342,61 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
 
           ;; return position
           ref-pos)))))
+
+(defun bibs/copy-heading-path-at-point ()
+  (interactive)
+
+  ;; Getting org-mode headings
+  ;; https://emacs.stackexchange.com/a/41872
+  (let ((heading-path (string-join (org-get-outline-path t) "->")))
+    (kill-new heading-path)
+    (message heading-path)))
+
+(defun bibs/setup-dir-locals (base-dir)
+  (progn
+    ;; bib
+    (progn
+      (make-local-variable 'bibs/bib-file-dir-as-source-of-reference)
+      (setq bibs/bib-file-dir-as-source-of-reference (concat base-dir "bib")))
+
+    (progn
+      (make-local-variable 'bibs/merged-bibliography-file-as-source-of-reference)
+      (setq bibs/merged-bibliography-file-as-source-of-reference (concat base-dir "bibliography.bib")))
+
+    (dhnam/buffer-local-set-key (kbd "C-c M-.") 'bibs/find-reference-in-bibliography-file)
+    (dhnam/buffer-local-set-key-chord "q." 'bibs/find-reference-in-bibliography-file)
+    (dhnam/buffer-local-set-key-chord "ql" 'bibs/open-pdfurl-of-reference-in-bibliography-file)
+    (dhnam/buffer-local-set-key-chord "wk" 'bibs/kill-current-content-of-curly-brackets-to-clipboard)
+    (dhnam/buffer-local-set-key-chord "wj" 'bibs/copy-heading-path-at-point)
+
+    (progn
+      (make-local-variable 'bibs/org-bib-source-symbol)
+      (setq bibs/org-bib-source-symbol "♣")))
+
+  (progn
+    ;; pdf
+    (progn
+      (make-local-variable 'bibs/pdf-file-dir-as-source-of-reference)
+      (setq bibs/pdf-file-dir-as-source-of-reference (concat base-dir "pdf")))
+
+    (dhnam/buffer-local-set-key-chord "qp" 'bibs/open-pdf-file-of-reference)
+    (dhnam/buffer-local-set-key-chord "pg" 'bibs/pdfgrep-with-default-dir))
+
+  (progn
+    ;; note
+    (progn
+      (make-local-variable 'bibs/note-file-dir-as-source-of-reference)
+      (setq bibs/note-file-dir-as-source-of-reference (concat base-dir "note")))
+
+    (dhnam/buffer-local-set-key-chord "qn" 'bibs/open-note-file-of-reference))
+
+  (progn
+    ;; collection
+    (progn
+      (make-local-variable 'bibs/collection-file-as-source-of-reference)
+      (setq bibs/collection-file-as-source-of-reference (concat base-dir "bibliography.org")))
+
+    (dhnam/buffer-local-set-key-chord "q," 'bibs/find-reference-in-collection-file)))
+
 
 (provide 'bibtex-summary)

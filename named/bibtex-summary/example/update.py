@@ -1,6 +1,7 @@
 
 from bibtex_summary.bib2org import convert_bibtex_to_org
 from bibtex_summary.resource_download import download_pdf_in_bibtex
+from bibtex_summary.bib_merge import bib_merge
 
 
 # special symbols
@@ -23,7 +24,7 @@ ORG_PREAMBLE = r'''
 
 ORG_BIBLIOGRAPHY = r'''
 \bibliographystyle{apalike}
-\bibliography{paper-bibliography}
+\bibliography{bibliography}
 '''
 
 NOTATION_SECTION = f'''
@@ -33,23 +34,32 @@ NOTATION_SECTION = f'''
 - {SYMBOL_KWARGS['note_link_symbol']}: The link to note
 '''
 
+MERGED_BIB_FILE_PATH = './bibliography.bib'
+PRIORITY_FILE_PATH = './priority.txt'
+BIB_DIR_PATH = './bib'
+NOTE_DIR_PATH = './note'
+SUMMARY_FILE_PATH = './bibliography.org'
+PDF_DIR_PATH = './pdf'
+PDF_URL_TAG = 'pdfurl'
+
+
 
 if __name__ == '__main__':
-    bib_file_path = './paper-bibliography.bib'
-    note_dir_path = './note'
+    bib_merge(MERGED_BIB_FILE_PATH, BIB_DIR_PATH)
+
     convert_bibtex_to_org(
-        bib_file_path=bib_file_path,
+        bib_file_path=MERGED_BIB_FILE_PATH,
+        priority_file_path=PRIORITY_FILE_PATH,
         org_preamble=ORG_PREAMBLE,
         org_bibliography=ORG_BIBLIOGRAPHY,
         org_local_variable_code=None,
         notation_section=NOTATION_SECTION,
         **SYMBOL_KWARGS,
-        note_dir_path=note_dir_path,
+        note_dir_path=NOTE_DIR_PATH,
+        summary_file_path=SUMMARY_FILE_PATH
     )
 
-    pdf_dir_path = './pdf'
-    pdf_url_tag = 'pdfurl'
     download_pdf_in_bibtex(
-        bib_file_path=bib_file_path,
-        pdf_dir_path=pdf_dir_path,
-        pdf_url_tag=pdf_url_tag)
+        bib_file_path=MERGED_BIB_FILE_PATH,
+        pdf_dir_path=PDF_DIR_PATH,
+        pdf_url_tag=PDF_URL_TAG)
