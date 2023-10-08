@@ -31,5 +31,19 @@ White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
   ;; e.g. (dhnam/format-symbol 'aa-bb-%s-dd 'yeah-hoo)
   (intern (apply #'format (cons (symbol-name s) objects))))
 
+(defun dhnam/get-matched-substring-no-properties (regexp string num)
+
+  ;; e.g.
+  ;; (let ((regexp "@[a-zA-z]+[ \n]*{[ \n]*\\(.+\\)[ \n]*,")
+  ;;       (string "@inproceedings{BIB-ID, ...}"))
+  ;;   (dhnam/get-matched-substring-no-properties regexp string 1))
+  ;;
+  ;; => BIB-ID
+
+  (string-match regexp string)
+  (match-string-no-properties num string))
+
+
+
 
 (provide 'dhnam-string)

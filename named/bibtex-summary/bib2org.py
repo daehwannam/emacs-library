@@ -109,10 +109,11 @@ def get_root_org_structure(entries):
 
 def get_root_priority_structure(priority_file_path):
     org_heading_tuples = []
-    with open(priority_file_path) as f:
-        for line in f:
-            if line.strip():
-                org_heading_tuples.append(heading_seq_repr_to_tuple(line))
+    if os.path.isfile(priority_file_path):
+        with open(priority_file_path) as f:
+            for line in f:
+                if line.strip():
+                    org_heading_tuples.append(heading_seq_repr_to_tuple(line))
 
     priority_structure = PriorityStructure('<root>', 0)
     for org_heading_tuple in org_heading_tuples:
