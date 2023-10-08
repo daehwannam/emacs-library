@@ -1,0 +1,25 @@
+
+#+TITLE: Paper collection
+#+SUBTITLE: /since 2020/
+#+AUTHOR: Daehwan Nam
+
+
+* Notation
+- ♣: The link to .bib file
+- ✸: The link to code
+- ■: The link to note
+
+* Neural networks
+** Transformers
+- ~self-attention paper (attention is all you need)~ | Attention is All you Need [[bibs-bib-id:DBLP:conf/nips/VaswaniSPUJGKP17][♣]] [[bibs-note-file:./note/DBLP=conf+nips+VaswaniSPUJGKP17.org][■]]
+
+** Optimizer
+- Adam: A Method for Stochastic Optimization [[bibs-bib-id:DBLP:journals/corr/KingmaB14][♣]]
+- ~AdamW~ | Fixing Weight Decay Regularization in Adam [[bibs-bib-id:DBLP:journals/corr/abs-1711-05101][♣]]
+
+* Software
+- ~Hugging Face's transformers~ | Transformers: State-of-the-Art Natural Language Processing [[bibs-bib-id:DBLP:conf/emnlp/WolfDSCDMCRLFDS20][♣]] [[bibs-code-url:https://github.com/huggingface/transformers][✸]]
+
+
+\bibliographystyle{apalike}
+\bibliography{bibliography}
