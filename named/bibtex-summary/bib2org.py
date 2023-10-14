@@ -97,8 +97,12 @@ def heading_seq_repr_to_tuple(heading_arrow_repr):
 def get_root_org_structure(entries):
     org_structure = OrgStructure('<root>')
     for entry in entries:
-        org_heading_tuples = [heading_seq_repr_to_tuple(heading_arrow_repr)
-                              for heading_arrow_repr in entry['org-head'].split('|')]
+        if ('org-head' not in entry) or (entry['org-head'].strip() == ''):
+            print('Warning: "{}" does not have any "org-head" value.'.format(entry['ID']))
+            org_heading_tuples = [('Unclassified',)]
+        else:
+            org_heading_tuples = [heading_seq_repr_to_tuple(heading_arrow_repr)
+                                  for heading_arrow_repr in entry['org-head'].split('|')]
         for org_heading_tuple in org_heading_tuples:
             org_substructure = org_structure
             for org_heading in org_heading_tuple:

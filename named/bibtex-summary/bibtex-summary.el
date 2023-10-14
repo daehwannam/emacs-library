@@ -142,7 +142,7 @@
 
 (progn
   (defalias 'bibs/find-reference-in-bibliography-file
-    'bibs/find-reference-in-bibliography-file-with-curly-brackets-or-raw-link-at-end)
+    'bibs/find-reference-in-bibliography-file-flexibly)
 
   (defun bibs/find-reference-in-bibliography-file-with-curly-brackets () ;; (&optional opening-in-other-window)
     (interactive)
@@ -167,6 +167,23 @@
     (interactive)
     (let ((opening-in-other-window nil))
       (let ((ref-id-str (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end)))
+        (bibs/goto-ref-id ref-id-str opening-in-other-window))))
+
+  (defun bibs/get-ref-id-from-file-name ()
+    (let ((file-path (buffer-file-name)))
+      (when file-path
+        (let* ((file-name (file-name-nondirectory file-path))
+               (extension (file-name-extension file-name)))
+          (when (and (member extension '("org" "note" "pdf" "bib"))
+                     (not (member file-name (list bibs/bibliography-bib-name bibs/bibliography-org-name))))
+            (let ((file-name-without-extension (file-name-sans-extension file-name)))
+              (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
+
+  (defun bibs/find-reference-in-bibliography-file-flexibly ()
+    (interactive)
+    (let ((opening-in-other-window nil))
+      (let ((ref-id-str (or (ignore-errors (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end))
+                            (bibs/get-ref-id-from-file-name))))
         (bibs/goto-ref-id ref-id-str opening-in-other-window))))
 
   (defun bibs/open-pdfurl-of-reference-in-bibliography-file ()
@@ -232,7 +249,8 @@
 
   (defun bibs/open-pdf-file-of-reference-with-curly-brackets-or-raw-link-at-end ()
     (interactive)
-    (let ((ref-id-str (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end)))
+    (let ((ref-id-str (or (ignore-errors (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end))
+                          (bibs/get-ref-id-from-file-name))))
       (bibs/goto-pdf-file-of-reference ref-id-str)))
 
   (defun bibs/pdfgrep-with-default-dir (command-args)
@@ -284,18 +302,17 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
   (defun bibs/get-title-from-ref-id-str-from-bib-file-dir (ref-id-str)
     (with-current-buffer (find-file-noselect (bibs/get-bib-file-path ref-id-str))
       (save-excursion
-        (let ((ref-id-point (bibs/find-ref-id-point-from-merged-file ref-id-str)))
-          (beginning-of-buffer)
-          (let (title-begin title-end)
-            (re-search-forward "title[[:space:]]*=[[:space:]]*[{\"]")
-            (backward-char)
-            (setq title-begin (1+ (point)))
-            (forward-sexp)
-            (setq title-end (1- (point)))
-            (let ((title (buffer-substring-no-properties title-begin title-end)))
-              (setq title (replace-regexp-in-string "[{}]" "" title))
-              (setq title (replace-regexp-in-string "[[:space:]\n]+" " " title))
-              title))))))
+        (beginning-of-buffer)
+        (let (title-begin title-end)
+          (re-search-forward "title[[:space:]]*=[[:space:]]*[{\"]")
+          (backward-char)
+          (setq title-begin (1+ (point)))
+          (forward-sexp)
+          (setq title-end (1- (point)))
+          (let ((title (buffer-substring-no-properties title-begin title-end)))
+            (setq title (replace-regexp-in-string "[{}]" "" title))
+            (setq title (replace-regexp-in-string "[[:space:]\n]+" " " title))
+            title)))))
 
   (defun bibs/get-title-from-ref-id-str-from-merged-file (ref-id-str)
     (with-current-buffer (find-file-noselect bibs/merged-bibliography-file-as-source-of-reference)
@@ -373,6 +390,24 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
           (with-current-buffer (find-file bib-file-path)
             (insert bib-content)))))))
 
+(progn
+  (defvar bibs/update-script-path nil
+    "The symbol of bib source. It should be used as a local variable.")
+
+  (defun bibs/run-update-script ()
+    (interactive)
+
+    (let ((cmd (format "cd %s && %s" (file-name-directory bibs/update-script-path) bibs/update-script-path))
+          (buffer-name "bibtex-summary update"))
+      (dhnam/displaying-buffer-same-window buffer-name
+        (let ((buffer (dhnam/comint-with-command cmd buffer-name)))
+          (set-buffer buffer)
+          (end-of-buffer))))))
+
+
+(defvar bibs/bibliography-bib-name "bibliography.bib")
+(defvar bibs/bibliography-org-name "bibliography.org")
+
 (defun bibs/setup-dir-locals (base-dir)
   (progn
     ;; bib
@@ -382,7 +417,7 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
 
     (progn
       (make-local-variable 'bibs/merged-bibliography-file-as-source-of-reference)
-      (setq bibs/merged-bibliography-file-as-source-of-reference (concat base-dir "bibliography.bib")))
+      (setq bibs/merged-bibliography-file-as-source-of-reference (concat base-dir bibs/bibliography-bib-name)))
 
     (dhnam/buffer-local-set-key (kbd "C-c M-.") 'bibs/find-reference-in-bibliography-file)
     (dhnam/buffer-local-set-key-chord "q." 'bibs/find-reference-in-bibliography-file)
@@ -416,9 +451,17 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
     ;; collection
     (progn
       (make-local-variable 'bibs/collection-file-as-source-of-reference)
-      (setq bibs/collection-file-as-source-of-reference (concat base-dir "bibliography.org")))
+      (setq bibs/collection-file-as-source-of-reference (concat base-dir bibs/bibliography-org-name)))
 
-    (dhnam/buffer-local-set-key-chord "q," 'bibs/find-reference-in-collection-file)))
+    (dhnam/buffer-local-set-key-chord "q," 'bibs/find-reference-in-collection-file))
+
+  (progn
+    ;; update script
+    (progn
+      (make-local-variable 'bibs/update-script-path)
+      (setq bibs/update-script-path (concat base-dir "update.sh")))
+
+    (dhnam/buffer-local-set-key (kbd "C-c u") 'bibs/run-update-script)))
 
 
 (provide 'bibtex-summary)
