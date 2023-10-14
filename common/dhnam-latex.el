@@ -1,57 +1,61 @@
 
 (with-eval-after-load 'pdf-view
   (progn
-    (defun dhnam/pdf-view-previous-page-command-in-other-window (&optional n)
+    (defun dhnam/pdf-view-previous-page-command-in-other-window (&optional num-steps)
       (interactive)
-      (dhnam/pdf-view-next-page-command-in-other-window (- (or n 1))))
+      (dhnam/pdf-view-next-page-command-in-other-window (- (or num-steps 1))))
 
-    (defun dhnam/pdf-view-next-page-command-in-other-window (&optional n)
+    (defun dhnam/pdf-view-next-page-command-in-other-window (&optional num-steps)
       (interactive)
       (with-current-buffer (window-buffer (next-window (selected-window)))
-        (pdf-view-next-page-command n))))
+        (pdf-view-next-page-command num-steps))))
 
   (progn
-    (defun dhnam/pdf-view-previous-page-in-multiple-columns-command (n)
+    (defun dhnam/pdf-view-previous-page-in-multiple-columns-command (num-steps)
       (interactive "p")
-      (dhnam/pdf-view-next-page-in-multiple-columns-command (- n)))
+      (dhnam/pdf-view-next-page-in-multiple-columns-command (- num-steps)))
 
-    (defun dhnam/pdf-view-next-page-in-multiple-columns-command (n &optional non-overlapping)
+    (defun dhnam/pdf-view-next-page-in-multiple-columns-command (num-steps &optional non-overlapping)
       (interactive "p")
 
       (let ((found nil)
-            (leftmost-window (selected-window)))
+            (rightmost-window (selected-window)))
         (while (not found)
-          (let ((new-window (windmove-find-other-window 'left 1 leftmost-window)))
+          (let ((new-window (windmove-find-other-window 'right 1 rightmost-window)))
             (if new-window
-                (setq leftmost-window new-window)
+                (setq rightmost-window new-window)
               (setq found t))))
 
-        (let ((window leftmost-window)
-              (sorted-same-buffer-windows nil))
-          (dotimes (i (length (window-list))) ; right (newly created) windows are first in window-list.
+        (let ((window rightmost-window)
+              (same-buffer-windows-from-left-to-right nil))
+          (dotimes (i (length (window-list)))
             (when (eq (current-buffer) (window-buffer window))
-              (push window sorted-same-buffer-windows))
-            (setq window (next-window window)))
+              ;; right windows are pushed first
+              (push window same-buffer-windows-from-left-to-right))
+            (setq window (previous-window window)))
 
-          (let ((current-page (pdf-view-current-page (selected-window))))
+          (let* ((pivot-window (selected-window))
+                 (current-page (pdf-view-current-page pivot-window)))
             (mapcar (lambda (window)
-                      (let ((offset (- (length (member window sorted-same-buffer-windows))
-                                       (length (member (selected-window) sorted-same-buffer-windows))
+                      (let ((offset (- (length (member pivot-window same-buffer-windows-from-left-to-right))
+                                       (length (member window same-buffer-windows-from-left-to-right))
                                        )))
                         (pdf-view-goto-page (+ offset current-page
                                                (if non-overlapping
-                                                   (* n (length sorted-same-buffer-windows))
-                                                 n))
+                                                   (* num-steps (length same-buffer-windows-from-left-to-right))
+                                                 num-steps))
                                             window)))
-                    sorted-same-buffer-windows)))))
+                    (if (> num-steps 0)
+                        (reverse same-buffer-windows-from-left-to-right)
+                      same-buffer-windows-from-left-to-right))))))
 
-    (defun dhnam/pdf-view-previous-non-overlapping-page-in-multiple-columns-command (n)
+    (defun dhnam/pdf-view-previous-non-overlapping-page-in-multiple-columns-command (num-steps)
       (interactive "p")
-      (dhnam/pdf-view-next-non-overlapping-page-in-multiple-columns-command (- n)))
+      (dhnam/pdf-view-next-non-overlapping-page-in-multiple-columns-command (- num-steps)))
 
-    (defun dhnam/pdf-view-next-non-overlapping-page-in-multiple-columns-command (n)
+    (defun dhnam/pdf-view-next-non-overlapping-page-in-multiple-columns-command (num-steps)
       (interactive "p")
-      (dhnam/pdf-view-next-page-in-multiple-columns-command n t))))
+      (dhnam/pdf-view-next-page-in-multiple-columns-command num-steps t))))
 
 (with-eval-after-load 'biblio
   (progn
