@@ -20,35 +20,41 @@
 (progn
   (defvar bibs/merged-bibliography-file-as-source-of-reference nil
     "The path to a bibliography file. It should be used as a local variable.")
-  (comment
-    (make-local-variable 'bibs/merged-bibliography-file-as-source-of-reference)
-    (setq-default bibs/merged-bibliography-file-as-source-of-reference "some-bibliography.bib"))
 
   (defun bibs/get-start-end-content-positions-of-curly-brackets ()
     (let (start-pos end-pos)
       (save-excursion
         ;; find identifiers separated by curly bracket, comma, white-space
         (save-excursion
-          (when (re-search-backward "\[{,[:blank:]\]" nil t)
+          (when (re-search-backward "\[{,\][:blank:]*" nil t)
             (setq start-pos (1+ (point)))))
         (save-excursion
-          (when (re-search-forward "\[},[:blank:]\]" nil t)
+          (when (re-search-forward "\[},\][:blank:]*" nil t)
             (setq end-pos (1- (point))))))
       (list start-pos end-pos)))
 
-  (defun bibs/kill-current-content-of-curly-brackets-to-clipboard ()
-    (interactive)
+  (defun bibs/get-ref-id-in-curly-brackets ()
     (let (start-pos end-pos)
       (let ((start-end-pos-pair (bibs/get-start-end-content-positions-of-curly-brackets)))
         (setq start-pos (car start-end-pos-pair)
               end-pos (cadr start-end-pos-pair))
         (when (and start-pos end-pos)
-          (let ((content (buffer-substring-no-properties start-pos end-pos)))
-            (kill-new content)
-            (comment (copy-region-as-kill start-pos end-pos))
-            (message content))))))
+          (let ((content (dhnam/string-trim (buffer-substring-no-properties start-pos end-pos))))
+            (when (and
+                   ;; the content should not be empty.
+                   (not (string-empty-p content))
+                   ;; the content should not include "{" or "}".
+                   (not (string-match "[{}]" content)))
+              content))))))
 
-  (defalias 'bibs/goto-ref-id 'bibs/goto-ref-id-file-of-reference)
+  (defun bibs/copy-ref-id-str-in-curly-brackets ()
+    (interactive)
+    (let ((content (bibs/get-ref-id-in-curly-brackets)))
+      (if content
+          (progn
+            (kill-new content)
+            (message content))
+        (message "Invalid cursor position"))))
 
   (progn
     (defvar bibs/bib-file-dir-as-source-of-reference nil
@@ -60,7 +66,7 @@
                         ".bib")))
         (dhnam/join-dirs bibs/bib-file-dir-as-source-of-reference file-name)))
 
-    (defun bibs/goto-ref-id-file-of-reference (ref-id-str &optional opening-in-other-window)
+    (defun bibs/goto-ref-id (ref-id-str &optional opening-in-other-window)
       (if ref-id-str
           (let ((bib-file-path (bibs/get-bib-file-path ref-id-str)))
             (funcall (if opening-in-other-window #'find-file-other-window #'find-file) bib-file-path))
@@ -87,30 +93,11 @@
           (recenter-top-bottom)
 
           ;; return position
-          ref-pos))))
-
-  (defun bibs/get-ref-id-str-from-curly-brackets ()
-    (let (start-pos end-pos)
-      (let ((start-end-pos-pair (bibs/get-start-end-content-positions-of-curly-brackets)))
-        (setq start-pos (car start-end-pos-pair)
-              end-pos (cadr start-end-pos-pair)))
-      (let ((ref-id-str nil)
-            (ref-id-str-valid nil))
-        (when (and start-pos end-pos)
-          (setq ref-id-str (dhnam/string-trim (buffer-substring-no-properties start-pos end-pos)))
-          (setq ref-id-str-valid (not (or (string-match-p "[{}]" ref-id-str)
-                                          (string-empty-p ref-id-str))))
-          (comment
-            (unless ref-id-str-valid
-              (comment (xref-find-definitions (xref-backend-identifier-at-point (xref-find-backend))))
-              (call-interactively 'xref-find-definitions)))
-          (when ref-id-str-valid
-            ref-id-str))))))
+          ref-pos)))))
 
 (progn
   (defvar bibs/org-bib-source-symbol nil
     "The symbol of bib source. It should be used as a local variable.")
-
 
   (with-eval-after-load 'org
     ;; define a link type
@@ -129,45 +116,12 @@
                              :face '(:foreground "cyan")
                              :follow #'find-file))
 
-  (defun bibs/get-ref-id-str-from-raw-link-at-end ()
+  (defun bibs/get-ref-id-from-raw-link-at-end ()
     (save-excursion
       (move-end-of-line 1)
       (re-search-backward (or bibs/org-bib-source-symbol "[[.*]]") nil t)
       (when (eq major-mode 'org-mode)
         (substring-no-properties (plist-get (cadr (org-element-context)) :raw-link) (length "bibs-bib-id:")))))
-
-  (defun bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end ()
-    (or (bibs/get-ref-id-str-from-raw-link-at-end)
-        (bibs/get-ref-id-str-from-curly-brackets))))
-
-(progn
-  (defalias 'bibs/find-reference-in-bibliography-file
-    'bibs/find-reference-in-bibliography-file-flexibly)
-
-  (defun bibs/find-reference-in-bibliography-file-with-curly-brackets () ;; (&optional opening-in-other-window)
-    (interactive)
-    (let ((opening-in-other-window nil))
-      (let ((ref-id-str (bibs/get-ref-id-str-from-curly-brackets)))
-        (when ref-id-str
-          (bibs/goto-ref-id ref-id-str opening-in-other-window)))))
-
-  (defun bibs/find-reference-in-bibliography-file-with-raw-link () ;; (&optional opening-in-other-window)
-    (interactive)
-    (let ((opening-in-other-window nil))
-      (let ((ref-id-str (plist-get (cadr (org-element-context)) :raw-link)))
-        (bibs/goto-ref-id ref-id-str opening-in-other-window))))
-
-  (defun bibs/find-reference-in-bibliography-file-with-raw-link-at-end ()
-    (interactive)
-    (let ((opening-in-other-window nil))
-      (let ((ref-id-str (bibs/get-ref-id-str-from-raw-link-at-end)))
-        (bibs/goto-ref-id ref-id-str opening-in-other-window))))
-
-  (defun bibs/find-reference-in-bibliography-file-with-curly-brackets-or-raw-link-at-end ()
-    (interactive)
-    (let ((opening-in-other-window nil))
-      (let ((ref-id-str (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end)))
-        (bibs/goto-ref-id ref-id-str opening-in-other-window))))
 
   (defun bibs/get-ref-id-from-file-name ()
     (let ((file-path (buffer-file-name)))
@@ -179,11 +133,16 @@
             (let ((file-name-without-extension (file-name-sans-extension file-name)))
               (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
 
-  (defun bibs/find-reference-in-bibliography-file-flexibly ()
+  (defun bibs/get-ref-id-flexibly ()
+    (or (bibs/get-ref-id-from-raw-link-at-end)
+        (bibs/get-ref-id-in-curly-brackets)
+        (bibs/get-ref-id-from-file-name))))
+
+(progn
+  (defun bibs/find-reference-in-bibliography-file ()
     (interactive)
     (let ((opening-in-other-window nil))
-      (let ((ref-id-str (or (ignore-errors (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end))
-                            (bibs/get-ref-id-from-file-name))))
+      (let ((ref-id-str (bibs/get-ref-id-flexibly)))
         (bibs/goto-ref-id ref-id-str opening-in-other-window))))
 
   (defun bibs/open-pdfurl-of-reference-in-bibliography-file ()
@@ -203,13 +162,9 @@
             (when url-thing
               (dhnam/exwm-command-open-web-browser (substring-no-properties url-thing)))))))))
 
-
 (progn
   (defvar bibs/pdf-file-dir-as-source-of-reference nil
     "The path to a pdf collection directory. It should be used as a local variable.")
-  (comment
-    (make-local-variable 'bibs/pdf-file-dir-as-source-of-reference)
-    (setq-default bibs/pdf-file-dir-as-source-of-reference "some-pdf-directory-path"))
 
   (defun bibs/ref-id-str-to-file-name (ref-id-str)
     (replace-regexp-in-string
@@ -234,23 +189,9 @@
             (message (format "The file %s doesn't exist" file-path))))
       (message "Invalid cursor position")))
 
-  (defalias 'bibs/open-pdf-file-of-reference
-    'bibs/open-pdf-file-of-reference-with-curly-brackets-or-raw-link-at-end)
-
-  (defun bibs/open-pdf-file-of-reference-with-curly-brackets ()
+  (defun bibs/open-pdf-file-of-reference ()
     (interactive)
-    (let ((ref-id-str (bibs/get-ref-id-str-from-curly-brackets)))
-      (bibs/goto-pdf-file-of-reference ref-id-str)))
-
-  (defun bibs/open-pdf-file-of-reference-with-raw-link-at-end ()
-    (interactive)
-    (let ((ref-id-str (bibs/get-ref-id-str-from-raw-link-at-end)))
-      (bibs/goto-pdf-file-of-reference ref-id-str)))
-
-  (defun bibs/open-pdf-file-of-reference-with-curly-brackets-or-raw-link-at-end ()
-    (interactive)
-    (let ((ref-id-str (or (ignore-errors (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end))
-                          (bibs/get-ref-id-from-file-name))))
+    (let ((ref-id-str (bibs/get-ref-id-flexibly)))
       (bibs/goto-pdf-file-of-reference ref-id-str)))
 
   (defun bibs/pdfgrep-with-default-dir (command-args)
@@ -278,11 +219,9 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
   (defvar bibs/note-file-dir-as-source-of-reference nil
     "The path to a note collection directory. It should be used as a local variable.")
 
-  (defalias 'bibs/open-note-file-of-reference 'bibs/open-note-file-of-reference-with-curly-brackets-or-raw-link-at-end)
-
-  (defun bibs/open-note-file-of-reference-with-curly-brackets-or-raw-link-at-end ()
+  (defun bibs/open-note-file-of-reference ()
     (interactive)
-    (let ((ref-id-str (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end)))
+    (let ((ref-id-str (bibs/get-ref-id-flexibly)))
       (bibs/goto-note-file-of-reference ref-id-str)))
 
   (defun bibs/goto-note-file-of-reference (ref-id-str &optional opening-in-other-window)
@@ -297,9 +236,7 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
               (insert (format "\nTitle: %s\n\n" (bibs/get-title-from-ref-id-str ref-id-str))))))
       (message "Invalid cursor position")))
 
-  (defalias 'bibs/get-title-from-ref-id-str 'bibs/get-title-from-ref-id-str-from-bib-file-dir)
-
-  (defun bibs/get-title-from-ref-id-str-from-bib-file-dir (ref-id-str)
+  (defun bibs/get-title-from-ref-id-str (ref-id-str)
     (with-current-buffer (find-file-noselect (bibs/get-bib-file-path ref-id-str))
       (save-excursion
         (beginning-of-buffer)
@@ -333,18 +270,10 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
   (defvar bibs/collection-file-as-source-of-reference nil
     "The path to a bibliography file. It should be used as a local variable.")
 
-  (defalias 'bibs/find-reference-in-collection-file
-    'bibs/find-reference-in-collection-file-with-curly-brackets-or-raw-link-at-end-or-by-file-name)
-
-  (defun bibs/find-reference-in-collection-file-with-curly-brackets-or-raw-link-at-end-or-by-file-name ()
+  (defun bibs/find-reference-in-collection-file ()
     (interactive)
     (let ((opening-in-other-window nil))
-      (let ((ref-id-str (or (ignore-errors (bibs/get-ref-id-str-from-curly-brackets-or-raw-link-at-end))
-                            (let* ((file-name (file-name-nondirectory (dhnam/get-current-file-path)))
-                                   (extension (file-name-extension file-name)))
-                              (when (or (string= extension "org") (string= extension "pdf"))
-                                (bibs/file-name-to-ref-id-str
-                                 (file-name-sans-extension file-name)))))))
+      (let ((ref-id-str (bibs/get-ref-id-flexibly)))
         (bibs/goto-ref-id-in-collection ref-id-str opening-in-other-window))))
 
   (defun bibs/goto-ref-id-in-collection (ref-id-str &optional opening-in-other-window)
@@ -398,11 +327,8 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
     (interactive)
 
     (let ((cmd (format "cd %s && %s" (file-name-directory bibs/update-script-path) bibs/update-script-path))
-          (buffer-name "bibtex-summary update"))
-      (dhnam/displaying-buffer-same-window buffer-name
-        (let ((buffer (dhnam/comint-with-command cmd buffer-name)))
-          (set-buffer buffer)
-          (end-of-buffer))))))
+          (buffer-name "*bibtex-summary update*"))
+      (dhnam/comint-with-command-in-same-window cmd buffer-name))))
 
 
 (defvar bibs/bibliography-bib-name "bibliography.bib")
@@ -422,7 +348,7 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
     (dhnam/buffer-local-set-key (kbd "C-c M-.") 'bibs/find-reference-in-bibliography-file)
     (dhnam/buffer-local-set-key-chord "q." 'bibs/find-reference-in-bibliography-file)
     (dhnam/buffer-local-set-key-chord "ql" 'bibs/open-pdfurl-of-reference-in-bibliography-file)
-    (dhnam/buffer-local-set-key-chord "wk" 'bibs/kill-current-content-of-curly-brackets-to-clipboard)
+    (dhnam/buffer-local-set-key-chord "wk" 'bibs/copy-ref-id-str-in-curly-brackets)
     (dhnam/buffer-local-set-key-chord "wj" 'bibs/copy-heading-path-at-point)
     (dhnam/buffer-local-set-key-chord "c;" 'bibs/create-new-bib-file)
 
