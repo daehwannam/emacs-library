@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: du
+# key: du
+# --
+du -sh ${1:path}$0

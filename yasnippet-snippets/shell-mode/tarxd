@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tarxd
+# key: tarxd
+# --
+_DIR_=${1:path/to/dir} && mkdir -p $_DIR_ && tar -x -f ${2:path/to/archive.tar.*} -C $_DIR_$0

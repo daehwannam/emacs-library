@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: zip
+# key: zip
+# --
+zip -r ${1:path/to/archive.zip} ${2:path/to/dir}$0

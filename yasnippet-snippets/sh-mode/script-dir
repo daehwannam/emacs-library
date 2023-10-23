@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: script-dir
+# key: script-dir
+# --
+SCRIPT_FILE_PATH=$(realpath \$0)
+SCRIPT_DIR_PATH=$(dirname $SCRIPT_FILE_PATH)

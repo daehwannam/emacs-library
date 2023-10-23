@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tarcz
+# key: tarcz
+# --
+tar -c -z -f ${1:path/to/archive.tar.gz} ${2:path/to/files}$0

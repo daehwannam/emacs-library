@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tarc
+# key: tarc
+# --
+tar -c -f ${1:path/to/archive.tar} ${2:path/to/files}$0
