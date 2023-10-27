@@ -6,7 +6,9 @@
  ;; '("doi" "https://dx.doi.org/~a" "https://dx.doi.org/")
 
  ("gg" "https://www.google.com/search?q=~a" "https://www.google.com/")
+ ;; ("nd" "https://en.dict.naver.com/#/search?query=~a&range=all" "https://dict.naver.com/")
  ("nd" "https://en.dict.naver.com/#/search?query=~a" "https://en.dict.naver.com/#/main")
+ ("ndk" "https://ko.dict.naver.com/#/search?query=~a" "https://ko.dict.naver.com/#/main")
  ("gk" "https://translate.google.co.kr/?hl=ko&sl=auto&tl=ko&text=~a&op=translate" "https://translate.google.co.kr/?hl=ko&sl=auto&tl=ko&text=&op=translate")
  ("ge" "https://translate.google.co.kr/?hl=ko&sl=auto&tl=en&text=~a&op=translate" "https://translate.google.co.kr/?hl=ko&sl=auto&tl=en&text=&op=translate")
  ("er" "https://www.reddit.com/r/emacs/search/?q=~a&restrict_sr=1&sr_nsfw=" "https://www.reddit.com/r/emacs/")
