@@ -120,7 +120,8 @@
     (save-excursion
       (move-end-of-line 1)
       (re-search-backward (or bibs/org-bib-source-symbol "[[.*]]") nil t)
-      (when (eq major-mode 'org-mode)
+      (when (string= (buffer-name) bibs/bibliography-org-name)
+        ;; (eq major-mode 'org-mode)
         (substring-no-properties (plist-get (cadr (org-element-context)) :raw-link) (length "bibs-bib-id:")))))
 
   (defun bibs/get-ref-id-from-file-name ()
