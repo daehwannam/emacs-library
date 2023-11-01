@@ -48,7 +48,7 @@ class OrgStructure:
             return self.sorted_substructures(priority_structure)
 
     def add_entry(self, entry):
-        assert entry['ID'] not in self.entry_ids
+        assert entry['ID'] not in self.entry_ids, f"Duplicate bibtex files or duplicate org-head values exist for {entry['ID']}"
         self.entry_ids.add(entry['ID'])
         self.entries.append(entry)
         return entry
