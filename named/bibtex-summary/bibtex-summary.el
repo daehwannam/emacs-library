@@ -44,7 +44,9 @@
                    ;; the content should not be empty.
                    (not (string-empty-p content))
                    ;; the content should not include "{" or "}".
-                   (not (string-match "[{}]" content)))
+                   (not (string-match "[{}]" content))
+                   ;; the content should not include space
+                   (not (string-match " " content)))
               content))))))
 
   (defun bibs/copy-ref-id-str-in-curly-brackets ()
@@ -135,8 +137,8 @@
               (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
 
   (defun bibs/get-ref-id-flexibly ()
-    (or (bibs/get-ref-id-from-raw-link-at-end)
-        (bibs/get-ref-id-in-curly-brackets)
+    (or (bibs/get-ref-id-in-curly-brackets)
+        (bibs/get-ref-id-from-raw-link-at-end)
         (bibs/get-ref-id-from-file-name))))
 
 (progn
