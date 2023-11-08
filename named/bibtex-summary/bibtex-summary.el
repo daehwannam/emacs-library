@@ -122,7 +122,7 @@
     (save-excursion
       (move-end-of-line 1)
       (re-search-backward (or bibs/org-bib-source-symbol "[[.*]]") nil t)
-      (when (string= (buffer-name) bibs/bibliography-org-name)
+      (when (string= (uniquify-buffer-base-name) bibs/bibliography-org-name)
         ;; (eq major-mode 'org-mode)
         (substring-no-properties (plist-get (cadr (org-element-context)) :raw-link) (length "bibs-bib-id:")))))
 
@@ -137,9 +137,16 @@
               (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
 
   (defun bibs/get-ref-id-flexibly ()
-    (or (bibs/get-ref-id-in-curly-brackets)
-        (bibs/get-ref-id-from-raw-link-at-end)
-        (bibs/get-ref-id-from-file-name))))
+    (let* ((file-path (buffer-file-name))
+           (file-name (file-name-nondirectory file-path))
+           (extension (file-name-extension file-name)))
+      (cond
+       ((string= extension "pdf")
+        (bibs/get-ref-id-from-file-name))
+       (t
+        (or (bibs/get-ref-id-in-curly-brackets)
+            (bibs/get-ref-id-from-raw-link-at-end)
+            (bibs/get-ref-id-from-file-name)))))))
 
 (progn
   (defun bibs/find-reference-in-bibliography-file ()
