@@ -157,20 +157,17 @@
 
   (defun bibs/open-pdfurl-of-reference-in-bibliography-file ()
     (interactive)
-    (when (bibs/find-reference-in-bibliography-file)
-      (save-excursion
-        (let ((new-point
-               (save-restriction
-                 (narrow-to-region (save-excursion (move-beginning-of-line 1) (point))
-                                   (save-excursion (move-beginning-of-line 1) (forward-list) (point)))
-                 (re-search-forward "\\(pdfurl\\|@\\)")
-                 (re-search-forward "{")
-                 (re-search-forward "[^ ]")
-                 (point))))
-          (goto-char new-point)
-          (let ((url-thing (thing-at-point 'url)))
-            (when url-thing
-              (dhnam/exwm-command-open-web-browser (substring-no-properties url-thing)))))))))
+    (let ((ref-id-str (bibs/get-ref-id-flexibly)))
+      (with-current-buffer (find-file-noselect (bibs/get-bib-file-path ref-id-str))
+        (progn
+          (beginning-of-buffer)
+          (re-search-forward "pdfurl")
+          (re-search-forward "{")
+          (re-search-forward "[^ ]"))
+        (let ((url-thing (thing-at-point 'url)))
+          (when url-thing
+            (message url-thing)
+            (dhnam/app-command-open-web-browser (substring-no-properties url-thing))))))))
 
 (progn
   (defvar bibs/pdf-file-dir-as-source-of-reference nil
@@ -340,6 +337,23 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
           (buffer-name "*bibtex-summary update*"))
       (dhnam/comint-with-command-in-same-window cmd buffer-name))))
 
+(progn
+  (require 'dhnam-web-browser)
+
+  (defun bibs/search-in-google-scholar ()
+    (interactive)
+    (let* ((ref-id-str (bibs/get-ref-id-flexibly))
+           (title (bibs/get-title-from-ref-id-str ref-id-str)))
+      (dhnam/app-command-query-to-browser (concat "scholar " title)))))
+
+
+(progn
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "s") 'bibs/search-in-google-scholar)
+    (define-key map (kbd "p") 'bibs/open-pdfurl-of-reference-in-bibliography-file)
+
+    (defvar bibs/web-command-map map)
+    (fset 'bibs/web-command-map bibs/web-command-map)))
 
 (defvar bibs/bibliography-bib-name "bibliography.bib")
 (defvar bibs/bibliography-org-name "bibliography.org")
@@ -357,7 +371,7 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
 
     (dhnam/buffer-local-set-key (kbd "C-c M-.") 'bibs/find-reference-in-bibliography-file)
     (dhnam/buffer-local-set-key-chord "q." 'bibs/find-reference-in-bibliography-file)
-    (dhnam/buffer-local-set-key-chord "ql" 'bibs/open-pdfurl-of-reference-in-bibliography-file)
+    (dhnam/buffer-local-set-key-chord "ql" 'bibs/web-command-map)
     (dhnam/buffer-local-set-key-chord "wk" 'bibs/copy-ref-id-str-in-curly-brackets)
     (dhnam/buffer-local-set-key-chord "wj" 'bibs/copy-heading-path-at-point)
     (dhnam/buffer-local-set-key-chord "c;" 'bibs/create-new-bib-file)

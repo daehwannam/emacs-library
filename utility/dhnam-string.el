@@ -44,6 +44,4 @@ White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
   (match-string-no-properties num string))
 
 
-
-
 (provide 'dhnam-string)

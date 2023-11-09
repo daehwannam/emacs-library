@@ -81,7 +81,7 @@
       (setq dhnam/web-search-engines
             (car (read-from-string (dhnam/get-string-from-file dhnam/web-search-engine-list-file-path)))))
 
-    (defun dhnam/exwm-query-to-browser (query open-web-browser)
+    (defun dhnam/search-query-to-browser (query open-web-browser)
       (let* ((splits (s-split " " query))
              (search-engine-entry
               (assoc (car splits) dhnam/web-search-engines))
@@ -108,7 +108,7 @@
     (defun dhnam/app-command-query-to-browser (&optional query)
       (interactive (list (read-string "Search query: " nil 'dhnam/web-browser-query-history)))
       (comment (interactive "sSearch query: "))
-      (dhnam/exwm-query-to-browser query #'dhnam/app-command-open-web-browser)))
+      (dhnam/search-query-to-browser query #'dhnam/app-command-open-web-browser)))
 
   (defun dhnam/app-command-open-google-chrome (&optional url)
     (interactive)
