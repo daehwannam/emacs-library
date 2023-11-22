@@ -197,4 +197,10 @@
                         (t 0)))))))
   )
 
+(progn
+  ;; Fix for indentation of algorithmic
+  ;; https://tex.stackexchange.com/a/64593
+  (setq LaTeX-begin-regexp (concat LaTeX-begin-regexp "\\|If\\b\\|For\\b"))
+  (setq LaTeX-end-regexp (concat LaTeX-end-regexp "\\|EndIf\\b\\|EndFor\\b")))
+
 (provide 'dhnam-latex-indentation-fix)

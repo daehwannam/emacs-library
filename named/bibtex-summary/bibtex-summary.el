@@ -51,7 +51,8 @@
 
   (defun bibs/copy-ref-id-str-in-curly-brackets ()
     (interactive)
-    (let ((content (bibs/get-ref-id-in-curly-brackets)))
+    (let ((content (or (bibs/get-ref-id-in-curly-brackets)
+                       (bibs/get-ref-id-from-raw-link-at-end))))
       (if content
           (progn
             (kill-new content)
@@ -120,9 +121,9 @@
 
   (defun bibs/get-ref-id-from-raw-link-at-end ()
     (save-excursion
-      (move-end-of-line 1)
-      (re-search-backward (or bibs/org-bib-source-symbol "[[.*]]") nil t)
       (when (string= (uniquify-buffer-base-name) bibs/bibliography-org-name)
+        (move-end-of-line 1)
+        (re-search-backward (or bibs/org-bib-source-symbol "[[.*]]") nil t)
         ;; (eq major-mode 'org-mode)
         (substring-no-properties (plist-get (cadr (org-element-context)) :raw-link) (length "bibs-bib-id:")))))
 
