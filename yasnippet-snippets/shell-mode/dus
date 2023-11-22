@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: du sort
+# key: dus
+#
+# du options
+#   -h : human-readable
+#   -s : summarze to display the total of each directory or file
+#
+# sort options
+#   -h : human-readable
+#   -r : reverse order
+# --
+du -sh ${1:./*}$0 | sort -hr
