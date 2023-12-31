@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: num-comma-sep
+# key: num-comma-sep
+# --
+$(($(echo ${1:$ITEMS} | tr -cd , | wc -c) + 1))
