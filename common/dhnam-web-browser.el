@@ -70,16 +70,25 @@
     (dhnan/open-web-browser "nyxt" url))
 
   (progn
-    (defvar dhnam/web-search-engine-list-file-path
+    (defvar dhnam/default-web-search-engine-list-file-path
       (concat dhnam/lib-root-dir "common/dependent/search-engines.lisp"))
 
+    (defvar dhnam/web-search-engine-list-file-paths
+      (list dhnam/default-web-search-engine-list-file-path))
+
+    (defun dhnam/get-search-engines-from-file-path (file-path)
+      (car (read-from-string (dhnam/get-string-from-file file-path))))
+
+    (defun dhnam/get-search-engines-from-file-paths (file-paths)
+      (apply 'append (mapcar 'dhnam/get-search-engines-from-file-path file-paths)))
+
     (defvar dhnam/web-search-engines
-      (car (read-from-string (dhnam/get-string-from-file dhnam/web-search-engine-list-file-path))))
+      (dhnam/get-search-engines-from-file-paths dhnam/web-search-engine-list-file-paths))
 
     (defun dhnam/update-web-search-engines ()
       (interactive)
       (setq dhnam/web-search-engines
-            (car (read-from-string (dhnam/get-string-from-file dhnam/web-search-engine-list-file-path)))))
+            (dhnam/get-search-engines-from-file-paths dhnam/web-search-engine-list-file-paths)))
 
     (defun dhnam/search-query-to-browser (query open-web-browser)
       (let* ((splits (s-split " " query))
