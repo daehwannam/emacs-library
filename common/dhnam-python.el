@@ -103,6 +103,10 @@ This function is modified from `elpy-occur-definitions'"
     (interactive)
     (kill-new (dhnam/get-full-module-name)))
 
+  (defun dhnam/copy-statement-of-importing-all-from-full-module-name ()
+    (interactive)
+    (kill-new (format "from %s import *" (dhnam/get-full-module-name))))
+
   (defun dhnam/copy-statement-of-importing-symbol-at-point ()
     (interactive)
     (kill-new (format "from %s import %s"
