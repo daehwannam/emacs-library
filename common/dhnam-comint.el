@@ -48,7 +48,7 @@
 
   (let ((buffer-name (or buffer-name (dhnam/comint-command-to-buffer-name command))))
     (dhnam/displaying-buffer-same-window buffer-name
-      (let ((buffer (dhnam/comint-with-command cmd buffer-name)))
+      (let ((buffer (dhnam/comint-with-command command buffer-name)))
         (set-buffer buffer)
         (end-of-buffer)))))
 
