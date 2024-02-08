@@ -154,6 +154,10 @@
            (replace-regexp " *& *" " & " nil align-start align-end)))
 
         (let ((new-align-end (point)))
-          (align-regexp align-start new-align-end "\\(\\s-*\\)&" 1 1 t))))))
+          (let ((start-line-num (line-number-at-pos align-start))
+                (end-line-num (line-number-at-pos new-align-end)))
+            (align-regexp align-start new-align-end "\\(\\s-*\\)&" 1 1 t)
+            (indent-region (progn (goto-line start-line-num) (line-beginning-position))
+                           (progn (goto-line end-line-num) (line-end-position)))))))))
 
 (provide 'dhnam-latex)
