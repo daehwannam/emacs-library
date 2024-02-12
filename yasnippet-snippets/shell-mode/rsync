@@ -2,4 +2,4 @@
 # name: rsync
 # key: rsync
 # --
-rsync -rlptP --info=progress2 -e 'ssh -p 22' ${1:<source>} ${2:<user>@<address>}:${3:<taget>}$0
+rsync -rlptP --info=progress2 -e 'ssh -p 22' ${1:<source>} ${2:<user>@<address>}:${3:<target>}$0
