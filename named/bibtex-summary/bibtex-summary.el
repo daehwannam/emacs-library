@@ -29,7 +29,7 @@
           (when (re-search-backward "\[{,\][:blank:]*" nil t)
             (setq start-pos (1+ (point)))))
         (save-excursion
-          (when (re-search-forward "\[},\][:blank:]*" nil t)
+          (when (re-search-forward "[:blank:]*\[},\]" nil t)
             (setq end-pos (1- (point))))))
       (list start-pos end-pos)))
 
