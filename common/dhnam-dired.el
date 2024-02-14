@@ -15,7 +15,9 @@
 
     ;; s.el
     ;; https://github.com/magnars/s.el
-    (require 's))
+    (progn
+      (dhnam/install-package-unless-installed 's)
+      (require 's nil t)))
 
   (defvar dhnam/dired-rsync/default-args
     (list "-rlptP"
