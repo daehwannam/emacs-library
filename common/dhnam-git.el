@@ -1,7 +1,8 @@
 
-(defun dhnam/insert-gitignore-example ()
-  (interactive)
-  (insert (dhnam/get-string-from-file (concat dhnam/lib-root-dir "common/dependent/gitignore.gitignore"))))
+(comment
+  (defun dhnam/insert-gitignore-example ()
+    (interactive)
+    (insert (dhnam/get-string-from-file (concat dhnam/lib-root-dir "common/example/gitignore.gitignore")))))
 
 
 (progn

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: html-postamble-nil
+# key: html-postamble:nil
+#
+# org-mode citation guide:
+# https://stackoverflow.com/a/32761956
+# --
+
+#+OPTIONS: html-postamble:nil

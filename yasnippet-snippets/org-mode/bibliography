@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bibliography
+# key: bibliography
+# --
+
+#+BIBLIOGRAPHY: path/to/bibliography.bib
+#+PRINT_BIBLIOGRAPHY:

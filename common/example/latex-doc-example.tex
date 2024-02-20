@@ -1,0 +1,47 @@
+
+\documentclass{article}
+
+\newcommand{\TopMargin}{2cm}
+\newcommand{\BottomMargin}{2cm}
+\newcommand{\LeftRightMargin}{2cm}
+\usepackage[
+  top=\TopMargin, bottom=\BottomMargin, left=\LeftRightMargin, right=\LeftRightMargin
+]{geometry}
+
+
+\usepackage{comment}
+\usepackage{lipsum}             % \lipsum
+\begin{comment}
+  \usepackage{graphicx}           % \includegraphics  
+\end{comment}
+
+% begin: natbib
+% % https://www.overleaf.com/learn/latex/Bibliography_management_with_natbib
+\usepackage[]{natbib}
+\bibliographystyle{unsrtnat}
+% end: natbib
+
+\title{Title here}
+\date{}
+
+\begin{document}
+\clearpage
+\maketitle   % no page number for the title  % https://tex.stackexchange.com/a/1737
+\thispagestyle{empty}  % no page number for the title
+\pagestyle{empty}      % no page number for all other pages
+
+\begin{comment}
+  \begin{center}
+    \Large
+    Manual title
+    \vspace{0.5cm}
+  \end{center}
+\end{comment}
+
+% \citet{some-cite-key}
+
+\lipsum
+
+\bibliography{path/to/bibliography.bib}  % natbib's \bibliography
+
+\end{document}

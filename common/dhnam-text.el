@@ -131,4 +131,14 @@
     (insert "\n")
     (insert (format "(provide '%s)" feature-name))))
 
+(defun dhnam/insert-example (example-file-path)
+  (interactive (list (read-file-name "Example file: " 
+                                     (concat dhnam/lib-root-dir "common/example/"))))
+
+  (cl-assert (not (file-directory-p example-file-path)))
+  (when buffer-file-name
+    (cl-assert (not (file-equal-p example-file-path buffer-file-name))))
+
+  (insert (dhnam/get-string-from-file example-file-path)))
+
 (provide 'dhnam-text)

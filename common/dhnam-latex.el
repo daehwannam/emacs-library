@@ -160,4 +160,20 @@
             (indent-region (progn (goto-line start-line-num) (line-beginning-position))
                            (progn (goto-line end-line-num) (line-end-position)))))))))
 
+
+
+(progn
+  (defhydra dhnam/TeX-error-navigation ()
+    "TeX error navigation"
+
+    ("i" TeX-previous-error)
+    ("o" TeX-next-error)
+    ;; ("RET" nil "quit")
+    ;; ("q" nil "quit")
+    ;; ("SPC" nil "quit")
+    )
+
+  ;; Disable any hint message
+  (hydra-set-property 'dhnam/TeX-error-navigation :verbosity 0))
+
 (provide 'dhnam-latex)

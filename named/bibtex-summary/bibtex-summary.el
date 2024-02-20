@@ -127,27 +127,47 @@
         ;; (eq major-mode 'org-mode)
         (substring-no-properties (plist-get (cadr (org-element-context)) :raw-link) (length "bibs-bib-id:")))))
 
+  (defun bibs/child-parent-path-relation-p (path parent-path)
+    (string= (file-truename parent-path) (file-name-directory (file-truename parent-path))))
+
   (defun bibs/get-ref-id-from-file-name ()
     (let ((file-path (buffer-file-name)))
       (when file-path
         (let* ((file-name (file-name-nondirectory file-path))
                (extension (file-name-extension file-name)))
-          (when (and (member extension '("org" "note" "pdf" "bib"))
-                     (not (member file-name (list bibs/bibliography-bib-name bibs/bibliography-org-name))))
+          (when (and (member extension '("org" "pdf" "bib"))
+                     ;; (not (member file-name (list bibs/bibliography-bib-name bibs/bibliography-org-name)))
+                     (or
+                      (bibs/child-parent-path-relation-p file-path bibs/note-file-dir-as-source-of-reference)
+                      (bibs/child-parent-path-relation-p file-path bibs/bib-file-dir-as-source-of-reference)
+                      (bibs/child-parent-path-relation-p file-path bibs/pdf-file-dir-as-source-of-reference)))
             (let ((file-name-without-extension (file-name-sans-extension file-name)))
               (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
 
+  (defun bibs/get-ref-id-from-org-cite ()
+    (let ((cite-context (org-element-context)))
+      (when cite-context 
+        (cond
+         ((eq (car cite-context) 'citation)
+          (buffer-substring-no-properties
+           (1+ (plist-get (cadr cite-context) :contents-begin))
+           (plist-get (cadr cite-context) :contents-end)))
+         ((eq (car cite-context) 'citation-reference)
+          (plist-get (cadr cite-context) :key))))))
+
   (defun bibs/get-ref-id-flexibly ()
-    (let* ((file-path (buffer-file-name))
-           (file-name (file-name-nondirectory file-path))
-           (extension (file-name-extension file-name)))
-      (cond
-       ((string= extension "pdf")
-        (bibs/get-ref-id-from-file-name))
-       (t
-        (or (bibs/get-ref-id-in-curly-brackets)
-            (bibs/get-ref-id-from-raw-link-at-end)
-            (bibs/get-ref-id-from-file-name)))))))
+    (let ((file-path (buffer-file-name)))
+      (when file-path
+        (let* ((file-name (file-name-nondirectory file-path))
+               (extension (file-name-extension file-name)))
+          (cond
+           ((string= extension "pdf")
+            (bibs/get-ref-id-from-file-name))
+           (t
+            (or (bibs/get-ref-id-in-curly-brackets)
+                (bibs/get-ref-id-from-raw-link-at-end)
+                (bibs/get-ref-id-from-org-cite)
+                (bibs/get-ref-id-from-file-name)))))))))
 
 (progn
   (defun bibs/find-reference-in-bibliography-file ()
