@@ -2,9 +2,10 @@
 
 (eval
  `(progn
-    (with-eval-after-load 'vterm-seamless
-      (let ((map vterm-seamless-mode-map))
-        (define-key map (kbd ,dhnam-iokl/activation-key) nil)))
+    (comment
+      (with-eval-after-load 'vterm-seamless
+        (let ((map vterm-seamless-mode-map))
+          (define-key map (kbd ,dhnam-iokl/activation-key) nil))))
 
     (comment
       (with-eval-after-load 'vterm-seamless
@@ -40,9 +41,10 @@
           (vtsl/copy-mode-then 'dhnam-iokl-vterm-seamless-copy/body-after-previous-line)
           (assert (fboundp 'vtsl/copy-mode-then-dhnam-iokl-vterm-seamless-copy/body-after-previous-line)))
 
-        (let ((map vterm-seamless-mode-map))
-          (define-key map (kbd ,dhnam-iokl/activation-key)
-            (vtsl/copy-mode-then 'dhnam-iokl-vterm-seamless-copy/body-after-previous-line)))
+        (comment
+          (let ((map vterm-seamless-mode-map))
+            (define-key map (kbd ,dhnam-iokl/activation-key)
+              (vtsl/copy-mode-then 'dhnam-iokl-vterm-seamless-copy/body-after-previous-line))))
 
         ;; disable any hint message
         (hydra-set-property 'dhnam-iokl-vterm-seamless-copy :verbosity 0)
@@ -64,11 +66,13 @@
             ("a" (vterm-send-key "a" nil nil t))
             ("s" (vterm-send-key "e" nil nil t)))
 
-          (let ((map vterm-seamless-mode-map))
-            (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm-seamless/body))
+          (comment
+            (let ((map vterm-seamless-mode-map))
+              (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm-seamless/body)))
 
-          (let ((map vterm-seamless-copy-mode-map))
-            (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm-seamless-copy/body))
+          (comment
+            (let ((map vterm-seamless-copy-mode-map))
+              (define-key map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-vterm-seamless-copy/body)))
 
           ;; disable any hint message
           (hydra-set-property 'dhnam-iokl-vterm-seamless :verbosity 0))))))

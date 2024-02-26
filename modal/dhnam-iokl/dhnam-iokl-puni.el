@@ -48,10 +48,10 @@
 
     (progn
       (defvar dhnam-iokl-puni-nav/prohibited-major-modes nil)
-      (add-hook 'puni-mode-hook
-                (lambda ()
-                  (unless (member major-mode dhnam-iokl-puni-nav/prohibited-major-modes)
-                    (local-set-key (kbd dhnam-iokl/activation-key) 'dhnam-iokl-puni-nav/body)))))
-    ))
+      (defun dhnam-iokl-puni-nav/update-local-keys ()
+        (unless (member major-mode dhnam-iokl-puni-nav/prohibited-major-modes)
+          (mapc (lambda (key) (local-set-key key 'dhnam-iokl-puni-nav/body))
+                dhnam-iokl/keys-for-body)))
+      (add-hook 'puni-mode-hook 'dhnam-iokl-puni-nav/update-local-keys))))
 
 (provide 'dhnam-iokl-puni)

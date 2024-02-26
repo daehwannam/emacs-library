@@ -13,7 +13,8 @@
 
     (hydra-set-property 'dhnam-iokl-python-nav :verbosity 0) ; disable any hint message
 
-    (with-eval-after-load 'python
-      (define-key python-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-python-nav/body))))
+    (comment
+      (with-eval-after-load 'python
+        (define-key python-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-python-nav/body)))))
 
 (provide 'dhnam-iokl-python)

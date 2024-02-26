@@ -27,7 +27,8 @@
 (hydra-set-property 'dhnam-iokl-compilation-move :verbosity 0) ; disable any hint message
 (hydra-set-property 'dhnam-iokl-compilation :verbosity 0) ; disable any hint message
 
-(with-eval-after-load 'compile
-  (define-key compilation-shell-minor-mode-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-compilation/body))
+(comment
+  (with-eval-after-load 'compile
+    (define-key compilation-shell-minor-mode-map (kbd dhnam-iokl/activation-key) 'dhnam-iokl-compilation/body)))
 
 (provide 'dhnam-iokl-compilation)

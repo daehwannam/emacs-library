@@ -73,7 +73,8 @@
         ;; Disable any hint message
         (hydra-set-property 'dhnam-iokl-base :verbosity 0))
 
-      (define-key global-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-base/body))
+      (comment
+        (define-key global-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-base/body)))
 
     (comment
       (with-eval-after-load 'ivy

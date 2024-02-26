@@ -28,7 +28,8 @@
 
     (hydra-set-property 'dhnam-iokl-org-navigation :verbosity 0) ; disable any hint message
     (hydra-set-property 'dhnam-iokl-org :verbosity 0) ; disable any hint message
-    (define-key org-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-org/body)))
+    (comment
+      (define-key org-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-org/body))))
 
 
 (provide 'dhnam-iokl-org)

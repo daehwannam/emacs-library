@@ -40,7 +40,8 @@
 
     (hydra-set-property 'dhnam-iokl-paredit-struct :verbosity 0) ; disable any hint message
     (hydra-set-property 'dhnam-iokl-paredit-nav :verbosity 0) ; disable any hint message
-    (define-key paredit-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-paredit-nav/body)))
+    (comment
+      (define-key paredit-mode-map (kbd ,dhnam-iokl/activation-key) 'dhnam-iokl-paredit-nav/body))))
 
 
 (provide 'dhnam-iokl-paredit)
