@@ -251,4 +251,18 @@ This function is modified from `elpy-occur-definitions'"
                 local-interpreter-path)
       local-interpreter-path)))
 
+(defun dhnam/unset-python-pdbtrack-setup-tracking ()
+  "Disable `python-pdbtrack-setup-tracking', which is called when initializing `inferior-python-mode'.
+It can be used to disable the default gud pdb when a breakpoint is activated in a *Python* buffer.
+"
+
+  (setq comint-input-filter-functions
+        (remove #'python-pdbtrack-comint-input-filter-function
+                comint-input-filter-functions))
+  (setq comint-output-filter-functions
+        (remove #'python-pdbtrack-comint-output-filter-function
+                comint-output-filter-functions))
+  (setq kill-buffer-hook
+        (remove #'python-pdbtrack-tracking-finish kill-buffer-hook)))
+
 (provide 'dhnam-python)
