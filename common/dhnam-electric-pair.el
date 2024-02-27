@@ -10,6 +10,9 @@
 (progn
   ;; https://stackoverflow.com/a/69765466
   (defun dhnam/set-org-electric-pair-inhibit-predicate ()
+    (unless (featurep 'elec-pair)
+      (require 'elec-pair))
+
     (setq-local electric-pair-inhibit-predicate
                 `(lambda (c)
                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
