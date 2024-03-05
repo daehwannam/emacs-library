@@ -49,6 +49,20 @@
                                        path))
                       paths)))
 
+(defun dhnam/absolute-path= (path1 path2)
+  "Expand file paths then compare them"
+
+  ;; `directory-file-name' removes last slash
+  ;; e.g. /home/user/some/dir/ -> /home/user/some/dir
+  (string= (directory-file-name (expand-file-name path1))
+           (directory-file-name (expand-file-name path2))))
+
+(defun dhnam/real-path= (path1 path2)
+  "Get real file paths then compare them"
+
+  (string= (directory-file-name (file-truename path1))
+           (directory-file-name (file-truename path2))))
+
 (defun dhnam/buffer-local-set-key (key command)
   "Set a key binding for a specific buffer only"
   ;; https://stackoverflow.com/a/21493693

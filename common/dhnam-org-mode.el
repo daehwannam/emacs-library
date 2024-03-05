@@ -10,6 +10,8 @@
     (org-babel-execute-buffer arg)))
 
 (progn
+  ;; Deprecated: loading a large org-mode file is slow with this fix.
+  ;;
   ;; fix the problem of unbalanced parentheses by "<" and ">"
   ;; https://emacs.stackexchange.com/a/52209
 
@@ -30,7 +32,9 @@
 
   (defun dhnam/org-setup-<>-syntax-fix ()
     "Setup for characters ?< and ?> in source code blocks.
-Add this function to `org-mode-hook'."
+Add this function to `org-mode-hook'.
+However, this fix slows down loading a large org-mode file.
+"
     (make-local-variable 'syntax-propertize-function)
     (setq syntax-propertize-function 'dhnam/org-mode-<>-syntax-fix)
     (syntax-propertize (point-max)))
@@ -38,6 +42,18 @@ Add this function to `org-mode-hook'."
   (comment
     ;; Example of usage
     (add-hook 'org-mode-hook #'dhnam/org-setup-<>-syntax-fix)))
+
+(progn
+  ;; fix the problem of unbalanced parentheses by "<" and ">"
+  ;; https://emacs.stackexchange.com/a/68321
+  (defun dhnam/org-syntax-table-modify ()
+    "Modify `org-mode-syntax-table' for the current org buffer."
+    (modify-syntax-entry ?< "." org-mode-syntax-table)
+    (modify-syntax-entry ?> "." org-mode-syntax-table))
+
+  (comment
+    ;; Example of usage
+    (add-hook 'org-mode-hook #'dhnam/org-syntax-table-modify)))
 
 (progn
   (defun dhnam/org-add-hard-indentation (arg)

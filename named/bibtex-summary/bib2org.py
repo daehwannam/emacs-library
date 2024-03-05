@@ -247,7 +247,12 @@ def convert_bibtex_to_org(
     with open(bib_file_path) as bibtex_file:
         bibtex_str = bibtex_file.read()
 
-    bibtex_database = bibtexparser.loads(bibtex_str)
+    # Fix month field error
+    # https://github.com/sciunto-org/python-bibtexparser/issues/204#issuecomment-397662093
+    #
+    # e.g. month = jul
+    bibtex_parser = bibtexparser.bparser.BibTexParser(common_strings=True)
+    bibtex_database = bibtexparser.loads(bibtex_str, parser=bibtex_parser)
 
     root_org_structure = get_root_org_structure(bibtex_database.entries)
     root_priority_structure = get_root_priority_structure(priority_file_path)

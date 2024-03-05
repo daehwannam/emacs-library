@@ -48,7 +48,12 @@ def download_pdf_in_bibtex(bib_file_path, pdf_dir_path, pdf_url_tag='pdfurl'):
     with open(bib_file_path) as bibtex_file:
         bibtex_str = bibtex_file.read()
 
-    bibtex_database = bibtexparser.loads(bibtex_str)
+    # Fix month field error
+    # https://github.com/sciunto-org/python-bibtexparser/issues/204#issuecomment-397662093
+    #
+    # e.g. month = jul
+    bibtex_parser = bibtexparser.bparser.BibTexParser(common_strings=True)
+    bibtex_database = bibtexparser.loads(bibtex_str, parser=bibtex_parser)
 
     if not os.path.exists(pdf_dir_path):
         os.makedirs(pdf_dir_path)

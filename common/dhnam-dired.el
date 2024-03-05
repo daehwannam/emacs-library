@@ -170,13 +170,13 @@ This function would not work for multi-hop SSH connections.
         default-directory
       (or (buffer-file-name) default-directory)))
 
-  (defun dhnam/kill-path-to-clipboard ()
+  (defun dhnam/kill-path-to-clipboard (arg)
     "Copy the current buffer file name to the clipboard."
-    (interactive)
+    (interactive "P")
     (let ((path (dhnam/get-current-file-path)))
       (when path
-        (kill-new path)
-        (message "'%s'" path))))
+        (let ((killed-path (kill-new (if arg (file-name-directory path) path))))
+          (message "'%s'" killed-path)))))
 
   (defun dhnam/kill-file-name-to-clipboard ()
     "Copy the current buffer file name to the clipboard."

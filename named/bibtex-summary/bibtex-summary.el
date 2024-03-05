@@ -128,7 +128,7 @@
         (substring-no-properties (plist-get (cadr (org-element-context)) :raw-link) (length "bibs-bib-id:")))))
 
   (defun bibs/child-parent-path-relation-p (path parent-path)
-    (string= (file-truename parent-path) (file-name-directory (file-truename parent-path))))
+    (dhnam/real-path= (file-name-directory path) parent-path))
 
   (defun bibs/get-ref-id-from-file-name ()
     (let ((file-path (buffer-file-name)))
@@ -145,15 +145,16 @@
               (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
 
   (defun bibs/get-ref-id-from-org-cite ()
-    (let ((cite-context (org-element-context)))
-      (when cite-context 
-        (cond
-         ((eq (car cite-context) 'citation)
-          (buffer-substring-no-properties
-           (1+ (plist-get (cadr cite-context) :contents-begin))
-           (plist-get (cadr cite-context) :contents-end)))
-         ((eq (car cite-context) 'citation-reference)
-          (plist-get (cadr cite-context) :key))))))
+    (when (eq major-mode 'org-mode)
+      (let ((cite-context (org-element-context)))
+        (when cite-context 
+          (cond
+           ((eq (car cite-context) 'citation)
+            (buffer-substring-no-properties
+             (1+ (plist-get (cadr cite-context) :contents-begin))
+             (plist-get (cadr cite-context) :contents-end)))
+           ((eq (car cite-context) 'citation-reference)
+            (plist-get (cadr cite-context) :key)))))))
 
   (defun bibs/get-ref-id-flexibly ()
     (let ((file-path (buffer-file-name)))
