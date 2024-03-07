@@ -19,4 +19,15 @@
       (`list (apply #'append (append sequences '(nil))))
       (_ (error "Not a sequence type name: %S" type)))))
 
+;; List modification functions
+;; https://www.emacswiki.org/emacs/ListModification
+;;
+;; when `lexical-binding' is not `nil',
+;; `symbol-value' cannot retrieve the value of variable from `let'
+
+(defun dhnam/remove-from-list (list-var element)
+  "LIST-VAR should be a global variable."
+  (let ((lexical-binding nil))
+    (set list-var (remove element (symbol-value list-var)))))
+
 (provide 'dhnam-list)

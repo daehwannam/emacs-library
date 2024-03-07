@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: babel-drawer
+# key: <S
+# --
+
+#+begin_src ${1:<language>} :results drawer
+$0
+#+end_src

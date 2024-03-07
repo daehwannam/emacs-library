@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: babel-output-drawer
-# key: <S
-# --
-
-#+begin_src ${1:<language>} :results output drawer
-$0
-#+end_src
