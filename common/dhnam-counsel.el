@@ -58,6 +58,9 @@
   (defvar dhnam/ivy-boundary-start "\\_<")
   (defvar dhnam/ivy-boundary-end "\\_>")
 
+  (defun dhnam/ivy-add-boundaries (text)
+    (concat dhnam/ivy-boundary-start text dhnam/ivy-boundary-end))
+
   (defun dhnam/ivy--remove-symbol-boundaries ()
     "Similar to `ivy--insert-symbol-boundaries', but it removes symbol boundaries."
     (undo-boundary)
@@ -194,7 +197,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
           (deactivate-mark t)
           (narrow-to-region (region-beginning) (region-end))
           (swiper initial-input))
-      (swiper initial-input))))
+      (swiper initial-input)))
+
+  (defun dhnam/swiper-symbol-at-point ()
+    "`swiper' with `ivy-thing-at-point'."
+    (interactive)
+    (let ((thing (ivy-thing-at-point)))
+      (when (use-region-p)
+        (deactivate-mark))
+      (swiper (dhnam/ivy-add-boundaries (regexp-quote thing))))))
 
 
 (provide 'dhnam-counsel)
