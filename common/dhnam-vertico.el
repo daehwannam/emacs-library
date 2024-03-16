@@ -13,7 +13,20 @@ In contrast, `consult-grep' searches over the current git project if the current
       ;; `consult--grep-builder' is used in old version of vertico
       ((fboundp 'consult--grep-builder) #'consult--grep-builder))
      dir
-     initial)))
+     initial))
+
+  (defun dhnam/consult-find-from-current-dir (&optional dir initial)
+    "This function is modified from `consult-find'.
+Unlike `consult-find', the default location is always the current directory rather than the project root.
+Search for files in DIR matching input regexp given INITIAL input.
+See `consult-grep' for details regarding the asynchronous search
+and the arguments."
+    (interactive "P")
+    (let ((dir (or dir default-directory)))
+      (pcase-let* ((`(,prompt ,paths ,dir) (consult--directory-prompt "Find" dir))
+                   (default-directory dir)
+                   (builder (consult--find-make-builder paths)))
+        (find-file (consult--find prompt builder initial))))))
 
 (progn
   (defvar dhnam/minibuffer-boundary-start "\\_<")
