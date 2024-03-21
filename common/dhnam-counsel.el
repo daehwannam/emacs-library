@@ -205,7 +205,21 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (let ((thing (ivy-thing-at-point)))
       (when (use-region-p)
         (deactivate-mark))
-      (swiper (dhnam/ivy-add-boundaries (regexp-quote thing))))))
+      (comment
+        (swiper (when (> (length thing) 0)
+                  (dhnam/ivy-add-boundaries (regexp-quote thing)))))
+      (swiper (dhnam/ivy-add-boundaries (regexp-quote thing)))))
+
+  (defun dhnam/swiper-yank (&optional arg)
+    (interactive "*P")
+    (when (string=
+           (let ((line-begin (save-excursion (beginning-of-line) (point)))
+                 (line-end (save-excursion (end-of-line) (point))))
+             (buffer-substring-no-properties line-begin line-end))
+           (concat dhnam/ivy-boundary-start dhnam/ivy-boundary-end))
+      (move-end-of-line 1)              ; this line is actually not needed
+      (backward-char (length dhnam/ivy-boundary-end)))
+    (yank arg)))
 
 
 (provide 'dhnam-counsel)
