@@ -59,4 +59,33 @@ and the arguments."
             (dhnam/minibuffer--remove-symbol-boundaries)
           (dhnam/minibuffer--insert-symbol-boundaries))))))
 
+(defun dhnam/vertico--goto-group (next)
+  "Move to next group if NEXT is non-nil, otherwise move to previous group.
+
+Source: https://github.com/minad/vertico/issues/47#issuecomment-850890095
+"
+  (let* ((end (minibuffer-prompt-end))
+         (metadata (completion-metadata (buffer-substring end (max end (point)))
+                                        minibuffer-completion-table
+                                        minibuffer-completion-predicate))
+         (group-fun (or (completion-metadata-get metadata 'group-function) #'ignore))
+         (title-fun (lambda (idx) (funcall group-fun (nth idx vertico--candidates) nil)))
+         (orig-index vertico--index))
+    (while (let ((last-index vertico--index))
+             (if next (vertico-next) (vertico-previous))
+             (if (or (= vertico--index orig-index) (= vertico--index last-index))
+                 (and (vertico--goto orig-index) nil)
+               (and (> vertico--index 0)
+                    (equal (funcall title-fun (1- vertico--index))
+                           (funcall title-fun vertico--index))))))))
+
+(defun dhnam/vertico-goto-previous-group ()
+  (interactive)
+  (dhnam/vertico--goto-group nil))
+
+(defun dhnam/vertico-goto-next-group ()
+  (interactive)
+  (dhnam/vertico--goto-group t))
+
+
 (provide 'dhnam-vertico)

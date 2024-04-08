@@ -37,7 +37,9 @@
     `(unless (cl-some (lambda (mode) (derived-mode-p mode)) ,excepted-modes)
        ,@body))
 
-  (require 'cl-indent)
+  (comment
+    ;; to use `common-lisp-indent-function'
+    (require 'cl-indent))
 
   (put 'dhnam/with-eval-except-modes 'lisp-indent-function
        (get 'with-eval-after-load 'lisp-indent-function))
@@ -50,11 +52,21 @@
 (progn
   (require 'cl-macs)
 
+  (defmacro dhnam/disable-fn (fn expr)
+    "Disable a function"
+    `(cl-letf (((symbol-function ',fn)
+                (lambda (&rest args))))
+       ,expr))
+
+  (put 'dhnam/disable-fn 'lisp-indent-function
+       (get 'when 'lisp-indent-function))
+
   (defmacro dhnam/without-message (expr)
     "Disable `message'"
-    `(cl-letf (((symbol-function 'message)
-                (lambda (&rest args))))
-       ,expr)))
+    `(dhnam/disable-fn message ,expr))
+
+  (put 'dhnam/without-message 'lisp-indent-function
+       (get 'progn 'lisp-indent-function)))
 
 (progn
   (defmacro dhnam/displaying-buffer-same-window (buffer-name &rest body)
