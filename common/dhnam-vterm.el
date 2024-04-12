@@ -79,7 +79,7 @@
 (progn
   ;; Running a command in vterm.
   ;;
-  ;; This code is copied from:
+  ;; This code is modified from:
   ;; https://www.reddit.com/r/emacs/comments/ft84xy/run_shell_command_in_new_vterm/?rdt=55699
 
   (defun dhnam/vterm-kill-process-if-alive (process event)
@@ -104,14 +104,9 @@ When the command terminates, the shell remains open, but when the
 shell exits, the buffer is killed."
     (interactive
      (list
-      (let* ((f (cond (buffer-file-name)
-                      ((eq major-mode 'dired-mode)
-                       (dired-get-filename nil t))))
-             (filename (concat " " (shell-quote-argument (and f (file-relative-name f))))))
-        (read-shell-command "Terminal command: "
-                            nil
-                            (cons 'shell-command-history 1)
-                            (list filename)))))
+      (read-shell-command "Terminal command: "
+                          nil
+                          (cons 'shell-command-history 1))))
     (let ((buffer (vterm (concat "*" command "*"))))
       (with-current-buffer buffer
         (set-process-sentinel vterm--process #'dhnam/vterm-kill-process-if-alive)
