@@ -1,6 +1,20 @@
 
 (require 'paredit)
 
+(defun dhnam/backward-sexp-to-beginning ()
+  (interactive)
+  (let ((prev (1+ (point-max))))
+    (while (not (= prev (point)))
+      (setq prev (point))
+      (backward-sexp))))
+
+(defun dhnam/forward-sexp-to-end ()
+  (interactive)
+  (let ((prev (1- (point-min))))
+    (while (not (= prev (point)))
+      (setq prev (point))
+      (forward-sexp))))
+
 (defun dhnam/copy-and-forward-sexp (&optional arg)
   "Save the sexp following point to the kill ring.
 ARG has the same meaning as for `kill-sexp'."

@@ -43,9 +43,9 @@
         dhnam-iokl/chords-for-body))
 
 (defmacro dhnam-iokl/make-define-keys-chords-for-bodies
-    (name define-key-or-chord-for-body dhnam-iokl/keys-or-chords-for-body)
+    (name define-key-or-chord-for-body keys-or-chords-for-body)
   `(defun ,name (&rest keys-or-chords)
-     (mapc (lambda (key-or-chord) (add-to-list ',dhnam-iokl/keys-or-chords-for-body key-or-chord))
+     (mapc (lambda (key-or-chord) (add-to-list ',keys-or-chords-for-body key-or-chord))
            keys-or-chords)
 
      (comment (,define-key-or-chord-for-body global-map 'dhnam-iokl-base/body))
@@ -57,7 +57,11 @@
      (with-eval-after-load 'python
        (,define-key-or-chord-for-body python-mode-map 'dhnam-iokl-python-nav/body))
      (with-eval-after-load 'vterm-seamless
-       (,define-key-or-chord-for-body vterm-seamless-mode-map nil))))
+       (,define-key-or-chord-for-body vterm-seamless-mode-map nil))
+     ;; (with-eval-after-load 'csv-mode
+     ;;   (,define-key-or-chord-for-body csv-mode-map 'dhnam-iokl-paredit-nav/body)
+     ;;   (,define-key-or-chord-for-body tsv-mode-map 'dhnam-iokl-paredit-nav/body))
+     ))
 
 (dhnam-iokl/make-define-keys-chords-for-bodies
  dhnam-iokl/define-keys-for-bodies

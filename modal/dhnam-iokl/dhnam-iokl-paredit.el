@@ -36,6 +36,11 @@
 
       "iokl"
 
+      ;; ("j" dhnam/backward-sexp-to-beginning)
+      ;; ("k" backward-sexp)
+      ;; ("l" forward-sexp)
+      ;; (";" dhnam/forward-sexp-to-end)
+
       ("a" dhnam-iokl-paredit-struct/body  :exit t))
 
     (hydra-set-property 'dhnam-iokl-paredit-struct :verbosity 0) ; disable any hint message
