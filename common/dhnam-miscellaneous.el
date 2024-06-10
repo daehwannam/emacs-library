@@ -1,20 +1,11 @@
 
 (defun dhnam/push-button-same-window ()
-  ;; https://emacs.stackexchange.com/a/33908
   (interactive)
-    (let ((display-buffer-overriding-action
-           '((display-buffer-reuse-window
-              display-buffer-same-window)
-             (inhibit-same-window . nil))))
-      (call-interactively #'push-button)))
+  (dhnam/call-command-same-window #'push-button))
 
 (defun dhnam/xref-goto-xref-same-window ()
   (interactive)
-  (let ((display-buffer-overriding-action
-         '((display-buffer-reuse-window
-            display-buffer-same-window)
-           (inhibit-same-window . nil))))
-    (call-interactively #'xref-goto-xref)))
+  (dhnam/call-command-same-window #'xref-goto-xref))
 
 (defun dhnam/occur-mode-goto-occurrence-current-window ()
   "Go to the occurrence the current line describes, in the current window."
