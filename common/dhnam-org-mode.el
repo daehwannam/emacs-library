@@ -203,4 +203,8 @@ e.g. (dhnam/get-org-date-from-timestr \"Thursday   21 September 2023\")"
             (span-days (org-agenda-ndays-to-span org-agenda-span)))
         (org-agenda-list nil (+ (org-today) start-day-in-list (* arg span-days)))))))
 
+(defun dhnam/org-open-at-point-same-window ()
+  (interactive)
+  (dhnam/call-command-same-window #'org-open-at-point))
+
 (provide 'dhnam-org-mode)

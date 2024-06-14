@@ -78,5 +78,13 @@
   (put 'dhnam/displaying-buffer-same-window 'lisp-indent-function
        (get 'when 'lisp-indent-function)))
 
+(defmacro dhnam/call-command-same-window (command-fn)
+  ;; https://emacs.stackexchange.com/a/33908
+  `(let ((display-buffer-overriding-action
+          '((display-buffer-reuse-window
+             display-buffer-same-window)
+            (inhibit-same-window . nil))))
+     (call-interactively ,command-fn)))
+
 
 (provide 'dhnam-macro)
