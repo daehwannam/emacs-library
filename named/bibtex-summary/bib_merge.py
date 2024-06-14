@@ -6,12 +6,24 @@ import argparse
 from .utility import entry_id_to_file_name
 
 
+double_comma_at_end_of_line_regex = re.compile(r', *,$')
+
 def bib_merge(merged_bib_file_path, bib_dir_path):
     lines = []
     paths = glob.glob(os.path.join(bib_dir_path, '*.bib'))
     for idx, path in enumerate(paths):
         with open(path) as f:
-            lines.extend(f)
+            # lines.extend(f)
+            for line_num, line in enumerate(f, 1):
+                if double_comma_at_end_of_line_regex.search(line):
+                    raise Exception(
+                        'A comma is repeated without an item.\n'
+                        f'Line: {line_num}\n'
+                        f'Text: {line}'.rstrip() + '\n'
+                        f'File: {path}'
+                    )
+                else:
+                    lines.append(line)
             if idx + 1 < len(paths):
                 lines.append('\n\n')
 
