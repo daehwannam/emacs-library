@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: strne
+# key: strne
+#
+# string not equal
+# --
+[ ${1:"$var"} != ${2:val} ]

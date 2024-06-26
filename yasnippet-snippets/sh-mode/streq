@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: streq
+# key: streq
+#
+# string equal
+# --
+[ ${1:"$var"} == ${2:val} ]

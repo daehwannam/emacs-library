@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: numeq
+# key: numeq
+#
+# numeric equal
+# --
+[ ${1:"$var"} -eq ${2:val} ]

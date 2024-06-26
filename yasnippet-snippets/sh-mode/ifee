@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: ifee
+# key: ifee
+# --
+if ${1:[ -f file ]}; then
+    ${2:echo}
+elif ${3:[ -f file ]}; then
+    ${4:echo}
+else
+    ${5:echo}
+fi

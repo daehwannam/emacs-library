@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: null
+# key: null
+#
+# Check if a variable is empty
+# --
+[ -z ${1:"$var"} ]
