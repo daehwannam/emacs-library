@@ -6,6 +6,7 @@
  ;; '("doi" "https://dx.doi.org/~a" "https://dx.doi.org/")
 
  ("gg" "https://www.google.com/search?q=~a" "https://www.google.com/")
+ ("gt" "https://translate.google.co.kr/?sl=auto&tl=ko&text=~a&op=translate" "https://translate.google.co.kr")
  ;; ("nd" "https://en.dict.naver.com/#/search?query=~a&range=all" "https://dict.naver.com/")
  ("nd" "https://en.dict.naver.com/#/search?query=~a" "https://en.dict.naver.com/#/main")
  ("ndk" "https://ko.dict.naver.com/#/search?query=~a" "https://ko.dict.naver.com/#/main")
