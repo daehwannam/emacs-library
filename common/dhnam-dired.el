@@ -20,7 +20,8 @@
       (require 's nil t)))
 
   (defvar dhnam/dired-rsync/default-args
-    (list "-rlptP"
+    ;; "-rlptP"
+    (list "-rlpt"
           "--info=progress2"
           ;; "--no-i-r"
           ))

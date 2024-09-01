@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: cpuinfo
+# key: cpuinfo
+# --
+cat /proc/cpuinfo$0
