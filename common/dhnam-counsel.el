@@ -82,7 +82,19 @@
                          (- line-end (length dhnam/ivy-boundary-end)) line-end)))
            (string= suffix dhnam/ivy-boundary-end)))
         (dhnam/ivy--remove-symbol-boundaries)
-      (ivy--insert-symbol-boundaries))))
+      (ivy--insert-symbol-boundaries)))
+
+  (defun dhnam/ivy-insert-current-first ()
+    "Make the current candidate into current input.
+Don't finish completion."
+    (interactive)
+    (delete-minibuffer-contents)
+    (let ((end (and ivy--directory
+                    (ivy--dirname-p (ivy-state-current ivy-last))
+                    -1)))
+      (let ((current (substring-no-properties
+                      (ivy-state-current ivy-last) 0 end)))
+        (insert (car (split-string current " ")))))))
 
 (when (package-installed-p 'counsel)
   (defun dhnam/swiper-with-text-in-region (start end)

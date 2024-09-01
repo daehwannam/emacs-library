@@ -68,3 +68,13 @@
     (split-window-right size)
     (redisplay)
     (windmove-right)))
+
+(with-eval-after-load 'exwm-edit
+  (defun dhnam/exwm-edit-send-text (text &optional delay)
+    (let ((exwm-edit--last-window-configuration (current-window-configuration))
+          (exwm-edit-paste-delay (or delay exwm-edit-paste-delay)))
+      (exwm-edit--send-to-exwm-buffer text)
+      text))
+
+  (defun dhnam/exwm-edit-send-return ()
+    (exwm-input--fake-key (aref (kbd "<return>") 0))))
