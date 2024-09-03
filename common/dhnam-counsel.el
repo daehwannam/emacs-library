@@ -94,7 +94,35 @@ Don't finish completion."
                     -1)))
       (let ((current (substring-no-properties
                       (ivy-state-current ivy-last) 0 end)))
-        (insert (car (split-string current " ")))))))
+        (insert (car (split-string current " "))))))
+
+  (progn
+    ;; Ivy Hangul bug fix
+
+    (defun dhnam/self-insert-command--advice-for-korean (orig-fun &rest args)
+      (let ((result (apply orig-fun args)))
+        (when (equal current-input-method "korean-hangul")
+          (ivy--queue-exhibit))
+        result))
+
+    (defun dhnam/ivy--minibuffer-setup--advice-for-korean (orig-fun &rest args)
+      (let ((result (apply orig-fun args)))
+        (progn
+          ;; Fix for `hangul-insert-character' in
+          ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
+          (advice-add 'self-insert-command :around #'dhnam/self-insert-command--advice-for-korean))
+        result))
+
+    (defun dhnam/ivy--cleanup--advice-for-korean (orig-fun &rest args)
+      (let ((result (apply orig-fun args)))
+        (progn
+          ;; Fix for `hangul-insert-character' in
+          ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
+          (advice-remove 'self-insert-command #'dhnam/self-insert-command--advice-for-korean))
+        result))
+
+    (advice-add 'ivy--minibuffer-setup :around #'dhnam/ivy--minibuffer-setup--advice-for-korean)
+    (advice-add 'ivy--cleanup :around #'dhnam/ivy--cleanup--advice-for-korean)))
 
 (when (package-installed-p 'counsel)
   (defun dhnam/swiper-with-text-in-region (start end)
