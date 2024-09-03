@@ -78,7 +78,15 @@
 
   (defun dhnam/exwm-edit-send-key-only (key)
     ;; Example of `key' = (kbd "<return>")
-    (exwm-input--fake-key (aref key 0)))
+
+    (comment
+      ;; Send only a sigle key
+      (exwm-input--fake-key (aref key 0)))
+
+    (seq-do-indexed
+     (lambda (value idx)
+       (exwm-input--fake-key value))
+     key))
 
   (defmacro dhnam/exwm-edit-send-key (key &optional delay)
     (let ((delay (or delay 0)))

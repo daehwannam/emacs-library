@@ -116,6 +116,7 @@
         (funcall open-web-browser url)))
 
     (defvar dhnam/web-browser-query-history nil)
+    (defvar dhnam/web-search-query-start-match t)
 
     (defun dhnam/read-web-search-query ()
       (interactive)
@@ -129,9 +130,16 @@
                 (mapcar (lambda (tuple) (format format-str (car tuple) (cadr tuple))) dhnam/web-search-engines)))
              (ivy-output
               (cl-letf (((symbol-function 'ivy-done) 'ivy-immediate-done)
-                        ((symbol-function 'ivy-insert-current) 'dhnam/ivy-insert-current-first))
-                (ivy-read "Search query: " candidates :history 'dhnam/web-browser-query-history))))
-        ivy-output))
+                        ((symbol-function 'ivy-insert-current) 'dhnam/ivy-insert-current-first-with-begin-symbol)
+                        ((symbol-function 'ivy-partial) 'dhnam/ivy-partial-first))
+                (ivy-read "Search query: " candidates
+                          :history 'dhnam/web-browser-query-history
+                          :initial-input "^"))))
+        (if dhnam/web-search-query-start-match
+            (if (string= (substring-no-properties ivy-output 0 1) "^")
+                (substring-no-properties ivy-output 1)
+              ivy-output)
+          ivy-output)))
 
     (defun dhnam/app-command-query-to-browser (&optional query)
       ;; (interactive (list (read-string "Search query: " nil 'dhnam/web-browser-query-history)))
@@ -198,6 +206,46 @@
     ;; (interactive (list (read-string "Search query: " nil 'dhnam/firefox-query-history)))
     (interactive (list (dhnam/read-web-search-query)))
     (comment (interactive "sSearch query: "))
-    (dhnam/search-query-to-browser query #'dhnam/exwm-app-command-open-link-with-new-firefox-tab)))
+    (dhnam/search-query-to-browser query #'dhnam/exwm-app-command-open-link-with-new-firefox-tab t))
+
+  (progn
+    (defvar dhnam/exwm-firefox-mode-map
+      (let ((map (make-sparse-keymap)))
+        (define-key map (kbd "C-l") #'dhnam/exwm-app-command-query-to-existing-firefox)
+        (define-key map (kbd "M-l") #'dhnam/exwm-app-command-query-to-new-firefox-tab)
+
+        map)
+      "Keymap for `dhnam/exwm-firefox-mode'.")
+
+    (define-minor-mode dhnam/exwm-firefox-mode
+      "EXWM with Firefox"
+      nil                          ; Initial value, nil for disabled
+      :global nil
+      :lighter " firefox"
+
+      (if (eq exwm--selected-input-mode 'line-mode)
+          (dhnam/exwm-firefox-line-enable)
+        (dhnam/exwm-firefox-line-mode 0)))
+
+    (define-minor-mode dhnam/exwm-firefox-line-mode
+      "EXWM with Firefox"
+      nil                          ; Initial value, nil for disabled
+      :global nil
+      :lighter " ff-line"
+      :keymap dhnam/exwm-firefox-mode-map)
+
+    (defun dhnam/exwm-firefox-p ()
+      (member exwm-class-name '("Firefox" "firefox")))
+
+    (defun dhnam/exwm-firefox-enable ()
+      (when (dhnam/exwm-firefox-p)
+        (dhnam/exwm-firefox-mode 1)))
+
+    (defun dhnam/exwm-firefox-line-enable ()
+      (when (dhnam/exwm-firefox-p)
+        (dhnam/exwm-firefox-line-mode 1)))
+
+    (advice-add 'exwm-input-grab-keyboard :after (lambda (&rest args) (dhnam/exwm-firefox-line-enable)))
+    (advice-add 'exwm-input-release-keyboard :after (lambda (&rest args) (dhnam/exwm-firefox-line-mode 0)))))
 
 (provide 'dhnam-web-browser)

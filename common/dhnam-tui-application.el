@@ -6,7 +6,7 @@
     (interactive)
     (dhnam/vterm-command "nmtui"))
 
-  (defvar vterm-nmtui-mode-map
+  (defvar dhnam/vterm-nmtui-mode-map
     (let ((map (make-sparse-keymap)))
       (define-key map (kbd "C-g") #'vterm-send-escape)
 
@@ -18,7 +18,7 @@
     nil                          ; Initial value, nil for disabled
     :global nil
     :lighter " nmtui"
-    :keymap vterm-nmtui-mode-map)
+    :keymap dhnam/vterm-nmtui-mode-map)
 
   (defun dhnam/vterm-nmtui-advice (orig-fun &rest args)
     (let ((buf (apply orig-fun args)))

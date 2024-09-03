@@ -73,28 +73,52 @@
     (interactive)
 
     (if (and
-         (let* ((line-begin (save-excursion (beginning-of-line) (point)))
-                (prefix (buffer-substring-no-properties
-                         line-begin (+ line-begin (length dhnam/ivy-boundary-start)))))
-           (string= prefix dhnam/ivy-boundary-start))
-         (let* ((line-end (save-excursion (end-of-line) (point)))
-                (suffix (buffer-substring-no-properties
-                         (- line-end (length dhnam/ivy-boundary-end)) line-end)))
-           (string= suffix dhnam/ivy-boundary-end)))
+         (let ((line-begin (save-excursion (beginning-of-line) (point)))
+               (line-end (save-excursion (end-of-line) (point))))
+
+           (and
+            (>= (- line-end line-begin)
+                (+ (length dhnam/ivy-boundary-start) (length dhnam/ivy-boundary-end)))
+            (let ((prefix (buffer-substring-no-properties
+                           line-begin (+ line-begin (length dhnam/ivy-boundary-start)))))
+              (string= prefix dhnam/ivy-boundary-start))
+            (let ((suffix (buffer-substring-no-properties
+                           (- line-end (length dhnam/ivy-boundary-end)) line-end)))
+              (string= suffix dhnam/ivy-boundary-end)))
+           )
+         )
         (dhnam/ivy--remove-symbol-boundaries)
       (ivy--insert-symbol-boundaries)))
 
-  (defun dhnam/ivy-insert-current-first ()
+  (fset 'dhnam/original-ivy-partial (symbol-function 'ivy-partial))
+  (defun dhnam/ivy-remain-first ()
+    (let* ((minibuffer-string (buffer-substring-no-properties (minibuffer-prompt-end) (point-max)))
+           (minibuffer-splits (split-string minibuffer-string " ")))
+      (when (> (length minibuffer-splits) 1)
+        (delete-minibuffer-contents)
+        (insert (car minibuffer-splits)))))
+
+  (defun dhnam/ivy-partial-first ()
+    "Complete only the first chunk.
+Modified from `ivy-partial'"
+    (interactive)
+    (dhnam/original-ivy-partial)
+    (dhnam/ivy-remain-first))
+
+  (fset 'dhnam/original-ivy-insert-current (symbol-function 'ivy-insert-current))
+  (defun dhnam/ivy-insert-current-first (&optional from-beginning)
     "Make the current candidate into current input.
 Don't finish completion."
     (interactive)
-    (delete-minibuffer-contents)
-    (let ((end (and ivy--directory
-                    (ivy--dirname-p (ivy-state-current ivy-last))
-                    -1)))
-      (let ((current (substring-no-properties
-                      (ivy-state-current ivy-last) 0 end)))
-        (insert (car (split-string current " "))))))
+    (dhnam/original-ivy-insert-current)
+    (dhnam/ivy-remain-first)
+    (save-excursion
+      (move-beginning-of-line 0)
+      (insert "^")))
+
+  (defun dhnam/ivy-insert-current-first-with-begin-symbol ()
+    (interactive)
+    (dhnam/ivy-insert-current-first t))
 
   (progn
     ;; Ivy Hangul bug fix
@@ -110,7 +134,8 @@ Don't finish completion."
         (progn
           ;; Fix for `hangul-insert-character' in
           ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
-          (advice-add 'self-insert-command :around #'dhnam/self-insert-command--advice-for-korean))
+          (advice-add 'self-insert-command :around #'dhnam/self-insert-command--advice-for-korean)
+          (advice-add 'hangul-delete-backward-char :around #'dhnam/self-insert-command--advice-for-korean))
         result))
 
     (defun dhnam/ivy--cleanup--advice-for-korean (orig-fun &rest args)
@@ -118,7 +143,8 @@ Don't finish completion."
         (progn
           ;; Fix for `hangul-insert-character' in
           ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
-          (advice-remove 'self-insert-command #'dhnam/self-insert-command--advice-for-korean))
+          (advice-remove 'self-insert-command #'dhnam/self-insert-command--advice-for-korean)
+          (advice-remove 'hangul-delete-backward-char #'dhnam/self-insert-command--advice-for-korean))
         result))
 
     (advice-add 'ivy--minibuffer-setup :around #'dhnam/ivy--minibuffer-setup--advice-for-korean)
