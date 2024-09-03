@@ -72,9 +72,21 @@
 (with-eval-after-load 'exwm-edit
   (defun dhnam/exwm-edit-send-text (text &optional delay)
     (let ((exwm-edit--last-window-configuration (current-window-configuration))
-          (exwm-edit-paste-delay (or delay exwm-edit-paste-delay)))
+          (exwm-edit-paste-delay delay))
       (exwm-edit--send-to-exwm-buffer text)
       text))
 
-  (defun dhnam/exwm-edit-send-return ()
-    (exwm-input--fake-key (aref (kbd "<return>") 0))))
+  (defun dhnam/exwm-edit-send-key-only (key)
+    ;; Example of `key' = (kbd "<return>")
+    (exwm-input--fake-key (aref key 0)))
+
+  (defmacro dhnam/exwm-edit-send-key (key &optional delay)
+    (let ((delay (or delay 0)))
+      `(progn
+         (let ((delay ,delay))
+           (if (> delay 0)
+               (run-with-timer
+                delay nil
+                (lambda () (dhnam/exwm-edit-send-key-only ,key)))
+             (dhnam/exwm-edit-send-key-only ,key)))
+         nil))))

@@ -158,21 +158,46 @@
     (dhnan/open-web-browser "firefox --private-window" url)))
 
 (with-eval-after-load 'dhnam-exwm
-  (defvar dhnam/exwm-text-insertion-delay 0.05)
-  (defvar dhnam/exwm-return-insertion-delay 0.05)
+  (require 'exwm-edit)
 
-  (defun dhnam/exwm-app-command-open-existing-firefox (url)
-    (comment (exwm-input--fake-key (aref (kbd "<f6>") 0)))
-    (exwm-input--fake-key (aref (kbd "C-l") 0))
-    (dhnam/exwm-edit-send-text url dhnam/exwm-text-insertion-delay)
-    (run-with-timer
-     dhnam/exwm-return-insertion-delay nil
-     (lambda () (exwm-input--fake-key (aref (kbd "<return>") 0)))))
+  (defvar dhnam/firefox-text-insertion-delay 0.05)
+  ;; (defvar dhnam/firefox-address-bar-delay 0.05)
+  (defvar dhnam/firefox-address-bar-delay 0.05)
+  (defvar dhnam/firefox-new-tab-delay 0.2)
 
-  (defun dhnam/exwm-app-command-query-to-existing-browser (&optional query)
-    ;; (interactive (list (read-string "Search query: " nil 'dhnam/web-browser-query-history)))
+  (defvar dhnam/firefox-address-bar-shortcut (kbd "C-l"))
+  (comment (defvar dhnam/firefox-address-bar-shortcut (kbd "<f6>"))) ; (kbd "<f6>") does not work for firefox
+  (defvar dhnam/firefox-copy-shortcut (kbd "C-c"))
+  (defvar dhnam/firefox-new-tab-shortcut (kbd "C-t"))
+
+  (defun dhnam/exwm-app-command-open-link-with-existing-firefox (url)
+    (let ((delay 0))
+      (dhnam/exwm-edit-send-key dhnam/firefox-address-bar-shortcut)
+      (dhnam/exwm-edit-send-text url (setq delay (+ delay dhnam/firefox-address-bar-delay)))
+      (dhnam/exwm-edit-send-key (kbd "<return>") (setq delay (+ delay dhnam/firefox-text-insertion-delay)))))
+
+  (defun dhnam/exwm-app-command-query-to-existing-firefox (&optional query)
+    ;; (interactive (list (read-string "Search query: " nil 'dhnam/firefox-query-history)))
     (interactive (list (dhnam/read-web-search-query)))
     (comment (interactive "sSearch query: "))
-    (dhnam/search-query-to-browser query #'dhnam/exwm-app-command-open-existing-firefox t)))
+    (dhnam/search-query-to-browser query #'dhnam/exwm-app-command-open-link-with-existing-firefox t))
+
+  (comment
+    (defun dhnam/exwm-app-command-open-address-bar ()
+      (interactive)
+      (dhnam/exwm-edit-send-key dhnam/firefox-address-bar-shortcut)))
+
+  (defun dhnam/exwm-app-command-open-link-with-new-firefox-tab (url)
+    (let ((delay 0))
+      (dhnam/exwm-edit-send-key dhnam/firefox-new-tab-shortcut)
+      (dhnam/exwm-edit-send-key dhnam/firefox-address-bar-shortcut (setq delay (+ delay dhnam/firefox-new-tab-delay)))
+      (dhnam/exwm-edit-send-text url (setq delay (+ delay dhnam/firefox-address-bar-delay)))
+      (dhnam/exwm-edit-send-key (kbd "<return>") (setq delay (+ delay dhnam/firefox-text-insertion-delay)))))
+
+  (defun dhnam/exwm-app-command-query-to-new-firefox-tab (&optional query)
+    ;; (interactive (list (read-string "Search query: " nil 'dhnam/firefox-query-history)))
+    (interactive (list (dhnam/read-web-search-query)))
+    (comment (interactive "sSearch query: "))
+    (dhnam/search-query-to-browser query #'dhnam/exwm-app-command-open-link-with-new-firefox-tab)))
 
 (provide 'dhnam-web-browser)
