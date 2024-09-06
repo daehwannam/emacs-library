@@ -22,6 +22,7 @@
  ("gh" "https://github.com/daehwannam/~a" "https://github.com/daehwannam?tab=repositories")
  ("ctan" "https://www.ctan.org/search?phrase=~a" "https://www.ctan.org/")
  ("reddit-emacs" "https://www.reddit.com/r/emacs/search/?q=~a&restrict_sr=1&sr_nsfw=" "https://www.reddit.com/r/emacs/")
+ ("cambridge-en" "https://dictionary.cambridge.org/dictionary/english-korean/~a" "https://dictionary.cambridge.org/dictionary/english-korean/")
 
  ("about:config" "about:config" "about:config")
  ("config" "about:config" "about:config")

@@ -77,7 +77,8 @@
       (list dhnam/default-web-search-engine-list-file-path))
 
     (defun dhnam/get-search-engines-from-file-path (file-path)
-      (car (read-from-string (dhnam/get-string-from-file file-path))))
+      (when (file-exists-p file-path)
+        (car (read-from-string (dhnam/get-string-from-file file-path)))))
 
     (defun dhnam/get-search-engines-from-file-paths (file-paths)
       (apply 'append (mapcar 'dhnam/get-search-engines-from-file-path file-paths)))
