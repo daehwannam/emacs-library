@@ -69,11 +69,79 @@
     (redisplay)
     (windmove-right)))
 
+(defvar dhnam/exwm-temp-copied-text nil
+  "Temporary text copied from an application.")
+
 (with-eval-after-load 'exwm-edit
+  (defun dhnam/exwm-edit--send-to-exwm-buffer-old (text)
+    "Sends TEXT to the exwm window.
+It's modified from `exwm-edit--send-to-exwm-buffer'.
+"
+    (setq dhnam/exwm-temp-copied-text
+          (progn
+            ;; This snippet is copied from `current-kill'
+            (and interprogram-paste-function (funcall interprogram-paste-function))))
+    (exwm-edit--send-to-exwm-buffer text)
+    (run-with-timer
+     (progn
+       ;; wait some time before updating `kill-ring'
+       (* 3 (+ exwm-edit-paste-delay
+               exwm-edit-clean-kill-ring-delay)))
+     nil
+     (lambda ()
+       (pop kill-ring)
+       (when dhnam/exwm-temp-copied-text
+         (kill-new dhnam/exwm-temp-copied-text)))))
+
+  (defun dhnam/exwm-edit--send-to-exwm-buffer-old (text)
+    "Sends TEXT to the exwm window.
+It's modified from `exwm-edit--send-to-exwm-buffer'.
+"
+    (progn
+      ;; added by dhnam
+      (setq dhnam/exwm-temp-copied-text
+            (progn
+              ;; This snippet is copied from `current-kill'
+              (and interprogram-paste-function (funcall interprogram-paste-function)))))
+
+    (kill-new text)
+    (set-window-configuration exwm-edit--last-window-configuration)
+    (setq exwm-edit--last-window-configuration nil)
+    (exwm-input--set-focus (exwm--buffer->id (window-buffer (selected-window))))
+    (if (string= text "")
+        ;; If everything is deleted in the exwm-edit buffer, then simply delete the selected text in the exwm buffer
+        (run-with-timer
+         exwm-edit-paste-delay
+         nil
+         (lambda () (exwm-input--fake-key 'delete)))
+
+      (run-with-timer
+       exwm-edit-paste-delay
+       nil
+       (lambda ()
+		 (exwm-input--fake-key ?\C-v)
+		 ;; Clean up the kill ring
+		 ;; It needs to be run on a timer because of some reason
+		 (run-with-timer
+          exwm-edit-clean-kill-ring-delay
+          nil
+          (lambda ()
+			(pop kill-ring)
+			;; Kill-ring weirdness
+            (comment
+              ;; commented by dhnam
+			  (if kill-ring
+				  (kill-new (car kill-ring))
+			    (kill-new "")))
+            (when dhnam/exwm-temp-copied-text
+              ;; added by dhnam
+              (kill-new dhnam/exwm-temp-copied-text))))))))
+
   (defun dhnam/exwm-edit-send-text (text &optional delay)
     (let ((exwm-edit--last-window-configuration (current-window-configuration))
           (exwm-edit-paste-delay delay))
-      (exwm-edit--send-to-exwm-buffer text)
+      (comment (exwm-edit--send-to-exwm-buffer text))
+      (dhnam/exwm-edit--send-to-exwm-buffer text)
       text))
 
   (defun dhnam/exwm-edit-send-key-only (key)
@@ -97,4 +165,4 @@
               (lambda () (dhnam/exwm-edit-send-key-only ,key)))
            (dhnam/exwm-edit-send-key-only ,key)))
        nil))
-)
+  )
