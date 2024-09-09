@@ -161,37 +161,27 @@ Don't finish completion."
   (progn
     ;; Ivy Hangul bug fix
 
-    (defun dhnam/self-insert-command--advice-for-korean (orig-fun &rest args)
-      (let ((result (apply orig-fun args)))
-        (when (equal current-input-method "korean-hangul")
-          (ivy--queue-exhibit))
-        result))
+    (defun dhnam/self-insert-command--advice-for-korean (&rest args)
+      (when (equal current-input-method "korean-hangul")
+        (ivy--queue-exhibit)))
 
-    (defun dhnam/hangul-delete-backward-char--advice-for-korean (orig-fun &rest args)
-      (let ((result (apply orig-fun args)))
-        (ivy--queue-exhibit)
-        result))
+    (defun dhnam/hangul-delete-backward-char--advice-for-korean (&rest args)
+      (ivy--queue-exhibit))
 
-    (defun dhnam/ivy--minibuffer-setup--advice-for-korean (orig-fun &rest args)
-      (let ((result (apply orig-fun args)))
-        (progn
-          ;; Fix for `hangul-insert-character' in
-          ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
-          (advice-add 'self-insert-command :around #'dhnam/self-insert-command--advice-for-korean)
-          (advice-add 'hangul-delete-backward-char :around #'dhnam/hangul-delete-backward-char--advice-for-korean))
-        result))
+    (defun dhnam/ivy--minibuffer-setup--advice-for-korean (&rest args)
+      ;; Fix for `hangul-insert-character' in
+      ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
+      (advice-add 'self-insert-command :after #'dhnam/self-insert-command--advice-for-korean)
+      (advice-add 'hangul-delete-backward-char :after #'dhnam/hangul-delete-backward-char--advice-for-korean))
 
-    (defun dhnam/ivy--cleanup--advice-for-korean (orig-fun &rest args)
-      (let ((result (apply orig-fun args)))
-        (progn
-          ;; Fix for `hangul-insert-character' in
-          ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
-          (advice-remove 'self-insert-command #'dhnam/self-insert-command--advice-for-korean)
-          (advice-remove 'hangul-delete-backward-char #'dhnam/hangul-delete-backward-char--advice-for-korean))
-        result))
+    (defun dhnam/ivy--cleanup--advice-for-korean (&rest args)
+      ;; Fix for `hangul-insert-character' in
+      ;; /usr/share/emacs/27.1/lisp/leim/quail/hangul.el.gz
+      (advice-remove 'self-insert-command #'dhnam/self-insert-command--advice-for-korean)
+      (advice-remove 'hangul-delete-backward-char #'dhnam/hangul-delete-backward-char--advice-for-korean))
 
-    (advice-add 'ivy--minibuffer-setup :around #'dhnam/ivy--minibuffer-setup--advice-for-korean)
-    (advice-add 'ivy--cleanup :around #'dhnam/ivy--cleanup--advice-for-korean)))
+    (advice-add 'ivy--minibuffer-setup :after #'dhnam/ivy--minibuffer-setup--advice-for-korean)
+    (advice-add 'ivy--cleanup :after #'dhnam/ivy--cleanup--advice-for-korean)))
 
 (when (package-installed-p 'counsel)
   (defun dhnam/swiper-with-text-in-region (start end)
