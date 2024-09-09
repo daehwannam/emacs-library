@@ -69,31 +69,11 @@
     (redisplay)
     (windmove-right)))
 
-(defvar dhnam/exwm-temp-copied-text nil
-  "Temporary text copied from an application.")
-
 (with-eval-after-load 'exwm-edit
-  (defun dhnam/exwm-edit--send-to-exwm-buffer-old (text)
-    "Sends TEXT to the exwm window.
-It's modified from `exwm-edit--send-to-exwm-buffer'.
-"
-    (setq dhnam/exwm-temp-copied-text
-          (progn
-            ;; This snippet is copied from `current-kill'
-            (and interprogram-paste-function (funcall interprogram-paste-function))))
-    (exwm-edit--send-to-exwm-buffer text)
-    (run-with-timer
-     (progn
-       ;; wait some time before updating `kill-ring'
-       (* 3 (+ exwm-edit-paste-delay
-               exwm-edit-clean-kill-ring-delay)))
-     nil
-     (lambda ()
-       (pop kill-ring)
-       (when dhnam/exwm-temp-copied-text
-         (kill-new dhnam/exwm-temp-copied-text)))))
+  (defvar dhnam/exwm-temp-copied-text nil
+    "Temporary text copied from an application.")
 
-  (defun dhnam/exwm-edit--send-to-exwm-buffer-old (text)
+  (defun dhnam/exwm-edit--send-to-exwm-buffer (text)
     "Sends TEXT to the exwm window.
 It's modified from `exwm-edit--send-to-exwm-buffer'.
 "
