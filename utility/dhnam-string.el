@@ -8,7 +8,9 @@
 (defun dhnam/string-trim (string)
   ;; http://ergoemacs.org/emacs/modernization_elisp_lib_problem.html
   "Remove white spaces in beginning and ending of STRING.
-White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
+White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
+This function is deprecated as `string-trim' was introduced.
+"
   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" string)))
 
 (defun dhnam/string-starts-with (s begins)

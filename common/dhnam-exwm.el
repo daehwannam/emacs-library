@@ -89,12 +89,12 @@
      key))
 
   (defmacro dhnam/exwm-edit-send-key (key &optional delay)
-    (let ((delay (or delay 0)))
-      `(progn
-         (let ((delay ,delay))
-           (if (> delay 0)
-               (run-with-timer
-                delay nil
-                (lambda () (dhnam/exwm-edit-send-key-only ,key)))
-             (dhnam/exwm-edit-send-key-only ,key)))
-         nil))))
+    `(progn
+       (let ((delay (or ,delay 0)))
+         (if (> delay 0)
+             (run-with-timer
+              delay nil
+              (lambda () (dhnam/exwm-edit-send-key-only ,key)))
+           (dhnam/exwm-edit-send-key-only ,key)))
+       nil))
+)

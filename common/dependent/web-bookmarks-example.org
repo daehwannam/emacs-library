@@ -1,0 +1,20 @@
+# -*- eval: (dhnam/buffer-local-set-key (kbd "C-x C-s") 'dhnam/save-buffer-and-update-web-bookmarks); -*-
+# -*- eval: (dhnam/buffer-local-set-key-chord "xs" 'dhnam/save-buffer-and-update-web-bookmarks); -*-
+
+* News
+- CNN https://edition.cnn.com/
+- Fox https://www.foxnews.com/
+- MSNBC https://www.msnbc.com/
+
+* YouTube
+- System Crafters https://www.youtube.com/c/SystemCrafters
+- Emacs Rocks https://www.youtube.com/user/emacsrocks
+
+* GitHub
+** Emacs
+- Emacs Mirror https://github.com/emacs-mirror/emacs
+- EXWM https://github.com/emacs-exwm/exwm
+
+** Lisp
+- On Lisp https://github.com/DalekBaldwin/on-lisp
+- PAIP https://github.com/norvig/paip-lisp

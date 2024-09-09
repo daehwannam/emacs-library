@@ -90,13 +90,27 @@
         (dhnam/ivy--remove-symbol-boundaries)
       (ivy--insert-symbol-boundaries)))
 
-  (fset 'dhnam/original-ivy-partial (symbol-function 'ivy-partial))
   (defun dhnam/ivy-remain-first ()
-    (let* ((minibuffer-string (buffer-substring-no-properties (minibuffer-prompt-end) (point-max)))
+    (let* ((minibuffer-string (string-trim (buffer-substring-no-properties (minibuffer-prompt-end) (point-max))))
            (minibuffer-splits (split-string minibuffer-string " ")))
       (when (> (length minibuffer-splits) 1)
         (delete-minibuffer-contents)
         (insert (car minibuffer-splits)))))
+
+  (defun dhnam/ivy-remove-last ()
+    (let* ((minibuffer-string (string-trim (buffer-substring-no-properties (minibuffer-prompt-end) (point-max))))
+           (minibuffer-splits (split-string minibuffer-string " ")))
+      (when (> (length minibuffer-splits) 1)
+        (let ((except-last (string-trim
+                            (substring-no-properties
+                             minibuffer-string
+                             0
+                             (- (length minibuffer-string)
+                                (length (car (last minibuffer-splits))))))))
+          (delete-minibuffer-contents)
+          (insert except-last)))))
+
+  (fset 'dhnam/original-ivy-partial (symbol-function 'ivy-partial))
 
   (defun dhnam/ivy-partial-first ()
     "Complete only the first chunk.
@@ -105,6 +119,13 @@ Modified from `ivy-partial'"
     (dhnam/original-ivy-partial)
     (dhnam/ivy-remain-first))
 
+  (defun dhnam/ivy-partial-without-last ()
+    "Complete without the last chunk.
+Modified from `ivy-partial'"
+    (interactive)
+    (dhnam/original-ivy-partial)
+    (dhnam/ivy-remove-last))
+
   (fset 'dhnam/original-ivy-insert-current (symbol-function 'ivy-insert-current))
   (defun dhnam/ivy-insert-current-first (&optional from-beginning)
     "Make the current candidate into current input.
@@ -112,13 +133,30 @@ Don't finish completion."
     (interactive)
     (dhnam/original-ivy-insert-current)
     (dhnam/ivy-remain-first)
-    (save-excursion
-      (move-beginning-of-line 0)
-      (insert "^")))
+    (when from-beginning
+      (save-excursion
+        (move-beginning-of-line 0)
+        (insert "^"))))
 
   (defun dhnam/ivy-insert-current-first-with-begin-symbol ()
     (interactive)
     (dhnam/ivy-insert-current-first t))
+
+  (defun dhnam/ivy-insert-except-last (&optional from-beginning)
+    "Make the current candidate into current input.
+Don't finish completion."
+    (interactive)
+    (dhnam/original-ivy-insert-current)
+    (dhnam/ivy-remove-last)
+    (when from-beginning
+      (save-excursion
+        (move-beginning-of-line 0)
+        (insert "^"))))
+
+  (defun dhnam/ivy-insert-except-last-with-begin-symbol ()
+    (interactive)
+    (dhnam/ivy-insert-except-last t))
+
 
   (progn
     ;; Ivy Hangul bug fix
