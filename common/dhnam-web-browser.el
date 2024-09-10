@@ -79,6 +79,8 @@
     (dhnan/open-web-browser "nyxt" url))
 
   (progn
+    (comment (require 'subr-x))
+
     (defvar dhnam/primary-web-search-engine-list-file-path
       (concat dhnam/lib-root-dir "common/dependent/search-engines-example.lisp"))
 
