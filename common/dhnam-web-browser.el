@@ -146,7 +146,7 @@
     (defvar dhnam/web-browser-query-history nil)
     (defvar dhnam/web-search-query-start-match t)
 
-    (defun dhnam/read-from-pairs (pairs prompt history-var immediate start-match)
+    (defun dhnam/read-from-pairs (pairs prompt history-var require-match immediate start-match)
       (interactive)
 
       (let* ((candidates
@@ -162,6 +162,7 @@
                         ((symbol-function 'ivy-partial) 'dhnam/ivy-partial-without-last)
                         ((symbol-function 'ivy--update-history) (lambda (hist))))
                 (ivy-read prompt candidates
+                          :require-match require-match
                           :history history-var
                           :initial-input (if start-match "^" "")))))
         (if start-match
@@ -174,7 +175,7 @@
       (interactive)
       (dhnam/read-from-pairs
        dhnam/web-search-engines "Search query: " 'dhnam/web-browser-query-history
-       t dhnam/web-search-query-start-match))
+       nil t dhnam/web-search-query-start-match))
 
     (defvar dhnam/primary-web-bookmark-list-file-path
       (concat dhnam/lib-root-dir "common/dependent/web-bookmarks-example.org"))
@@ -230,7 +231,7 @@
       (let* ((raw-output (string-trim-left
                           (dhnam/read-from-pairs
                            dhnam/web-bookmarks "Bookmark: " 'dhnam/web-browser-bookmark-history
-                           nil dhnam/web-bookmark-start-match)))
+                           t nil dhnam/web-bookmark-start-match)))
              (splits (split-string raw-output " "))
              (last-split (car (last splits)))
              (except-last (string-trim-right
