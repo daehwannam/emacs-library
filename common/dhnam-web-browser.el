@@ -146,7 +146,7 @@
     (defvar dhnam/web-browser-query-history nil)
     (defvar dhnam/web-search-query-start-match t)
 
-    (defun dhnam/read-from-pairs (pairs prompt immediate start-match)
+    (defun dhnam/read-from-pairs (pairs prompt history-var immediate start-match)
       (interactive)
 
       (let* ((candidates
@@ -159,9 +159,10 @@
                         ((symbol-function 'ivy-insert-current) (if start-match
                                                                    'dhnam/ivy-insert-except-last-with-begin-symbol
                                                                  'dhnam/ivy-insert-except-last))
-                        ((symbol-function 'ivy-partial) 'dhnam/ivy-partial-without-last))
+                        ((symbol-function 'ivy-partial) 'dhnam/ivy-partial-without-last)
+                        ((symbol-function 'ivy--update-history) (lambda (hist))))
                 (ivy-read prompt candidates
-                          :history 'dhnam/web-browser-query-history
+                          :history history-var
                           :initial-input (if start-match "^" "")))))
         (if start-match
             (if (string= (substring-no-properties ivy-output 0 1) "^")
@@ -171,7 +172,9 @@
 
     (defun dhnam/read-web-search-query ()
       (interactive)
-      (dhnam/read-from-pairs dhnam/web-search-engines "Search query: " t dhnam/web-search-query-start-match))
+      (dhnam/read-from-pairs
+       dhnam/web-search-engines "Search query: " 'dhnam/web-browser-query-history
+       t dhnam/web-search-query-start-match))
 
     (defvar dhnam/primary-web-bookmark-list-file-path
       (concat dhnam/lib-root-dir "common/dependent/web-bookmarks-example.org"))
@@ -226,7 +229,8 @@
       (interactive)
       (let* ((raw-output (string-trim-left
                           (dhnam/read-from-pairs
-                           dhnam/web-bookmarks "Bookmark: " nil dhnam/web-bookmark-start-match)))
+                           dhnam/web-bookmarks "Bookmark: " 'dhnam/web-browser-bookmark-history
+                           nil dhnam/web-bookmark-start-match)))
              (splits (split-string raw-output " "))
              (last-split (car (last splits)))
              (except-last (string-trim-right
