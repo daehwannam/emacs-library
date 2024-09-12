@@ -76,6 +76,7 @@
   (defun dhnam/exwm-edit--send-to-exwm-buffer (text)
     "Sends TEXT to the exwm window.
 It's modified from `exwm-edit--send-to-exwm-buffer'.
+`dhnam/exwm-temp-post-fn' is called at the end if it's not nil.
 "
     (progn
       ;; added by dhnam
@@ -125,12 +126,11 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
   (defun dhnam/exwm-edit-send-text (text &optional delay post-fn)
     (let ((exwm-edit--last-window-configuration (current-window-configuration))
           (exwm-edit-paste-delay delay))
-      (comment (exwm-edit--send-to-exwm-buffer text))
       (setq dhnam/exwm-temp-post-fn post-fn)
       (dhnam/exwm-edit--send-to-exwm-buffer text)
       text))
 
-  (defun dhnam/exwm-edit-send-key-only (key)
+  (defun dhnam/exwm-send-key (key)
     ;; Example of `key' = (kbd "<return>")
 
     (comment
@@ -142,16 +142,15 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
        (exwm-input--fake-key value))
      key))
 
-  (defmacro dhnam/exwm-edit-send-key (key &optional delay)
+  (defmacro dhnam/delayed-run (delay &rest body)
     `(progn
        (let ((delay (or ,delay 0)))
          (if (> delay 0)
              (run-with-timer
               delay nil
-              (lambda () (dhnam/exwm-edit-send-key-only ,key)))
-           (dhnam/exwm-edit-send-key-only ,key)))
-       nil))
-  )
+              (lambda () (progn ,@body)))
+           (progn ,@body)))
+       nil)))
 
 (defun dhnam/exwm-toggle-input-method ()
   (interactive)
