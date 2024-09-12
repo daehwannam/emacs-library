@@ -152,3 +152,9 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
            (dhnam/exwm-edit-send-key-only ,key)))
        nil))
   )
+
+(defun dhnam/exwm-toggle-input-method ()
+  (interactive)
+  (if (eq major-mode 'exwm-mode)
+      (shell-command "fcitx-remote -t")
+    (toggle-input-method)))

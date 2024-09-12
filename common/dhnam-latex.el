@@ -55,7 +55,76 @@
 
     (defun dhnam/pdf-view-next-non-overlapping-page-in-multiple-columns-command (num-steps)
       (interactive "p")
-      (dhnam/pdf-view-next-page-in-multiple-columns-command num-steps t))))
+      (dhnam/pdf-view-next-page-in-multiple-columns-command num-steps t)))
+
+  (progn
+    (progn
+      (defvar dhnam/pdf-view-page-ring nil)
+      ;; (put 'dhnam/pdf-view-page-ring 'permanent-local t)
+      (make-variable-buffer-local 'dhnam/pdf-view-page-ring)
+
+      (defvar dhnam/pdf-view-page-ring-max-len 16)
+      (defvar dhnam/pdf-view-last-push-pop-command nil)
+      (make-variable-buffer-local 'dhnam/pdf-view-last-push-pop-command))
+
+    (defun dhnam/pdf-view-push (&optional new-page)
+      (let ((new-page (or new-page (pdf-view-current-page))))
+        (push new-page dhnam/pdf-view-page-ring)
+        (when (>= (length dhnam/pdf-view-page-ring) dhnam/pdf-view-page-ring-max-len)
+          (setf (nthcdr (1- dhnam/pdf-view-page-ring-max-len) dhnam/pdf-view-page-ring) nil))
+        (setq dhnam/pdf-view-last-push-pop-command 'dhnam/pdf-view-push)
+        new-page))
+
+    (defun dhnam/pdf-view-push-command ()
+      (interactive)
+      (let ((new-page (dhnam/pdf-view-push)))
+        (message (format "Page %s is marked" new-page))))
+
+    (defun dhnam/pdf-view-pop ()
+      (let ((popped-page (pop dhnam/pdf-view-page-ring)))
+        (setf (nthcdr (min (length dhnam/pdf-view-page-ring) dhnam/pdf-view-page-ring-max-len)
+                      dhnam/pdf-view-page-ring)
+              (list popped-page))
+        popped-page))
+
+    (defun dhnam/pdf-view-pop-command ()
+      (interactive)
+      (when dhnam/pdf-view-page-ring
+        (when (eq dhnam/pdf-view-last-push-pop-command 'dhnam/pdf-view-unpop-command)
+          (dhnam/pdf-view-pop))
+        (let ((popped-page (dhnam/pdf-view-pop)))
+          (setq dhnam/pdf-view-last-push-pop-command 'dhnam/pdf-view-pop-command)
+          (pdf-view-goto-page popped-page)
+          popped-page)))
+
+    (defun dhnam/pdf-view-unpop ()
+      (let ((old-page (car (last dhnam/pdf-view-page-ring))))
+        (setf (nthcdr (1- (length dhnam/pdf-view-page-ring)) dhnam/pdf-view-page-ring) nil)
+        (push old-page dhnam/pdf-view-page-ring)
+        old-page))
+
+    (defun dhnam/pdf-view-unpop-command ()
+      (interactive)
+      (when dhnam/pdf-view-page-ring
+        (when (eq dhnam/pdf-view-last-push-pop-command 'dhnam/pdf-view-pop-command)
+          (dhnam/pdf-view-unpop))
+        (let ((unpopped-page (dhnam/pdf-view-unpop)))
+          (setq dhnam/pdf-view-last-push-pop-command 'dhnam/pdf-view-unpop-command)
+          (pdf-view-goto-page unpopped-page)
+          unpopped-page)))
+
+    (defun dhnam/pdf-view-first-page ()
+      (interactive)
+      (dhnam/pdf-view-push)
+      (pdf-view-first-page))
+
+    (defun dhnam/pdf-view-last-page ()
+      (interactive)
+      (dhnam/pdf-view-push)
+      (pdf-view-last-page))
+
+    (defun dhnam/pdf-tools-relocation-advice (&rest args)
+      (dhnam/pdf-view-push-command))))
 
 (with-eval-after-load 'biblio
   (progn
