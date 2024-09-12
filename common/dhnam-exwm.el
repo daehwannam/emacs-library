@@ -117,12 +117,14 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
             (if dhnam/exwm-temp-copied-text
                 ;; added by dhnam
                 (kill-new dhnam/exwm-temp-copied-text)
-              (kill-new (pop kill-ring)))
+              (when kill-ring
+                (kill-new (pop kill-ring))))
 
             (when dhnam/exwm-temp-post-fn
               (funcall dhnam/exwm-temp-post-fn))))))))
 
   (defvar dhnam/exwm-temp-post-fn nil)
+  (comment (setq exwm-edit-clean-kill-ring-delay 0.1))
   (defun dhnam/exwm-edit-send-text (text &optional delay post-fn)
     (let ((exwm-edit--last-window-configuration (current-window-configuration))
           (exwm-edit-paste-delay delay))

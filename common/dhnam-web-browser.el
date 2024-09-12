@@ -323,7 +323,6 @@
 
   (defvar dhnam/firefox-app-open-delay 0.2)
   ;; (comment (defvar dhnam/firefox-text-insertion-delay 0.05))
-  ;; (defvar dhnam/firefox-address-bar-delay 0.05)
   (defvar dhnam/firefox-address-bar-delay 0.05)
   (defvar dhnam/firefox-new-tab-delay 0.2)
 
@@ -333,11 +332,14 @@
   (defvar dhnam/firefox-new-tab-shortcut (kbd "C-t"))
 
   (defun dhnam/exwm-app-command-open-link-with-existing-firefox (url &optional initial-delay)
-    (dhnam/exwm-send-key dhnam/firefox-address-bar-shortcut)
-    (dhnam/exwm-edit-send-text
-     url
-     dhnam/firefox-address-bar-delay
-     (lambda () (dhnam/exwm-send-key (kbd "<return>")))))
+    (let ((delay (or initial-delay 0)))
+      (dhnam/delayed-run
+       delay
+       (dhnam/exwm-send-key dhnam/firefox-address-bar-shortcut))
+      (dhnam/exwm-edit-send-text
+       url
+       (+ delay dhnam/firefox-address-bar-delay)
+       (lambda () (dhnam/exwm-send-key (kbd "<return>"))))))
 
   (defun dhnam/exwm-app-command-query-to-existing-firefox (&optional query)
     ;; (interactive (list (read-string "Search query: " nil 'dhnam/firefox-query-history)))
