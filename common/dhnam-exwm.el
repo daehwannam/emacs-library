@@ -113,14 +113,20 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
 			  (if kill-ring
 				  (kill-new (car kill-ring))
 			    (kill-new "")))
-            (when dhnam/exwm-temp-copied-text
-              ;; added by dhnam
-              (kill-new dhnam/exwm-temp-copied-text))))))))
+            (if dhnam/exwm-temp-copied-text
+                ;; added by dhnam
+                (kill-new dhnam/exwm-temp-copied-text)
+              (kill-new (pop kill-ring)))
 
-  (defun dhnam/exwm-edit-send-text (text &optional delay)
+            (when dhnam/exwm-temp-post-fn
+              (funcall dhnam/exwm-temp-post-fn))))))))
+
+  (defvar dhnam/exwm-temp-post-fn nil)
+  (defun dhnam/exwm-edit-send-text (text &optional delay post-fn)
     (let ((exwm-edit--last-window-configuration (current-window-configuration))
           (exwm-edit-paste-delay delay))
       (comment (exwm-edit--send-to-exwm-buffer text))
+      (setq dhnam/exwm-temp-post-fn post-fn)
       (dhnam/exwm-edit--send-to-exwm-buffer text)
       text))
 

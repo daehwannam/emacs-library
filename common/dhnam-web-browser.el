@@ -322,7 +322,7 @@
   (require 'exwm-edit)
 
   (defvar dhnam/firefox-app-open-delay 0.2)
-  (defvar dhnam/firefox-text-insertion-delay 0.05)
+  (comment (defvar dhnam/firefox-text-insertion-delay 0.05))
   ;; (defvar dhnam/firefox-address-bar-delay 0.05)
   (defvar dhnam/firefox-address-bar-delay 0.05)
   (defvar dhnam/firefox-new-tab-delay 0.2)
@@ -335,8 +335,10 @@
   (defun dhnam/exwm-app-command-open-link-with-existing-firefox (url &optional initial-delay)
     (let ((delay (or initial-delay 0)))
       (dhnam/exwm-edit-send-key dhnam/firefox-address-bar-shortcut delay)
-      (dhnam/exwm-edit-send-text url (setq delay (+ delay dhnam/firefox-address-bar-delay)))
-      (dhnam/exwm-edit-send-key (kbd "<return>") (setq delay (+ delay dhnam/firefox-text-insertion-delay)))))
+      (dhnam/exwm-edit-send-text
+       url (setq delay (+ delay dhnam/firefox-address-bar-delay))
+       (lambda () (dhnam/exwm-edit-send-key (kbd "<return>"))))
+      (comment (dhnam/exwm-edit-send-key (kbd "<return>") (setq delay (+ delay dhnam/firefox-text-insertion-delay))))))
 
   (defun dhnam/exwm-app-command-query-to-existing-firefox (&optional query)
     ;; (interactive (list (read-string "Search query: " nil 'dhnam/firefox-query-history)))
@@ -353,8 +355,10 @@
     (let ((delay 0))
       (dhnam/exwm-edit-send-key dhnam/firefox-new-tab-shortcut)
       (dhnam/exwm-edit-send-key dhnam/firefox-address-bar-shortcut (setq delay (+ delay dhnam/firefox-new-tab-delay)))
-      (dhnam/exwm-edit-send-text url (setq delay (+ delay dhnam/firefox-address-bar-delay)))
-      (dhnam/exwm-edit-send-key (kbd "<return>") (setq delay (+ delay dhnam/firefox-text-insertion-delay)))))
+      (dhnam/exwm-edit-send-text
+       url (setq delay (+ delay dhnam/firefox-address-bar-delay))
+       (lambda () (dhnam/exwm-edit-send-key (kbd "<return>"))))
+      (comment (dhnam/exwm-edit-send-key (kbd "<return>") (setq delay (+ delay dhnam/firefox-text-insertion-delay))))))
 
   (defun dhnam/exwm-app-command-query-to-new-firefox-tab (&optional query)
     ;; (interactive (list (read-string "Search query: " nil 'dhnam/firefox-query-history)))
