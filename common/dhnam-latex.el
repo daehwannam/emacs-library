@@ -123,8 +123,13 @@
       (dhnam/pdf-view-push)
       (pdf-view-last-page))
 
-    (defun dhnam/pdf-tools-relocation-advice (&rest args)
-      (dhnam/pdf-view-push-command))))
+    (defun dhnam/pdf-tools-relocation-advice (orig-func &rest args)
+      (dhnam/pdf-view-push-command)
+      (let ((result (apply orig-func args)))
+        (progn
+          (dhnam/pdf-view-push-command)
+          (dhnam/pdf-view-pop))
+        result))))
 
 (with-eval-after-load 'biblio
   (progn
