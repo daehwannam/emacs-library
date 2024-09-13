@@ -154,8 +154,19 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
            (progn ,@body)))
        nil)))
 
-(defun dhnam/exwm-toggle-input-method ()
-  (interactive)
-  (if (eq major-mode 'exwm-mode)
-      (shell-command "fcitx-remote -t")
-    (toggle-input-method)))
+(progn
+  (defun dhnam/exwm-toggle-input-method ()
+    (interactive)
+    (if (eq major-mode 'exwm-mode)
+        (dhnam/without-message
+          (shell-command "fcitx-remote -t"))
+      (toggle-input-method)))
+
+  (defun dhnam/fcitx-inactivate (window)
+    (dhnam/without-message
+      (shell-command "fcitx-remote -c")))
+
+  (defun dhnam/fcitx-inactivate-for-non-exwm (window)
+    (unless (eq major-mode 'exwm-mode)
+      (dhnam/without-message
+        (shell-command "fcitx-remote -c")))))
