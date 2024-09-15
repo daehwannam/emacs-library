@@ -240,6 +240,10 @@
              (last-split (car (last splits)))
              (except-last (string-trim-right
                            (substring-no-properties raw-output 0 (- (length raw-output) (length last-split))))))
+        (progn
+          (pop dhnam/web-browser-bookmark-history)
+          (comment (push (concat except-last " " last-split) dhnam/web-browser-bookmark-history))
+          (push except-last dhnam/web-browser-bookmark-history))
         (list except-last last-split)))
 
     (comment
@@ -324,6 +328,7 @@
   (defvar dhnam/firefox-app-open-delay 0.2)
   ;; (comment (defvar dhnam/firefox-text-insertion-delay 0.05))
   (defvar dhnam/firefox-address-bar-delay 0.05)
+  (comment (defvar dhnam/firefox-address-bar-delay 0.2))
   (defvar dhnam/firefox-new-tab-delay 0.2)
 
   (defvar dhnam/firefox-address-bar-shortcut (kbd "C-l"))
