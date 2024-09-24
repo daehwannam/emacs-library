@@ -20,6 +20,29 @@ This function is deprecated as `string-trim' was introduced.
          (string-equal (substring s 0 (length begins)) begins))
         (t nil)))
 
+(defun dhnam/string-get-all-matched (regexp str)
+  (let ((last-match t)
+        (matched-list nil)
+        (start 0))
+    (while (and last-match (< start (length str)))
+      (string-match regexp str start)
+      (setq last-match (match-string 0 str))
+      (setq start (+ start (length last-match)))
+      (push last-match matched-list))
+    (reverse matched-list)))
+
+(defun dhnam/string-split-by-lengths (str lengths &optional including-rest)
+  (let ((splits nil)
+        (start 0)
+        (end nil))
+    (dolist (length lengths)
+      (setq end (+ start length))
+      (push (substring-no-properties str start end) splits)
+      (setq start end))
+    (when including-rest
+      (push (substring-no-properties str start) splits))
+    (reverse splits)))
+
 (defun dhnam-key-swap/string-to-char (s)
   (let ((k (kbd s)))
     (cond ((stringp k) (string-to-char k))
@@ -44,6 +67,5 @@ This function is deprecated as `string-trim' was introduced.
 
   (string-match regexp string)
   (match-string-no-properties num string))
-
 
 (provide 'dhnam-string)

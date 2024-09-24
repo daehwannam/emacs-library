@@ -181,7 +181,15 @@ Don't finish completion."
       (advice-remove 'hangul-delete-backward-char #'dhnam/hangul-delete-backward-char--advice-for-korean))
 
     (advice-add 'ivy--minibuffer-setup :after #'dhnam/ivy--minibuffer-setup--advice-for-korean)
-    (advice-add 'ivy--cleanup :after #'dhnam/ivy--cleanup--advice-for-korean)))
+    (advice-add 'ivy--cleanup :after #'dhnam/ivy--cleanup--advice-for-korean))
+
+  (comment
+    (defun dhnam/string-alist-to-lines (alist)
+      (let ((num-col (max (mapcar #'length alist)))
+            (col-lengths (mapcar (lambda (i) (max (mapcar (lambda (row) (length (nth i row))) alist)))
+                                 (number-sequence 0 (1- num-col)))))
+        ;; Not Implemented
+        ))))
 
 (when (package-installed-p 'counsel)
   (defun dhnam/swiper-with-text-in-region (start end)
