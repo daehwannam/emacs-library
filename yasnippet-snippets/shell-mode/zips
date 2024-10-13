@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: zip-split
+# key: zips
+# --
+zip -r ${1:path/to/archive.zip} ${2:path/to/dir} -s ${2:1000m}$0
