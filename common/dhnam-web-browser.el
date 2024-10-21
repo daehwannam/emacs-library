@@ -327,7 +327,8 @@
 
   (defvar dhnam/firefox-app-open-delay 0.2)
   ;; (comment (defvar dhnam/firefox-text-insertion-delay 0.05))
-  (defvar dhnam/firefox-address-bar-delay 0.05)
+  (comment (defvar dhnam/firefox-address-bar-delay 0.05))
+  (defvar dhnam/firefox-address-bar-delay 0.1)
   (comment (defvar dhnam/firefox-address-bar-delay 0.2))
   (defvar dhnam/firefox-new-tab-delay 0.2)
 

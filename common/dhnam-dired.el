@@ -176,17 +176,22 @@ This function would not work for multi-hop SSH connections.
     (interactive "P")
     (let ((path (dhnam/get-current-file-path)))
       (when path
-        (let ((killed-path (kill-new (if arg (file-name-directory path) path))))
-          (message "'%s'" killed-path)))))
+        (let ((dir-or-file-path (if arg (file-name-directory path) path)))
+          (kill-new dir-or-file-path)
+          (message "'%s'" dir-or-file-path)))))
 
   (defun dhnam/kill-file-name-to-clipboard ()
     "Copy the current buffer file name to the clipboard."
     (interactive)
     (let ((path (dhnam/get-current-file-path)))
       (when path
-        (let ((file-name (file-name-nondirectory path)))
-	      (kill-new file-name)
-	      (message "'%s'" file-name)))))
+        (let* ((file-or-dir-name (file-name-nondirectory path))
+               (dir-name ))
+          (when (and (string= file-or-dir-name "")
+                     (string-match "^\\(.*\\)/$" path))
+            (setq file-or-dir-name (file-name-nondirectory (match-string 1 path))))
+	      (kill-new (or file-or-dir-name dir-name))
+	      (message "'%s'" (or file-or-dir-name dir-name))))))
 
   (defun dhnam/kill-buffer-name-to-clipboard ()
     "Copy the current buffer file name to the clipboard."
