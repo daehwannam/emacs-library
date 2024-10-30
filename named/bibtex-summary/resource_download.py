@@ -32,18 +32,24 @@ def download_url(url, file_path=None, dir_path=None):
 
 
 def download_pdf_of_entry(kwargs):
-    def func(entry, pdf_dir_path, pdf_url_tag):
+    def func(entry, pdf_dir_path, pdf_url_tag, pdf_url_extra_tag):
         pdf_filename = entry_id_to_file_name(entry['ID']) + ".pdf"
         pdf_file_path = os.path.join(pdf_dir_path, pdf_filename)
-        if not os.path.isfile(pdf_file_path) and entry[pdf_url_tag]:
+        if not os.path.isfile(pdf_file_path) and (entry[pdf_url_tag] or entry.get(pdf_url_extra_tag)):
+            pdf_url = entry[pdf_url_tag] or entry.get(pdf_url_extra_tag)
             try:
-                download_url(entry[pdf_url_tag], file_path=pdf_file_path)
+                download_url(pdf_url, file_path=pdf_file_path)
             except requests.exceptions.ConnectionError:
-                print(f'''Error: Connection aborted while downloading entry {entry['ID']} from {entry[pdf_url_tag]}''')
+                print(f'''Error: Connection aborted while downloading entry {entry['ID']} from {pdf_url}''')
     func(**kwargs)
 
 
-def download_pdf_in_bibtex(bib_file_path, pdf_dir_path, pdf_url_tag='pdfurl'):
+def download_pdf_in_bibtex(
+        bib_file_path,
+        pdf_dir_path,
+        pdf_url_tag='pdfurl',
+        pdf_url_extra_tag='pdfurl-extra'
+):
     # bib_file_path = 'paper-bibliography.bib'
     with open(bib_file_path) as bibtex_file:
         bibtex_str = bibtex_file.read()
@@ -61,5 +67,7 @@ def download_pdf_in_bibtex(bib_file_path, pdf_dir_path, pdf_url_tag='pdfurl'):
     entries = bibtex_database.entries
     num_processes = 8
     process_map(download_pdf_of_entry,
-                [dict(entry=entry, pdf_dir_path=pdf_dir_path, pdf_url_tag=pdf_url_tag) for entry in entries],
+                [dict(entry=entry, pdf_dir_path=pdf_dir_path,
+                      pdf_url_tag=pdf_url_tag, pdf_url_extra_tag=pdf_url_extra_tag)
+                 for entry in entries],
                 max_workers=num_processes)

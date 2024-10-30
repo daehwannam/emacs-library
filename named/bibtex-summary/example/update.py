@@ -41,6 +41,7 @@ NOTE_DIR_PATH = './note'
 SUMMARY_FILE_PATH = './bibliography.org'
 PDF_DIR_PATH = './pdf'
 PDF_URL_TAG = 'pdfurl'
+PDF_URL_EXTRA_TAG = 'pdfurl-extra'
 
 
 
@@ -62,4 +63,6 @@ if __name__ == '__main__':
     download_pdf_in_bibtex(
         bib_file_path=MERGED_BIB_FILE_PATH,
         pdf_dir_path=PDF_DIR_PATH,
-        pdf_url_tag=PDF_URL_TAG)
+        pdf_url_tag=PDF_URL_TAG,
+        pdf_url_extra_tag=PDF_URL_EXTRA_TAG
+    )
