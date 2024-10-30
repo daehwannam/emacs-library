@@ -15,11 +15,43 @@
   \usepackage{graphicx}           % \includegraphics  
 \end{comment}
 
-% begin: natbib
-% % https://www.overleaf.com/learn/latex/Bibliography_management_with_natbib
-\usepackage[]{natbib}
-\bibliographystyle{unsrtnat}
-% end: natbib
+\usepackage{kotex}              % to use Korean characters
+\usepackage{hyperref}
+
+% Control hyperlinks and colors
+% CUSTOM COLORS INCLUDED DIRECTLY AFTER \begin{document}
+\usepackage{xcolor}
+\definecolor{myCornflowerblue}{rgb}{0.39, 0.58, 0.93} % cornflowerblue definition: https://latexcolor.com/
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,        % Enable colored links
+  breaklinks=true,        % Allow links to break across lines
+  linkcolor=myCornflowerblue,    % Color of internal links
+  urlcolor=myCornflowerblue,     % Color of URL links
+  anchorcolor=myCornflowerblue,  % Color of anchors
+  citecolor=myCornflowerblue,    % Color of citations
+  pdftitle={Resume},    % Title of the PDF
+  pdfauthor={Daehwan Nam}, % Author of the PDF
+  bookmarksopen=true,      % Open bookmarks panel at start
+}
+
+\newcommand{\useNatbib}{0}
+\if \useNatbib 1
+  % when \useNatbib = 1
+  % begin: natbib
+  % % https://www.overleaf.com/learn/latex/Bibliography_management_with_natbib
+  \usepackage[numbers]{natbib}
+  \bibliographystyle{unsrtnat}
+  % end: natbib
+
+  \else
+  % when \useNatbib = 0
+  \usepackage{biblatex}
+  \fi
+
+% Indentation of and space between paragraphs
+% https://www.overleaf.com/learn/latex/Articles/How_to_change_paragraph_spacing_in_LaTeX
+\usepackage[skip=10pt plus1pt, indent=10pt]{parskip}
 
 \title{Title here}
 \date{}
@@ -42,6 +74,21 @@
 
 \lipsum
 
-\bibliography{path/to/bibliography.bib}  % natbib's \bibliography
+\if \useNatbib 1
+  % when \useNatbib = 1
+  \bibliography{intro-bibliography.bib}  % natbib's \bibliography
+
+  \else
+  % when \useNatbib = 0
+  % https://www.overleaf.com/learn/latex/Bibliography_management_with_bibtex#Bibliography:_just_a_list_of_\bibitems
+  \begin{thebibliography}{9}
+  \bibitem{texbook}
+    Donald E. Knuth (1986) \emph{The \TeX{} Book}, Addison-Wesley Professional.
+
+  \bibitem{lamport94}
+    Leslie Lamport (1994) \emph{\LaTeX: a document preparation system}, Addison
+    Wesley, Massachusetts, 2nd ed.
+  \end{thebibliography}
+  \fi
 
 \end{document}
