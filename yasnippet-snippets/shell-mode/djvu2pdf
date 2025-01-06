@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: djvu2pdf
+# key: djvu2pdf
+#
+#
+# Source:
+#   https://superuser.com/questions/100572/how-do-i-convert-a-djvu-document-to-pdf-in-linux-using-only-command-line-tools
+#
+# Aloternative commands:
+#   ddjvu -format=pdf -mode=black ${1:<src.djvu>} ${2:<dst.pdf>}
+#   djvups ${1:<src.djvu>} | ps2pdf - ${2:<dst.pdf>}
+# --
+ddjvu -format=pdf -quality=85 -verbose ${1:<src.djvu>} ${2:<dst.pdf>}
