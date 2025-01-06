@@ -7,6 +7,7 @@ from .utility import entry_id_to_file_name
 
 
 double_comma_at_end_of_line_regex = re.compile(r', *,$')
+entry_regex = re.compile(r'\s*(\S+)\s*=')
 
 def bib_merge(merged_bib_file_path, bib_dir_path):
     lines = []
@@ -23,6 +24,11 @@ def bib_merge(merged_bib_file_path, bib_dir_path):
                         f'File: {path}'
                     )
                 else:
+                    entry = entry_regex.match(line)
+                    if entry:
+                        entry_key = entry.group(1)
+                        if entry_key in ['pdfurl-extra']:
+                            continue
                     lines.append(line)
             if idx + 1 < len(paths):
                 lines.append('\n\n')
