@@ -7,7 +7,7 @@ from .utility import entry_id_to_file_name
 
 
 double_comma_at_end_of_line_regex = re.compile(r', *,$')
-entry_regex = re.compile(r'\s*(\S+)\s*=')
+
 
 def bib_merge(merged_bib_file_path, bib_dir_path):
     lines = []
@@ -24,11 +24,6 @@ def bib_merge(merged_bib_file_path, bib_dir_path):
                         f'File: {path}'
                     )
                 else:
-                    entry = entry_regex.match(line)
-                    if entry:
-                        entry_key = entry.group(1)
-                        if entry_key in ['pdfurl-extra']:
-                            continue
                     lines.append(line)
             if idx + 1 < len(paths):
                 lines.append('\n\n')
@@ -74,6 +69,31 @@ def bib_split(merged_bib_file_path, bib_dir_path):
             raise Exception(f'The file already exists: "{bib_file_path}"')
         with open(bib_file_path, 'w') as f:
             f.write(bib_text)
+
+
+def bib_filter(merged_bib_file_path):
+    with open(merged_bib_file_path) as f:
+        lines = f.readlines()
+
+    with open(merged_bib_file_path, 'w') as f:
+        for line in lines:
+            entry_key = get_entry_key(line)
+            if entry_key is not None:
+                if entry_key in ['org-head', 'org-cmt', 'pdfurl-extra', 'pdfurl', 'code-url']:
+                    continue
+            f.write(line)
+
+
+entry_regex = re.compile(r'\s*(\S+)\s*=')
+def get_entry_key(line):
+    # This function is currently not used.
+
+    entry = entry_regex.match(line)
+    if entry:
+        entry_key = entry.group(1)  # e.g. 'pdfurl-extra'
+        return entry_key
+    else:
+        return None
 
 
 if __name__ == '__main__':
