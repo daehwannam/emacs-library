@@ -154,4 +154,27 @@ However, if text is unbalanced, signal an error instead."
        ;; (define-key global-map (kbd ,dhnam-paredit-iokl/activation-key) 'dhnam-paredit-iokl/body)
        )))
 
+
+(defun dhnam/paredit-open-round-with-$-advice (orig-fun &rest args)
+  (let ((orig-return (apply orig-fun args)))
+    (let ((pos (point)))
+      (when (string= (buffer-substring-no-properties (- pos 3) pos)
+                     "$ (")
+        (save-excursion
+          (backward-char 1)
+          (delete-backward-char 1))))
+    orig-return))
+
+
+(defun dhnam/paredit-open-square-with-$-advice (orig-fun &rest args)
+  (let ((orig-return (apply orig-fun args)))
+    (let ((pos (point)))
+      (when (string= (buffer-substring-no-properties (- pos 3) pos)
+                     "$ [")
+        (save-excursion
+          (backward-char 1)
+          (delete-backward-char 1))))
+    orig-return))
+
+
 (provide 'dhnam-paredit)

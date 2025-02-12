@@ -170,27 +170,31 @@ This function is modified from `elpy-occur-definitions'"
   (interactive)
   (python-shell-send-buffer (format "from %s import *" (dhnam/get-full-module-name))))
 
+(defun dhnam/python-get-doc-string-code (start end)
+  (let ((code nil))
+    (save-excursion
+      (save-restriction
+        (narrow-to-region start end)
+        (goto-char (point-min))
+        (let ((prev-line-number nil)
+              (code-line-prefix "^ *\\(>>>\\|\\.\\.\\.\\) ")
+              (new-code-lines nil))
+          (while (re-search-forward code-line-prefix nil t)
+            (let ((line-start (save-excursion (move-beginning-of-line 1) (point)))
+                  (line-end (save-excursion (move-end-of-line 1) (point))))
+
+              (let* ((old-line (buffer-substring-no-properties line-start line-end))
+                     (new-line (replace-regexp-in-string code-line-prefix "" old-line)))
+                (when (and prev-line-number (> (- (line-number-at-pos) prev-line-number) 1))
+                  (push "" new-code-lines))
+                (push new-line new-code-lines)))
+            (setq prev-line-number (line-number-at-pos)))
+          (string-join (reverse new-code-lines) "\n"))))))
+
 (defun dhnam/python-copy-code-from-docstring (start end)
   (interactive (list (region-beginning) (region-end)))
-  (save-excursion
-    (save-restriction
-      (narrow-to-region start end)
-      (goto-char (point-min))
-      (let ((prev-line-number nil)
-            (code-line-prefix "^ *\\(>>>\\|\\.\\.\\.\\) ")
-            (new-code-lines nil))
-        (while (re-search-forward code-line-prefix nil t)
-          (let ((line-start (save-excursion (move-beginning-of-line 1) (point)))
-                (line-end (save-excursion (move-end-of-line 1) (point))))
-
-            (let* ((old-line (buffer-substring-no-properties line-start line-end))
-                   (new-line (replace-regexp-in-string code-line-prefix "" old-line)))
-              (when (and prev-line-number (> (- (line-number-at-pos) prev-line-number) 1))
-                (push "" new-code-lines))
-              (push new-line new-code-lines)))
-          (setq prev-line-number (line-number-at-pos)))
-        (kill-new (string-join (reverse new-code-lines) "\n"))
-        (setq deactivate-mark t)))))
+  (kill-new (dhnam/python-get-doc-string-code start end))
+  (setq deactivate-mark t))
 
 (require 'dhnam-comint)
 
@@ -205,11 +209,12 @@ This function is modified from `elpy-occur-definitions'"
   (let ((default-directory (or dir (dhnam/get-python-working-directory))))
     (dhnam/comint-with-command command)))
 
+(defvar dhnam/python-dhnamlib-doctesting-format "python -m dhnamlib.pylib.doctesting -v %s")
 (defun dhnam/run-python-dhnamlib-doctesting (module)
   (interactive
    (list (dhnam/get-full-module-name)))
 
-  (let ((cmd (format "python -m dhnamlib.pylib.doctesting -v %s" module)))
+  (let ((cmd (format dhnam/python-dhnamlib-doctesting-format module)))
     (comment (dhnam/run-python (dhnam/get-python-working-directory) cmd t t))
     (let ((buffer (dhnam/comint-with-python-command cmd)))
       (set-buffer buffer)
@@ -231,6 +236,45 @@ This function is modified from `elpy-occur-definitions'"
 
     (let* ((cmd (format "python -c 'import %s; %s.%s()'" module module function)))
       (dhnam/comint-with-python-command cmd))))
+
+(progn
+  (defvar dhnam/python-doc-code-temp-file-format "/tmp/XXXXX.py")
+  (defvar dhnam/python-dhnamlib-script-interacting-format
+    "PYTHONPATH=%s python -m dhnamlib.pylib.script_interacting %s")
+
+  (defun dhnam/run-python-doc-code (start end &optional copying-command)
+    (interactive "r")
+
+    (comment (dhnam/without-message (shell-command (format "rm -f /tmp/%s*" "SOME-PREFIX"))))
+    (comment (concat (make-temp-file "SOME-PREFIX") ".py"))
+
+    (dhnam/without-message
+      (shell-command (format "mkdir -p $(dirname %s)" dhnam/python-doc-code-temp-file-format)))
+
+    (let ((temp-file-path (string-trim (shell-command-to-string
+                                        (format "mktemp %s" dhnam/python-doc-code-temp-file-format))))
+          (doc-string-code (dhnam/python-get-doc-string-code start end))
+          (module-full-name (dhnam/get-full-module-name)))
+      (with-temp-file temp-file-path
+        (insert (format "from %s import *" module-full-name))
+        (insert "\n\n")
+        (insert doc-string-code))
+
+      (dhnam/without-message
+        (shell-command (format "chmod 600 %s" temp-file-path)))
+
+      (let ((command (format dhnam/python-dhnamlib-script-interacting-format
+                             (dhnam/get-python-working-directory) temp-file-path)))
+        (if (or copying-command current-prefix-arg)
+            (progn
+              (kill-new command)
+              (message command)
+              (setq deactivate-mark t))
+          (dhnam/comint-with-python-command command)))))
+
+  (defun dhnam/copy-python-doc-code-command (start end)
+    (interactive "r")
+    (dhnam/run-python-doc-code start end t)))
 
 (defun dhnam/get-conda-environment-python-interpreter-path (env-name)
   "When `env-name' is nil, return path of the base interpreter"
@@ -264,5 +308,125 @@ It can be used to disable the default gud pdb when a breakpoint is activated in 
                 comint-output-filter-functions))
   (setq kill-buffer-hook
         (remove #'python-pdbtrack-tracking-finish kill-buffer-hook)))
+
+(progn
+  (defun dhnam/python-toggle-doc-string-code (start end)
+    "Toggle doc-string code"
+
+    (interactive "r")
+
+    (save-excursion
+      (goto-char start)
+      (while (and (< (point) (point-max))
+                  (white-space-line-p))
+        (next-line))
+
+      (back-to-indentation)
+      (if (and (or (eq ?> (char-after))
+                   (eq ?. (char-after))
+                   (let ((prefix (buffer-substring-no-properties (point) (min (+ (point) 4) (point-max)))))
+                     (or (string= prefix ">>> ")
+                         (string= prefix "... ")))))
+          (dhnam/python-remove-doc-string-code start end)
+        (dhnam/python-add-doc-string-code start end))))
+
+  (defun dhnam/get-line-indent (&optional p)
+    (save-excursion
+      (let ((p (or p (point))))
+        (goto-char p)
+        (- (progn (back-to-indentation) (point))
+           (progn (beginning-of-line) (point))))))
+
+  (defun white-space-line-p (&optional p)
+    (save-excursion
+      (let ((p (or p (point))))
+        (goto-char p)
+        (let ((start (progn (beginning-of-line) (point)))
+              (end (progn (end-of-line) (point))))
+          (string=
+           (string-trim (buffer-substring-no-properties start end))
+           "")))))
+
+  (defun dhnam/python-add-doc-string-code (start end)
+    "Add doc-string code"
+
+    (interactive "r")
+
+    (save-excursion
+      (goto-char start)
+      (while (and (< (point) (point-max))
+                  (white-space-line-p))
+        (next-line))
+
+      (let ((base-indent (dhnam/get-line-indent))
+            (last-point nil)
+            (num-added-chars 0))
+
+        (back-to-indentation)
+
+        (while (and (< (point) (+ end num-added-chars))
+                    (not (equal (point) last-point))
+                    (< (point) (point-max)))
+
+          (setq last-point (point))
+
+          (let ((indent (dhnam/get-line-indent))
+                (prev-line-using-deco   ; when a previous line uses decoration that starts with @
+                 (save-excursion
+                   (previous-line)
+                   (back-to-indentation)
+                   (equal (buffer-substring-no-properties (point) (+ (point) 5))
+                          ">>> @"))))
+            (cond
+             ((and (= indent base-indent)
+                   (not prev-line-using-deco))
+              (beginning-of-line)
+              (forward-char base-indent)
+              (insert ">>> ")
+              (backward-char 4)
+              (setq num-added-chars (+ num-added-chars 4)))
+             ((or (> indent base-indent)
+                  prev-line-using-deco)
+              (beginning-of-line)
+              (forward-char base-indent)
+              (insert "... ")
+              (backward-char 4)
+              (setq num-added-chars (+ num-added-chars 4)))))
+          (next-line)))))
+
+  (defun dhnam/python-remove-doc-string-code (start end)
+    "Remove doc-string code"
+
+    (interactive "r")
+
+    (save-excursion
+      (goto-char start)
+      (while (and (< (point) (point-max))
+                  (white-space-line-p))
+        (next-line))
+
+      (let ((base-indent (dhnam/get-line-indent))
+            (last-point nil)
+            (num-removed-chars 0))
+
+        (back-to-indentation)
+
+        (while (and (< (point) (- end num-removed-chars))
+                    (not (equal (point) last-point))
+                    (< (point) (point-max)))
+
+          (setq last-point (point))
+
+          (let ((indent (dhnam/get-line-indent)))
+            (when (and (= indent base-indent)
+                       (progn
+                         (beginning-of-line)
+                         (forward-char base-indent)
+                         (let ((prefix (buffer-substring-no-properties (point) (min (+ (point) 4) (point-max)))))
+                           (or (string= prefix ">>> ")
+                               (string= prefix "... ")))))
+              (delete-char 4)
+              (setq num-removed-chars (+ num-removed-chars 4))))
+          (next-line))))))
 
 (provide 'dhnam-python)
