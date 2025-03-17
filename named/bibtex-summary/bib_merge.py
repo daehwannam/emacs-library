@@ -71,17 +71,22 @@ def bib_split(merged_bib_file_path, bib_dir_path):
             f.write(bib_text)
 
 
-def bib_filter(merged_bib_file_path):
-    with open(merged_bib_file_path) as f:
+def bib_filter(input_bib_file_path, output_bib_file_path):
+    with open(input_bib_file_path) as f:
         lines = f.readlines()
 
-    with open(merged_bib_file_path, 'w') as f:
+    with open(output_bib_file_path, 'w') as f:
+        curly_brace_count = 0
         for line in lines:
             entry_key = get_entry_key(line)
-            if entry_key is not None:
-                if entry_key in ['org-head', 'org-cmt', 'pdfurl-extra', 'pdfurl', 'code-url']:
-                    continue
-            f.write(line)
+            if curly_brace_count > 0:
+                assert entry_key is None
+                curly_brace_count = curly_brace_count + line.count('{') - line.count('}')
+            elif (entry_key is not None) and (entry_key in ['org-head', 'org-cmt', 'pdfurl-extra', 'pdfurl', 'code-url']):
+                assert curly_brace_count == 0
+                curly_brace_count = curly_brace_count + line.count('{') - line.count('}')
+            else:
+                f.write(line)
 
 
 entry_regex = re.compile(r'\s*(\S+)\s*=')

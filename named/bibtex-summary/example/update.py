@@ -68,4 +68,4 @@ if __name__ == '__main__':
         pdf_url_extra_tag=PDF_URL_EXTRA_TAG
     )
 
-    bib_filter(MERGED_SIMPLE_BIB_FILE_PATH)
+    bib_filter(MERGED_FULL_BIB_FILE_PATH, MERGED_SIMPLE_BIB_FILE_PATH)
