@@ -1,14 +1,13 @@
 
-(defun dhnam/py-repl-kill-ring-save-without-empty-lines (beg end &optional region)
-  (interactive (list (mark) (point)
-		             (prefix-numeric-value current-prefix-arg)))
+(defun dhnam/get-py-code-without-empty-lines (beg end &optional region with-empty-lines)
   ;; https://stackoverflow.com/questions/605846/how-do-i-access-the-contents-of-the-current-region-in-emacs-lisp
   ;; https://stackoverflow.com/questions/6236196/elisp-split-string-function-to-split-a-string-by-character
   (let (lines char-lists indent-sizes min-indent result)
     (setq lines (nbutlast (split-string (buffer-substring-no-properties beg end) "$") 1)) ; https://stackoverflow.com/a/605931
     (setf (car lines) (concat " " (car lines)))
     (setq lines (mapcar (lambda (x) (substring x 1)) lines))
-    (setq lines (seq-filter (lambda (x) (not (string-empty-p (string-trim x)))) lines))
+    (unless with-empty-lines
+      (setq lines (seq-filter (lambda (x) (not (string-empty-p (string-trim x)))) lines)))
     (setq char-lists nil)
     (dolist (line lines)
       (setq char-lists (cons (mapcar (lambda (x) (char-to-string x)) line) char-lists)))
@@ -21,11 +20,67 @@
 				                      size))
 			            char-lists))
     (setq min-indent (seq-min indent-sizes))
-    (setq result "")
-    (dolist (line lines)
-      (setq result (concat result (substring line min-indent) "\n")))
-    (kill-new result)
-    (setq deactivate-mark t)))
+    (setq result
+          (string-join (mapcar (lambda (line) (concat (substring line min-indent) "\n")) lines)))
+    ;; (setq result "")
+    ;; (dolist (line lines)
+    ;;   (setq result (concat result (substring line min-indent) "\n")))
+
+    (string-trim-right result)))
+
+(defun dhnam/py-repl-kill-ring-save-without-empty-lines (beg end &optional region with-empty-lines)
+  (interactive (list (mark) (point)
+		             (prefix-numeric-value current-prefix-arg)))
+
+  (kill-new (dhnam/get-py-code-without-empty-lines beg end region with-empty-lines))
+  (setq deactivate-mark t))
+
+(defun dhnam/python-shell-buffer-substring (start end &optional nomain)
+  "Send buffer substring from START to END formatted for shell.
+This is Modified from `python-shell-buffer-substring'
+"
+  (let* ((start (save-excursion
+                  ;; Normalize start to the line beginning position.
+                  (goto-char start)
+                  (line-beginning-position)))
+         (substring (buffer-substring-no-properties start end))
+         (encoding (python-info-encoding))
+         (toplevel-p (zerop (save-excursion
+                              (goto-char start)
+                              (python-util-forward-comment 1)
+                              (current-indentation)))))
+    (with-temp-buffer
+      (python-mode)
+      (insert substring)
+      (goto-char (point-min))
+      (when (not toplevel-p)
+        (insert "if True:")
+        (delete-region (point) (line-end-position)))
+      (when nomain
+        (let* ((if-name-main-start-end
+                (and nomain
+                     (save-excursion
+                       (when (python-nav-if-name-main)
+                         (cons (point)
+                               (progn (python-nav-forward-sexp-safe)
+                                      ;; Include ending newline
+                                      (forward-line 1)
+                                      (point)))))))
+               ;; Oh destructuring bind, how I miss you.
+               (if-name-main-start (car if-name-main-start-end))
+               (if-name-main-end (cdr if-name-main-start-end)))
+          (when if-name-main-start-end
+            (goto-char if-name-main-start)
+            (delete-region if-name-main-start if-name-main-end)
+            (insert fillstr))))
+      ;; Ensure there's only one coding cookie in the generated string.
+      (goto-char (point-min))
+      (when (looking-at-p (python-rx coding-cookie))
+        (forward-line 1)
+        (when (looking-at-p (python-rx coding-cookie))
+          (delete-region
+           (line-beginning-position) (line-end-position))))
+      (buffer-substring-no-properties (point-min) (point-max)))))
 
 (with-eval-after-load 'python
   (defvar dhnam/python-definition-regex "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s")
@@ -170,7 +225,7 @@ This function is modified from `elpy-occur-definitions'"
   (interactive)
   (python-shell-send-buffer (format "from %s import *" (dhnam/get-full-module-name))))
 
-(defun dhnam/python-get-doc-string-code (start end)
+(defun dhnam/python-get-doc-string-code (start end &optional space-between-blocks)
   (let ((code nil))
     (save-excursion
       (save-restriction
@@ -185,7 +240,9 @@ This function is modified from `elpy-occur-definitions'"
 
               (let* ((old-line (buffer-substring-no-properties line-start line-end))
                      (new-line (replace-regexp-in-string code-line-prefix "" old-line)))
-                (when (and prev-line-number (> (- (line-number-at-pos) prev-line-number) 1))
+                (when (and space-between-blocks
+                           prev-line-number
+                           (> (- (line-number-at-pos) prev-line-number) 1))
                   (push "" new-code-lines))
                 (push new-line new-code-lines)))
             (setq prev-line-number (line-number-at-pos)))
@@ -193,8 +250,20 @@ This function is modified from `elpy-occur-definitions'"
 
 (defun dhnam/python-copy-code-from-docstring (start end)
   (interactive (list (region-beginning) (region-end)))
-  (kill-new (dhnam/python-get-doc-string-code start end))
+  (kill-new (dhnam/python-get-doc-string-code start end t))
   (setq deactivate-mark t))
+
+(defun dhnam/python-get-example-code (start end &optional space-between-blocks)
+  (if (save-excursion
+        ;; Check ">>>" exists in the region.
+        (save-restriction
+          (narrow-to-region start end)
+          (beginning-of-buffer)
+          (re-search-forward ">>>" nil t)))
+      (dhnam/python-get-doc-string-code start end space-between-blocks)
+    (progn
+      (comment (dhnam/get-py-code-without-empty-lines start end nil t))
+      (string-trim (dhnam/python-shell-buffer-substring start end)))))
 
 (require 'dhnam-comint)
 
@@ -253,7 +322,7 @@ This function is modified from `elpy-occur-definitions'"
 
     (let ((temp-file-path (string-trim (shell-command-to-string
                                         (format "mktemp %s" dhnam/python-doc-code-temp-file-format))))
-          (doc-string-code (dhnam/python-get-doc-string-code start end))
+          (doc-string-code (dhnam/python-get-example-code start end t))
           (module-full-name (dhnam/get-full-module-name)))
       (with-temp-file temp-file-path
         (insert (format "from %s import *" module-full-name))
@@ -376,17 +445,23 @@ It can be used to disable the default gud pdb when a breakpoint is activated in 
                    (previous-line)
                    (back-to-indentation)
                    (equal (buffer-substring-no-properties (point) (+ (point) 5))
-                          ">>> @"))))
+                          ">>> @")))
+                (closing-paren
+                 (save-excursion
+                   (back-to-indentation)
+                   (eq ?\) (char-after)))))
             (cond
              ((and (= indent base-indent)
-                   (not prev-line-using-deco))
+                   (not prev-line-using-deco)
+                   (not closing-paren))
               (beginning-of-line)
               (forward-char base-indent)
               (insert ">>> ")
               (backward-char 4)
               (setq num-added-chars (+ num-added-chars 4)))
              ((or (> indent base-indent)
-                  prev-line-using-deco)
+                  prev-line-using-deco
+                  closing-paren)
               (beginning-of-line)
               (forward-char base-indent)
               (insert "... ")
