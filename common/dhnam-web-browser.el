@@ -194,7 +194,12 @@
             (let ((web-bookmarks nil)
                   (found t))
               (while (setq found (re-search-backward org-link-any-re nil t))
-                (let ((url (thing-at-point 'url))
+                (let ((url (or (thing-at-point 'url)
+                               (progn
+                                 ;; For some non-standard URLs.
+                                 ;; e.g. "about:addons", which does not start with "https://"
+                                 (org-element-property :raw-link (org-element-context))
+                                 )))
                       (name (let ((raw-name
                                    (let ((end (point))
                                          (start (progn (move-beginning-of-line 1) (point))))
