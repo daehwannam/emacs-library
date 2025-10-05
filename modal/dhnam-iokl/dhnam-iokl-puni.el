@@ -21,6 +21,9 @@
       ("j" puni-splice-killing-backward)
       (";" puni-splice-killing-forward)
 
+      ("s" puni-splice)
+      ("a" puni-raise)
+
       ;; ("/" undo)
       ("C-/" undo)
 

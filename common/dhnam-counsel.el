@@ -326,7 +326,21 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
            (concat dhnam/ivy-boundary-start dhnam/ivy-boundary-end))
       (move-end-of-line 1)              ; this line is actually not needed
       (backward-char (length dhnam/ivy-boundary-end)))
-    (yank arg)))
+    (cl-letf (((symbol-function 'insert-for-yank)
+               #'dhnam/ivy-insert-for-yank))
+      (yank arg)))
+
+  (defun dhnam/ivy-insert-for-yank (string)
+    "Insert STRING at point for the `yank' command for `ivy'.
+This command is modified from `insert-for-yank'.
+"
+    (cl-flet ((flatten-string (lambda (str) (replace-regexp-in-string "\n" " " str))))
+      (let ((flat-string (flatten-string string)))
+        (let (to)
+          (while (setq to (next-single-property-change 0 'yank-handler flat-string))
+            (insert-for-yank-1 (substring flat-string 0 to))
+            (setq flat-string (substring flat-string to))))
+        (insert-for-yank-1 flat-string)))))
 
 
 (provide 'dhnam-counsel)

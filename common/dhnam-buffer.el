@@ -100,5 +100,33 @@
 	    (insert (substitute-command-keys initial-scratch-message))
 	    (set-buffer-modified-p nil)))))
 
+(defcustom initial-org-scratch-message (purecopy "\
+# -*- mode: org -*-
+#
+# This buffer is for org-mode text that is not saved.
+# To create a file, visit it with \\[find-file] and enter text in its buffer.
+
+")
+  "Initial documentation displayed in *scratch* buffer at startup.
+If this is nil, no message will be displayed."
+  :type '(choice (text :tag "Message")
+		 (const :tag "none" nil)))
+
+(defun dhnam/switch-to-org-scratch-buffer ()
+  (interactive)
+  (let ((buffer (switch-to-buffer "*org-scratch*")))
+    (with-current-buffer buffer
+	  (when (and initial-org-scratch-message
+                 (not (buffer-modified-p))
+                 (zerop (buffer-size)))
+	    (insert (substitute-command-keys initial-org-scratch-message))
+	    (set-buffer-modified-p nil))
+      (unless (eq major-mode 'org-mode)
+        ;; In the first call of (org-mode), `org-mode' is not fully loaded,
+        ;; so it should be called twice.
+        (org-mode)
+        (org-mode)
+        (comment (display-line-numbers-mode 1))))))
+
 
 (provide 'dhnam-buffer)

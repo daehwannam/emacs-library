@@ -240,8 +240,10 @@
   (defhydra dhnam/TeX-error-navigation ()
     "TeX error navigation"
 
-    ("i" TeX-previous-error)
-    ("o" TeX-next-error)
+    ;; ("i" TeX-previous-error)
+    ;; ("o" TeX-next-error)
+    ("k" TeX-previous-error)
+    ("l" TeX-next-error)
     ;; ("RET" nil "quit")
     ;; ("q" nil "quit")
     ;; ("SPC" nil "quit")

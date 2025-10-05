@@ -22,6 +22,9 @@
       ("j" paredit-splice-sexp-killing-backward)
       (";" paredit-splice-sexp-killing-forward)
 
+      ("s" paredit-splice-sexp)
+      ("a" paredit-raise-sexp)
+
       ;; ("/" undo)
       ("C-/" undo)
 

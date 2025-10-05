@@ -11,6 +11,7 @@
 
 (progn
   ;; common utility
+  (require 'dhnam-macro (concat dhnam/lib-root-dir "utility/dhnam-macro.el"))
   (dhnam/require-directory (concat dhnam/lib-root-dir "utility")))
 
 (provide 'dhnam-lib-init)

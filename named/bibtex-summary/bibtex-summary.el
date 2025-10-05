@@ -140,7 +140,8 @@
                      (or
                       (bibs/child-parent-path-relation-p file-path bibs/note-file-dir-as-source-of-reference)
                       (bibs/child-parent-path-relation-p file-path bibs/bib-file-dir-as-source-of-reference)
-                      (bibs/child-parent-path-relation-p file-path bibs/pdf-file-dir-as-source-of-reference)))
+                      (bibs/child-parent-path-relation-p file-path bibs/pdf-file-dir-as-source-of-reference)
+                      (bibs/child-parent-path-relation-p file-path bibs/pdf-extra-file-dir-as-source-of-reference)))
             (let ((file-name-without-extension (file-name-sans-extension file-name)))
               (bibs/file-name-to-ref-id-str file-name-without-extension)))))))
 
@@ -195,6 +196,9 @@
   (defvar bibs/pdf-file-dir-as-source-of-reference nil
     "The path to a pdf collection directory. It should be used as a local variable.")
 
+  (defvar bibs/pdf-extra-file-dir-as-source-of-reference nil
+    "The path to a extra pdf collection directory. It should be used as a local variable.")
+
   (defun bibs/ref-id-str-to-file-name (ref-id-str)
     (replace-regexp-in-string
      "/" "+" (replace-regexp-in-string
@@ -215,7 +219,13 @@
           (if (file-exists-p file-path)
               (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
                        file-path)
-            (message (format "The file %s doesn't exist" file-path))))
+            (progn
+             (comment (message (format "The file %s doesn't exist" file-path)))
+             (let ((extra-file-path (dhnam/join-dirs bibs/pdf-extra-file-dir-as-source-of-reference file-name)))
+               (if (file-exists-p extra-file-path)
+                   (funcall (if opening-in-other-window #'find-file-other-window #'find-file)
+                            extra-file-path)
+                 (message (format "The file %s or %s doesn't exist" file-path extra-file-path)))))))
       (message "Invalid cursor position")))
 
   (defun bibs/open-pdf-file-of-reference ()
@@ -231,11 +241,14 @@ buffer, to go to the lines where PDFGrep found matches.  To kill
 the PDFGrep job before it finishes, type \\[kill-compilation]."
     (interactive (list (read-shell-command "Run pdfgrep (like this): "
                                            (let ((default-command
-                                                   (concat (pdfgrep-default-command) "'"))
+                                                   (concat (pdfgrep-default-command) "'' "))
                                                  (appended-arg-str
-                                                  (concat "' " (dhnam/join-paths bibs/pdf-file-dir-as-source-of-reference "*"))))
+                                                  (concat
+                                                   (dhnam/join-paths bibs/pdf-file-dir-as-source-of-reference "*")
+                                                   " "
+                                                   (dhnam/join-paths bibs/pdf-extra-file-dir-as-source-of-reference "*"))))
 					                         (cons (concat default-command appended-arg-str)
-                                                   (1+ (length default-command))))
+                                                   (- (length default-command) 1)))
 					                       'pdfgrep-history)))
     (unless pdfgrep-mode
       (error "PDFGrep is not enabled, run `pdfgrep-mode' first."))
@@ -406,7 +419,10 @@ the PDFGrep job before it finishes, type \\[kill-compilation]."
     ;; pdf
     (progn
       (make-local-variable 'bibs/pdf-file-dir-as-source-of-reference)
-      (setq bibs/pdf-file-dir-as-source-of-reference (concat base-dir "pdf")))
+      (setq bibs/pdf-file-dir-as-source-of-reference (concat base-dir "pdf"))
+
+      (make-local-variable 'bibs/pdf-extra-file-dir-as-source-of-reference)
+      (setq bibs/pdf-extra-file-dir-as-source-of-reference (concat base-dir "pdf-extra")))
 
     (dhnam/buffer-local-set-key-chord "qp" 'bibs/open-pdf-file-of-reference)
     (dhnam/buffer-local-set-key-chord "pg" 'bibs/pdfgrep-with-default-dir))

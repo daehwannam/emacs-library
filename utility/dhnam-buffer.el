@@ -3,4 +3,5 @@
   "e.g. (dhnam/get-line-number (point))"
   (count-lines 1 buffer-pointd))
 
-(provide 'buffer)
+
+(provide 'dhnam-buffer)

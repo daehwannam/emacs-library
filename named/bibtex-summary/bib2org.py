@@ -199,12 +199,17 @@ def save_org_structure(
         append_new_line()
 
         # entries
-        for entry in org_structure.sorted_entries():
+        sorted_entries = org_structure.sorted_entries()
+        for entry in sorted_entries:
             update_output_with_entry(entry, heading_level)
             append_new_line()
 
         # substructures
-        for org_substructure in org_structure.sorted_substructures_if_possible(priority_structure):
+        for org_substructure_idx, org_substructure in enumerate(
+                org_structure.sorted_substructures_if_possible(priority_structure)
+        ):
+            if org_substructure_idx == 0 and len(sorted_entries) > 0:
+                append_new_line()
             update_output_with_org_structure(
                 heading_level + 1, org_substructure,
                 get_sub_priority_structure(priority_structure, org_substructure.heading))

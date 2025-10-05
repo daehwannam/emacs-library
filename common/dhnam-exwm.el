@@ -104,7 +104,7 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
 		 ;; Clean up the kill ring
 		 ;; It needs to be run on a timer because of some reason
 		 (run-with-timer
-          exwm-edit-clean-kill-ring-delay
+          dhnam/exwm-edit-clean-kill-ring-delay
           nil
           (lambda ()
 			(pop kill-ring)
@@ -124,7 +124,7 @@ It's modified from `exwm-edit--send-to-exwm-buffer'.
               (funcall dhnam/exwm-temp-post-fn))))))))
 
   (defvar dhnam/exwm-temp-post-fn nil)
-  (comment (setq exwm-edit-clean-kill-ring-delay 0.1))
+  (defvar dhnam/exwm-edit-clean-kill-ring-delay 0.2)
   (defun dhnam/exwm-edit-send-text (text &optional delay post-fn)
     (let ((exwm-edit--last-window-configuration (current-window-configuration))
           (exwm-edit-paste-delay delay))
