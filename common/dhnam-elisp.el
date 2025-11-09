@@ -1,5 +1,5 @@
 
-(defun eval-last-sexp-or-region (eval-last-sexp-arg-internal)
+(defun dhnam/eval-last-sexp-or-region (eval-last-sexp-arg-internal)
   (interactive "P")
 
   (if (use-region-p)

@@ -177,4 +177,69 @@ However, if text is unbalanced, signal an error instead."
     orig-return))
 
 
+(progn
+  (defun dhnam/paredit-insert-pair-no-space (n open close forward)
+
+    ;; Modified from `paredit-insert-pair'
+
+    (let* ((regionp
+            (and (paredit-region-active-p)
+                 (paredit-region-safe-for-insert-p)))
+           (end
+            (and regionp
+                 (not n)
+                 (prog1 (region-end) (goto-char (region-beginning))))))
+      (let ((spacep (paredit-space-for-delimiter-p nil open)))
+        (comment
+          ;; commented by dhnam
+          (if spacep (insert " ")))
+        (insert open)
+        (save-excursion
+          ;; Move past the desired region.
+          (cond (n
+                 (funcall forward
+                          (paredit-scan-sexps-hack (point)
+                                                   (prefix-numeric-value n))))
+                (regionp
+                 (funcall forward (+ end (if spacep 2 1)))))
+          ;; The string case can happen if we are inserting string
+          ;; delimiters.  The comment case may happen by moving to the
+          ;; end of a buffer that has a comment with no trailing newline.
+          (if (and (not (paredit-in-string-p))
+                   (paredit-in-comment-p))
+              (newline))
+          (insert close)
+          (if (paredit-space-for-delimiter-p t close)
+              (insert " "))))))
+
+  (defun dhnam/paredit-doublequote (&optional n)
+    "Insert a pair of double-quotes.
+With a prefix argument N, wrap the following N S-expressions in
+  double-quotes, escaping intermediate characters if necessary.
+If the region is active, `transient-mark-mode' is enabled, and the
+  region's start and end fall in the same parenthesis depth, insert a
+  pair of double-quotes around the region, again escaping intermediate
+  characters if necessary.
+Inside a comment, insert a literal double-quote.
+At the end of a string, move past the closing double-quote.
+In the middle of a string, insert a backslash-escaped double-quote.
+If in a character literal, do nothing.  This prevents accidentally
+  changing a what was in the character literal to become a meaningful
+  delimiter unintentionally."
+
+    ;; Modified from `paredit-doublequote'
+
+    (interactive "P")
+    (cond ((paredit-in-string-p)
+           (if (eq (point) (- (paredit-enclosing-string-end) 1))
+               (forward-char)             ; Just move past the closing quote.
+             ;; Don't split a \x into an escaped backslash and a string end.
+             (if (paredit-in-string-escape-p) (forward-char))
+             (insert ?\\ ?\" )))
+          ((paredit-in-comment-p)
+           (insert ?\" ))
+          ((not (paredit-in-char-p))
+           (dhnam/paredit-insert-pair-no-space n ?\" ?\" 'paredit-forward-for-quote)))))
+
+
 (provide 'dhnam-paredit)
