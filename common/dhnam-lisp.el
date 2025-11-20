@@ -20,14 +20,14 @@
     (advice-add 'slime-hyperspec-lookup
                 :around 'dhnam/hyperspec-lookup-with-eww-advice)))
 
-(defvar dhnam/cl-debug-declaration "(declaim (optimize (debug 3) (speed 0)))")
-(defun dhnam/insert-cl-debug-declaration ()
+(defvar dhnam/cl-debug-declaim-statement "(declaim (optimize (debug 3) (speed 0)))")
+(defun dhnam/insert-cl-debug-declaim-statement ()
   (interactive)
-  (insert dhnam/cl-debug-declaration))
+  (insert dhnam/cl-debug-declaim-statement))
 
-(defun dhnam/slime-eval-cl-debug-declaration ()
+(defun dhnam/slime-eval-cl-debug-declaim-statement ()
   (interactive)
-  (slime-interactive-eval dhnam/cl-debug-declaration))
+  (slime-interactive-eval dhnam/cl-debug-declaim-statement))
 
 (defun dhnam/slime-eval-last-expression-or-region ()
   "Evaluate the expression preceding point or the currently activated region."
