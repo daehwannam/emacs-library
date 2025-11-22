@@ -142,4 +142,11 @@
   (insert (dhnam/get-string-from-file example-file-path)))
 
 
+(defun dhnam/in-string-p ()
+  (nth 3 (syntax-ppss)))
+
+
+(defun dhnam/in-comment-p ()
+  (nth 4 (syntax-ppss)))
+
 (provide 'dhnam-text)

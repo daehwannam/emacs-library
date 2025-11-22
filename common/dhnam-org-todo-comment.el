@@ -11,6 +11,7 @@
 
   (insert (dhnam/otc-get-current-time-stamp)))
 
+
 (defun dhnam/otc-toggle ()
   "Return non-nil if current line contains a TODO timestamp like: 'TODO <2025-11-18 16:40>:'"
 
@@ -37,6 +38,16 @@
    (progn
      (insert (format "TODO %s: " (dhnam/otc-get-current-time-stamp)))
      t)))
+
+(defun dhnam/otc-toggle-in-program ()
+  (interactive)
+
+  (when (derived-mode-p 'prog-mode)
+    (when (and (not (dhnam/in-string-p)) (not (dhnam/in-comment-p)))
+      (comment-dwim nil)
+      (when (not (eq (char-after (1- (point))) ?\ ))
+        (insert " "))))
+  (dhnam/otc-toggle))
 
 
 (defvar dhnam/otc-file-path-display-length 30)
