@@ -2,9 +2,9 @@
 ;;; otc: org todo comment
 
 (defun dhnam/otc-get-current-time-stamp ()
-  (format-time-string "<%Y-%m-%d %H:%M>" (org-current-time)))
+  (format-time-string "[%Y-%m-%d %H:%M]" (org-current-time)))
 
-(defvar dhnam/otc-time-stamp-regex "<[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [0-9]\\{2\\}:[0-9]\\{2\\}>")
+(defvar dhnam/otc-time-stamp-regex "\\[[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [0-9]\\{2\\}:[0-9]\\{2\\}\\]")
 
 (defun dhnam/otc-insert-time-stamp ()
   (interactive)
@@ -13,7 +13,7 @@
 
 
 (defun dhnam/otc-toggle ()
-  "Return non-nil if current line contains a TODO timestamp like: 'TODO <2025-11-18 16:40>:'"
+  "Return non-nil if current line contains a TODO timestamp like: 'TODO [2025-11-18 16:40]:'"
 
   (interactive)
 
@@ -135,7 +135,7 @@
                                        (string-match (format "TODO \\(%s\\):\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
                                      (list (match-string 1 text) (string-trim (match-string 2 text))))
                                     ((save-excursion
-                                       (string-match (format "TODO *: *\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
+                                       (string-match "TODO *: *\\(.*\\)$" text))
                                      (list nil (string-trim (match-string 1 text))))
                                     ((save-excursion
                                        (string-match (format "TODO\\(.*\\)$" dhnam/otc-time-stamp-regex) text))

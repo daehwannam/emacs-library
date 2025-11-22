@@ -207,10 +207,10 @@ e.g. (dhnam/get-org-date-from-timestr \"Thursday   21 September 2023\")"
   (interactive)
   (dhnam/call-command-same-window #'org-open-at-point))
 
-(defun dhnam/org-insert-exact-time-stamp ()
+(defun dhnam/org-insert-inactive-time-stamp ()
   (interactive)
   (comment (format-time-string "%Y-%m-%d %H:%M" (org-current-time)))
-  (insert (format-time-string "<%Y-%m-%d %H:%M>" (org-current-time))))
+  (insert (format-time-string "[%Y-%m-%d %H:%M]" (org-current-time))))
 
 (defun dhnam/rows-to-org-table (headers rows)
   (let ((unaligned-table
