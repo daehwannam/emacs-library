@@ -216,7 +216,7 @@ e.g. (dhnam/get-org-date-from-timestr \"Thursday   21 September 2023\")"
   (let ((unaligned-table
          (concat
           (format "| %s |\n" (mapconcat #'identity headers " | "))
-          "|-"
+          "|-\n"
           (mapconcat
            (lambda (row) (format "| %s |" (mapconcat #'identity row " | ")))
            rows

@@ -51,8 +51,8 @@
         (+ (- (length file-path) dhnam/otc-file-path-display-length)
            (length dhnam/otc-file-path-omission))))
     (progn
-      (comment file-path)
-      (concat (make-string (- dhnam/otc-file-path-display-length (length file-path)) ? ) file-path))))
+      (comment (concat (make-string (- dhnam/otc-file-path-display-length (length file-path)) ? ) file-path))
+      file-path)))
 
 
 (defun dhnam/otc-run-command (command)
@@ -65,7 +65,10 @@
         (insert "# -*- mode: org -*-\n\n")
         (insert (format "Command: %s\n\n" command))
         ;; (setq output-start (point))
-        (special-mode)                  ; read-only UI mode
+        (comment
+          ;; read-only UI mode; it also activates `read-only-mode'
+          (special-mode))
+        (read-only-mode 1)
         ;; (org-mode)
         ))
 
@@ -106,28 +109,53 @@
                        (beginning-of-buffer)
                        (re-search-forward "^Command: [^\n]+\n\n")
                        (let ((inhibit-read-only t))
-                         (delete-region (point) (point-max))
+                         (delete-region (point) (point-max)))
+
+                       (let ((rows nil)
+                             (row-number 0))
                          (dolist (tuple tuples)
+                           (cl-incf row-number 1)
                            (seq-let (path file-line text) tuple
-                             (insert (format "[[%s::%s][%s]] " path file-line (dhnam/otc-get-displayed-file-path path)))
-                             (seq-let
-                                 (date content)
-                                 (cond
-                                  ((save-excursion
-                                     (string-match (format "TODO \\(%s\\):\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
-                                   (list (match-string 1 text) (string-trim (match-string 2 text))))
-                                  ((save-excursion
-                                     (string-match (format "TODO *: *\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
-                                   (list nil (string-trim (match-string 1 text))))
-                                  ((save-excursion
-                                     (string-match (format "TODO\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
-                                   (list nil (string-trim (match-string 1 text))))
-                                  (t
-                                   (error "No valid match")))
-                               (insert (format "%s %s" (or date (make-string 18 ? )) content)))
-                             (insert "\n")))))
-                     (org-mode)))))
-    (display-buffer buf)))
+                             (let ((location (format "[[%s::%s][%s]] " path file-line (dhnam/otc-get-displayed-file-path path))))
+                               (seq-let
+                                   (date content)
+                                   (cond
+                                    ((save-excursion
+                                       (string-match (format "TODO \\(%s\\):\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
+                                     (list (match-string 1 text) (string-trim (match-string 2 text))))
+                                    ((save-excursion
+                                       (string-match (format "TODO *: *\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
+                                     (list nil (string-trim (match-string 1 text))))
+                                    ((save-excursion
+                                       (string-match (format "TODO\\(.*\\)$" dhnam/otc-time-stamp-regex) text))
+                                     (list nil (string-trim (match-string 1 text))))
+                                    (t
+                                     (error "No valid match")))
+                                 (push (list (number-to-string row-number) location date content) rows)))))
+                         (org-mode)
+                         (dhnam/otc-table-mode 1)
+                         (let ((inhibit-read-only t))
+                           (insert (dhnam/rows-to-org-table '("No." "Location" "Date" "Comment") (reverse rows)))
+                           (org-table-align)
+                           (comment
+                             (when (fboundp 'valign-mode)
+                               (previous-line)
+                               (valign-table))))))))))
+    (comment (display-buffer buf))
+    (display-buffer buf '(display-buffer-same-window))))
+
+(progn
+  ;; The grep options:
+  ;; -I : ignore binary files
+  ;; -n : print line numbers
+  ;; -H : print file paths
+  ;; -r : search recursively
+  ;; -o : print mached parts only
+  ;; -e <pattern> : specify the  pattern to find
+  ;; --include=<extension> : specify the file extension to search
+
+  (defvar dhnam/otc-grep-command-format "grep -I -n -H -r -o -e %s --include='%s' %s"))
+
 
 (defun dhnam/otc-summarize-todo (&optional regexp files dir)
   "Find TODO items and summarize them.
@@ -141,36 +169,145 @@ This function is modified from `rgrep'"
 		    (dir (read-directory-name "Base directory: "
 					                  nil default-directory t)))
 	   (list regexp files dir))))
-  (dhnam/otc-run-command (format "grep -I -nH -r -o -e %s --include='%s' %s" regexp files dir)))
+  (let* ((window (dhnam/otc-run-command (format dhnam/otc-grep-command-format regexp files dir)))
+         (buffer (window-buffer window)))
+    buffer))
 
 (defun dhnam/otc-summarize-todo-again ()
   "Find TODO items and summarize them again."
 
   (interactive)
 
-  (let ((command (progn
+  (let ((command (save-excursion
                    (beginning-of-buffer)
                    (re-search-forward "^Command: \\([^\n]+\\)\n\n")
                    (match-string 1))))
     (dhnam/otc-run-command command)))
 
-(defun dhnam/otc-sort-lines ()
-  ;; TODO <2025-11-20 03:11>
-  )
 
-(progn
-  (unless (fboundp 'dhnam/after-otc-summarize-todo)
-    (defun dhnam/after-otc-summarize-todo ()
+(comment
+  (unless (fboundp 'dhnam/otc-after-otc-summarize-todo)
+    (defun dhnam/otc-after-otc-summarize-todo ()
       (comment
         (local-set-key (kbd "C-c D") #'dhnam/otc-summarize-todo-again))))
 
   (defun dhnam/otc-summarize-todo-advice (original &rest args)
     (let ((buffer (apply original args)))
       (set-buffer buffer)
-      (dhnam/after-otc-summarize-todo)
+      (dhnam/otc-after-otc-summarize-todo)
       buffer))
 
   (advice-add 'dhnam/otc-summarize-todo
               :around #'dhnam/otc-summarize-todo-advice))
+
+
+(defun dhnam/otc-sort-by-date-column (&optional reversed)
+  (interactive "P")
+
+  (save-excursion
+   (let ((inhibit-read-only t))
+     (beginning-of-buffer)
+     (re-search-forward "| \\(Date\\)[^\n|]*|")
+     (goto-char (match-beginning 1))
+     (next-line 2)
+     (org-table-sort-lines nil (if reversed ?T ?t)))))
+
+
+(defun dhnam/otc-sort-by-date-column-reversely ()
+  (interactive)
+  (dhnam/otc-sort-by-date-column t))
+
+
+(defun dhnam/otc-sort-by-number-column (&optional reversed)
+  (interactive "P")
+
+  (save-excursion
+   (let ((inhibit-read-only t))
+     (beginning-of-buffer)
+     (re-search-forward "| \\(No.\\)[^\n|]*|")
+     (goto-char (match-beginning 1))
+     (next-line 2)
+     (org-table-sort-lines nil (if reversed ?N ?n)))))
+
+
+(defun dhnam/otc-sort-by-number-column-reversely ()
+  (interactive)
+  (dhnam/otc-sort-by-number-column t))
+
+
+(require 'cl-lib)
+
+
+(defun dhnam/otc-sort-by-location-date-columns (reversed)
+  (interactive "P")
+  
+  (save-excursion
+    (let ((inhibit-read-only t))
+      (beginning-of-buffer)
+      (re-search-forward "| \\(Location\\)[^\n|]*|")
+      (goto-char (match-beginning 1))
+
+      (assert (org-at-table-p))
+      (let ((table (org-table-to-lisp))
+            (compare
+             (if reversed
+                 (lambda (row1 row2)
+                   (if (not (string= (nth 0 row1) (nth 0 row2)))
+                       (progn
+                         ;; Currently, the line numbers of links are not considered
+                         ;; e.g. [[path::line][repr]]
+                         (string> (nth 0 row1) (nth 0 row2)))
+                     (not (time-less-p (org-time-string-to-time (nth 1 row1))
+                                       (org-time-string-to-time (nth 1 row2))))))
+               (lambda (row1 row2)
+                 (if (not (string= (nth 0 row1) (nth 0 row2)))
+                     (string< (nth 0 row1) (nth 0 row2))
+                   (time-less-p (org-time-string-to-time (nth 1 row1))
+                                (org-time-string-to-time (nth 1 row2))))))))
+        (let ((headers (car table))
+              (rows (cddr table)))
+          (let ((sorted (cl-sort (cl-copy-seq rows) compare)))
+            ;; insert the sorted table
+            (org-table-goto-line 0)
+            (beginning-of-line)
+            (delete-region (point) (org-table-end))
+            (insert (dhnam/rows-to-org-table headers sorted))))))))
+
+(defun dhnam/otc-undo ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (undo)))
+
+(defun dhnam/otc-visit-location ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (re-search-forward "\\[\\[" (line-end-position) t)
+    (dhnam/org-open-at-point-same-window)))
+
+
+(defvar dhnam/otc-table-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'quit-window)
+    (define-key map (kbd "d") 'dhnam/otc-sort-by-date-column)
+    (define-key map (kbd "D") 'dhnam/otc-sort-by-date-column-reversely)
+    (define-key map (kbd "m") 'dhnam/otc-sort-by-number-column)
+    (define-key map (kbd "M") 'dhnam/otc-sort-by-number-column-reversely)
+    (define-key map (kbd "C-/")'dhnam/otc-undo)
+    (define-key map (kbd "g") 'dhnam/otc-summarize-todo-again)
+    (define-key map (kbd "RET") 'dhnam/otc-visit-location)
+    map))
+
+(define-minor-mode dhnam/otc-table-mode
+  "Org TODO Comment Table Mode."
+
+  nil
+  :gloal nil
+  :lighter " otc"
+  :keymap dhnam/otc-table-mode-map
+  (if dhnam/otc-table-mode
+      (comment "when enabled")
+    (comment "when disabled")))
+
 
 (provide 'dhnam-org-todo-comment)
