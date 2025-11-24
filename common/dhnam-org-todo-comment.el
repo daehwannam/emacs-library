@@ -12,7 +12,7 @@
   (insert (dhnam/otc-get-current-time-stamp)))
 
 
-(defun dhnam/otc-toggle ()
+(defun dhnam/otc-toggle (&optional indent)
   "Return non-nil if current line contains a TODO timestamp like: 'TODO [2025-11-18 16:40]:'"
 
   (interactive)
@@ -36,18 +36,20 @@
                                   (match-string 1)))
            t))))
    (progn
+     (when indent
+       (comment-dwim nil)
+       (when (not (eq (char-after (1- (point))) ?\ ))
+         (insert " ")))
      (insert (format "TODO %s: " (dhnam/otc-get-current-time-stamp)))
      t)))
 
 (defun dhnam/otc-toggle-in-program ()
   (interactive)
 
-  (when (derived-mode-p 'prog-mode)
-    (when (and (not (dhnam/in-string-p)) (not (dhnam/in-comment-p)))
-      (comment-dwim nil)
-      (when (not (eq (char-after (1- (point))) ?\ ))
-        (insert " "))))
-  (dhnam/otc-toggle))
+  (dhnam/otc-toggle
+   (and (derived-mode-p 'prog-mode)
+        (not (dhnam/in-string-p))
+        (not (dhnam/in-comment-p)))))
 
 
 (defvar dhnam/otc-file-path-display-length 30)
@@ -294,7 +296,8 @@ This function is modified from `rgrep'"
   (save-excursion
     (beginning-of-line)
     (re-search-forward "\\[\\[" (line-end-position) t)
-    (dhnam/org-open-at-point-same-window)))
+    (comment (dhnam/org-open-at-point-same-window))
+    (org-open-at-point)))
 
 
 (defvar dhnam/otc-table-mode-map
