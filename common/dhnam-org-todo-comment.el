@@ -13,7 +13,7 @@
 
 
 (defun dhnam/otc-toggle (&optional using-comment-dwim)
-  "Return non-nil if current line contains a TODO timestamp like: 'TODO [2025-11-18 16:40]:'"
+  "Toggle a TODO timestamp like: 'TODO [2025-11-18 16:40]:'"
 
   (interactive)
 
