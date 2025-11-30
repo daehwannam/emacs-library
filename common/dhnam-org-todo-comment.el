@@ -67,6 +67,7 @@
       (comment (concat (make-string (- dhnam/otc-file-path-display-length (length file-path)) ? ) file-path))
       file-path)))
 
+(require 'dhnam-org-mode)
 
 (defun dhnam/otc-run-command (command)
   (let ((buf (get-buffer-create (format "* %s *" command)))
@@ -151,7 +152,6 @@
                          (dhnam/otc-table-mode 1)
                          (let ((inhibit-read-only t))
                            (insert (dhnam/rows-to-org-table '("No." "Location" "Date" "Comment") (reverse rows)))
-                           (org-table-align)
                            (comment
                              (when (fboundp 'valign-mode)
                                (previous-line)
