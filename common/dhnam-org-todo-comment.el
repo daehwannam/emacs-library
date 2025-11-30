@@ -146,6 +146,8 @@
                                      (error "No valid match")))
                                  (push (list (number-to-string row-number) location date content) rows)))))
                          (org-mode)
+                         (comment (setq-local org-startup-truncated t))
+                         (setq-local truncate-lines t)
                          (dhnam/otc-table-mode 1)
                          (let ((inhibit-read-only t))
                            (insert (dhnam/rows-to-org-table '("No." "Location" "Date" "Comment") (reverse rows)))
@@ -170,6 +172,8 @@
   (defvar dhnam/otc-grep-command-format "grep -I -n -H -r -o -e %s --include='%s' %s"))
 
 
+(defvar dhnam/otc-todo-grep-regexp "TODO.*")
+(comment (defvar dhnam/otc-todo-grep-regexp "TODO.*:.*"))
 (defun dhnam/otc-summarize-todo (&optional regexp files dir)
   "Find TODO items and summarize them.
 This function is modified from `rgrep'"
@@ -177,8 +181,8 @@ This function is modified from `rgrep'"
   (interactive
    (progn
      (grep-compute-defaults)
-     (let* ((regexp "TODO.*:.*")
-		    (files (grep-read-files regexp))
+     (let* ((regexp dhnam/otc-todo-grep-regexp)
+            (files (grep-read-files regexp))
 		    (dir (read-directory-name "Base directory: "
 					                  nil default-directory t)))
 	   (list regexp files dir))))
