@@ -12,7 +12,7 @@
   (insert (dhnam/otc-get-current-time-stamp)))
 
 
-(defun dhnam/otc-toggle (&optional indent)
+(defun dhnam/otc-toggle (&optional using-comment-dwim)
   "Return non-nil if current line contains a TODO timestamp like: 'TODO [2025-11-18 16:40]:'"
 
   (interactive)
@@ -36,7 +36,7 @@
                                   (match-string 1)))
            t))))
    (progn
-     (when indent
+     (when using-comment-dwim
        (comment-dwim nil)
        (when (not (eq (char-after (1- (point))) ?\ ))
          (insert " ")))
