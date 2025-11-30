@@ -152,6 +152,7 @@
                          (dhnam/otc-table-mode 1)
                          (let ((inhibit-read-only t))
                            (insert (dhnam/rows-to-org-table '("No." "Location" "Date" "Comment") (reverse rows)))
+                           (org-table-align)
                            (comment
                              (when (fboundp 'valign-mode)
                                (previous-line)
