@@ -58,6 +58,18 @@
       (dhnam/pdf-view-next-page-in-multiple-columns-command num-steps t)))
 
   (progn
+    ;; [Note]
+    ;; There are already similar commands such as
+    ;; `pdf-history-backward' and `pdf-history-forward'.
+    ;;
+    ;; When `pdf-view-after-change-page-hook' is executed,
+    ;; `pdf-history-before-change-page-hook' is also executed,
+    ;; then `pdf-history-push' is executed to record positions in `pdf-history-stack'.
+    ;; Therefore, whenever the current page is changed, `pdf-history-stack' is updated.
+    ;;
+    ;; In contrast, the following commands update `dhnam/pdf-view-page-ring',
+    ;; for specific commands.
+
     (progn
       (defvar dhnam/pdf-view-page-ring nil)
       ;; (put 'dhnam/pdf-view-page-ring 'permanent-local t)
@@ -114,20 +126,34 @@
           unpopped-page)))
 
     (defun dhnam/pdf-view-first-page ()
+      "View the first page, and push a mark."
       (interactive)
       (dhnam/pdf-view-push)
       (pdf-view-first-page))
 
     (defun dhnam/pdf-view-last-page ()
+      "View the last page, and push a mark."
       (interactive)
       (dhnam/pdf-view-push)
       (pdf-view-last-page))
 
+    (defun dhnam/pdf-view-goto-page (page &optional window)
+      "Go to PAGE in PDF, and push a mark..
+
+If optional parameter WINDOW, go to PAGE in all `pdf-view'
+windows."
+      (interactive
+       (list (if current-prefix-arg
+                 (prefix-numeric-value current-prefix-arg)
+               (read-number "Page: "))))
+      (dhnam/pdf-view-push)
+      (pdf-view-goto-page page window))
+
     (defun dhnam/pdf-tools-relocation-advice (orig-func &rest args)
-      (dhnam/pdf-view-push-command)
+      (dhnam/pdf-view-push)
       (let ((result (apply orig-func args)))
         (progn
-          (dhnam/pdf-view-push-command)
+          (dhnam/pdf-view-push)
           (dhnam/pdf-view-pop))
         result))))
 

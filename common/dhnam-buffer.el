@@ -128,5 +128,12 @@ If this is nil, no message will be displayed."
         (org-mode)
         (comment (display-line-numbers-mode 1))))))
 
+(defun dhnam/ibuffer-with-marking-unsaved-buffers ()
+  (interactive)
+
+  (ibuffer)
+  (ibuffer-unmark-all-marks)
+  (ibuffer-mark-unsaved-buffers))
+
 
 (provide 'dhnam-buffer)

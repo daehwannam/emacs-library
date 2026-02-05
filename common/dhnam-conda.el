@@ -1,13 +1,16 @@
+
+(defvar dhnam/conda-command "conda")
+
 (progn
   (defun dhnam/insert-source-conda ()
     (interactive)
-    (insert "source $(conda info --base)/etc/profile.d/conda.sh"))
+    (insert (format "source $(%s info --base)/etc/profile.d/conda.sh" dhnam/conda-command)))
 
   (defun dhnam/dired-conda-env-activate (env-name)
     (interactive (list (dhnam/get-conda-activate-env)))
     (let ((dir-path (dhnam/string-trim
                      (shell-command-to-string
-                      (format "echo $(conda info --base)/envs/%s/etc/conda/activate.d" env-name)))))
+                      (format "echo $(%s info --base)/envs/%s/etc/conda/activate.d" dhnam/conda-command env-name)))))
       ;; conda environment doesn't have the directory "$(conda info --base)/envs/%s/etc" by default
       (make-directory dir-path t)
       (dired dir-path)))
@@ -27,19 +30,19 @@
 
   (defun dhnam/insert-conda-activate-env (env-name)
     (interactive (list (dhnam/get-conda-activate-env)))
-    (insert "conda activate " env-name))
+    (insert "%s activate " dhnam/conda-command env-name))
 
   (comment
     (defun dhnam/conda-env-create (env-name python-version &optional cmd-eval-fn)
       (interactive (list (read-string "Environment name: " nil 'dhnam/conda-new-env-name-history)
                          (read-string "Python version: " "3" 'dhnam/python-version-history)))
-      (let ((cmd (format "conda create -y -n %s python=%s" env-name python-version)))
+      (let ((cmd (format "%s create -y -n %s python=%s" dhnam/conda-command env-name python-version)))
         (funcall (or cmd-eval-fn #'shell-command) cmd))))
 
   (defun dhnam/conda-env-remove (env-name &optional cmd-eval-fn)
     (interactive (list (dhnam/get-conda-activate-env)))
     (when (y-or-n-p (format "Are you sure you want to remove \"%s\"" env-name))
-      (let ((cmd (format "conda env remove -n %s" env-name)))
+      (let ((cmd (format "%s env remove -n %s" dhnam/conda-command env-name)))
         (comment (start-process-shell-command cmd nil cmd))
         (comment (shell-command cmd))
         (funcall (or cmd-eval-fn #'shell-command) cmd))))
@@ -57,24 +60,24 @@
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-activate name) (env-name)
        "This command is defined by `dhnam/define-conda-commands'"
        (interactive (list (dhnam/get-conda-activate-env)))
-       (,run-command (concat "conda activate " env-name)))
+       (,run-command (format "%s activate %s" dhnam/conda-command env-name)))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-deactivate name) ()
        "This command is defined by `dhnam/define-conda-commands'"
        (interactive)
-       (,run-command "conda deactivate"))
+       (,run-command (format "%s deactivate" dhnam/conda-command)))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-env-create name) (env-name python-version)
        "This command is defined by `dhnam/define-conda-commands'"
        (interactive (list (read-string "Environment name: " nil 'dhnam/conda-new-env-name-history)
                           (read-string "Python version: " "3" 'dhnam/python-version-history)))
-       (,run-command (format "conda create -y -n %s python=%s" env-name python-version)))
+       (,run-command (format "%s create -y -n %s python=%s" dhnam/conda-command env-name python-version)))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-send-conda-env-remove name) (env-name)
        "This command is defined by `dhnam/define-conda-commands'"
        (interactive (list (dhnam/get-conda-activate-env)))
        (when (y-or-n-p (format "Are you sure you want to remove \"%s\"" env-name))
-         (,run-command (concat "conda env remove -n " env-name))))
+         (,run-command (format "%s env remove -n %s" dhnam/conda-command env-name))))
 
      (defun ,(dhnam/format-symbol 'dhnam/%s-install-python-debugger name) ()
        "This command is defined by `dhnam/define-conda-commands'"

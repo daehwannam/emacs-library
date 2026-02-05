@@ -34,7 +34,15 @@
             (funcall action (ivy--call-cand c)))))))
 
   (defun dhnam/ivy-next-history-element (arg)
-    "Forward to `next-history-element' with ARG. It's modified from `ivy-next-history-element' not to check (derived-mode-p 'prog-mode)"
+    "Forward to `next-history-element' with ARG. 
+It's modified from `ivy-next-history-element' not to check (derived-mode-p 'prog-mode),
+so to always use `ivy--insert-symbol-boundaries'.
+
+I also does not to use `ivy--maybe-scroll-history'
+which enable `swiper' to remember line location of previous search point;
+however, the location is shared for all buffers,
+rather than a location is managed for each buffer.
+"
     (interactive "p")
     (if (and (= minibuffer-history-position 0)
              (equal ivy-text ""))
@@ -53,7 +61,21 @@
       (next-history-element arg))
     (ivy--cd-maybe)
     (move-end-of-line 1)
-    (ivy--maybe-scroll-history))
+    ;; (ivy--maybe-scroll-history)
+    )
+
+  (defun dhnam/ivy-previous-history-element (arg)
+    "Forward to `previous-history-element' with ARG.
+It's modified from `ivy-previous-history-element' not to use `ivy--maybe-scroll-history'
+which enable `swiper' to remember line location of previous search point;
+however, the location is shared for all buffers,
+rather than a location is managed for each buffer."
+    (interactive "p")
+    (previous-history-element arg)
+    (ivy--cd-maybe)
+    (move-end-of-line 1)
+    ;; (ivy--maybe-scroll-history)
+    )
 
   (defvar dhnam/ivy-boundary-start "\\_<")
   (defvar dhnam/ivy-boundary-end "\\_>")

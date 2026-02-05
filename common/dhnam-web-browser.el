@@ -101,9 +101,14 @@
       (interactive)
       (find-file dhnam/primary-web-search-engine-list-file-path))
 
-    (defvar dhnam/default-web-search-engine-name "gg")
+    (comment
+      (defvar dhnam/default-web-search-engine-name "gg")
+      (defvar dhnam/default-web-search-engine-entry
+        '("gg" "https://www.google.com/search?q=~a" "https://www.google.com/")))
+
+    (defvar dhnam/default-web-search-engine-name "ddg")
     (defvar dhnam/default-web-search-engine-entry
-      '("gg" "https://www.google.com/search?q=~a" "https://www.google.com/"))
+      '("ddg" "https://duckduckgo.com/?t=h_&q=~a" "https://duckduckgo.com"))
 
     (defun dhnam/update-web-search-engines ()
       (interactive)
