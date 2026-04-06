@@ -1,5 +1,5 @@
 
-(defvar dhnam/conda-command "conda")
+(defvar dhnam/conda-command (or (getenv "CONDA") "conda"))
 
 (progn
   (defun dhnam/insert-source-conda ()
